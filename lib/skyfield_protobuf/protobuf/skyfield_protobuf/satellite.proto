@@ -1,0 +1,56 @@
+// SPDX-FileCopyrightText: 2021 Mario Franke <research@m-franke.net>
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+syntax = "proto2";
+
+package skyfield_protobuf.satellite;
+
+message Message {
+    optional double time_s = 1; // simulation time in s
+    repeated RequestReplyMessage requestReplyMessages = 2;
+}
+
+message RequestReplyMessage {
+    oneof request_reply_message_type {
+        Request request = 100;
+        Reply reply = 200;
+    }
+}
+
+message Request {
+    optional uint32 requestId = 1;
+
+    oneof request_type {
+        RequestRelativeSatellitePosition request_relative_satellite_position = 300;
+    }
+}
+
+message RequestRelativeSatellitePosition {
+    optional string satelliteName = 1;
+    optional ReferencePosition ref_pos = 2;
+}
+
+message ReferencePosition {
+    optional double latitude = 1;
+    optional double longitude = 2;
+}
+
+message Reply {
+    optional uint32 replyId = 1; // should match the requestId
+
+    oneof reply_type {
+        ReplyRelativeSatellitePosition reply_relative_satellite_position = 400;
+    }
+}
+
+message ReplyRelativeSatellitePosition {
+    optional string satelliteName = 1;
+    optional RelativeSatellitePosition sat_pos = 2;
+}
+
+message RelativeSatellitePosition {
+    optional double altitude = 1;
+    optional double azimuth = 2;
+    optional double distance_km = 3;
+}

@@ -1,0 +1,24 @@
+// SPDX-FileCopyrightText: 2021 Mario Franke <research@m-franke.net>
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+syntax = "proto2";
+
+package skyfield_protobuf.simulation;
+
+message Message {
+    oneof message_type {
+        Initialization init = 100;
+        Shutdown shutdown = 200;
+    }
+}
+
+message Initialization {
+    optional string time_utc = 1;
+    optional string pathToTLEfile = 2;  // path to the file storing TLEs relative to space_veins_root
+    optional string space_veins_root = 3;
+}
+
+message Shutdown {
+    optional uint32 exit_status = 1;
+}

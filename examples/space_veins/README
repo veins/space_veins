@@ -1,0 +1,11 @@
+space_Veins tutorial example.
+
+This simulation requires veins_launchd to be started and listening for 
+connections on a TCP socket, e.g. using "~/src/veins/bin/veins_launchd -vv".
+
+The TLE data required to start the example is not shipped with space_Veins
+because of unclear copyrights. However, TLE data is available in the Internet,
+e.g., at <https://celestrak.com>.
+
+To actually run the example have a look at the Makefile in the space_Veins
+root directory.

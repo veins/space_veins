@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2021 Mario Franke <research@m-franke.net>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+# link in protobuf libraries and headers generated from .proto files
+LIBS+= -lprotobuf
+INCLUDE_PATH += -Iprotobuf
+
+# link in zero mq libraries
+LIBS+= -lzmq
+
+# link to libproj
+LIBS+= -lproj
