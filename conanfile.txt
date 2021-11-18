@@ -1,0 +1,9 @@
+[requires]
+proj/8.1.1
+
+[generators]
+make
+
+[options]
+proj:with_tiff=False
+proj:with_curl=False

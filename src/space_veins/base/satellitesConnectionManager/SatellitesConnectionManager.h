@@ -25,14 +25,11 @@
 
 #pragma once
 
-#include <proj.h>
 #include <stdlib.h> /* abs */
 #include <math.h>   /* asin */
 
 #include "space_veins/space_veins.h"
-#include "space_veins/base/satellitesConnectionManager/SkyfieldMobilityClient.h"
 #include "space_veins/base/satellitesConnectionManager/SatelliteChannelAccess.h"
-#include "space_veins/base/utils/RelativeSatellitePosition.h"
 #include "space_veins/base/satellitesConnectionManager/SatelliteNicEntry.h"
 #include "space_veins/base/satellitesConnectionManager/SatelliteNicEntryDebug.h"
 #include "space_veins/base/satellitesConnectionManager/SatelliteNicEntryDirect.h"
@@ -79,7 +76,6 @@ protected:
     cOutVector altitude_deg_sender_receiver_vec;
 
 private:
-    std::unique_ptr<SkyfieldMobilityClient> smc;
     std::unique_ptr<veins::TraCIConnection> traciConnection;
     double minAltitudeAngle_deg;
     bool traciConnectionEstablished = false;
@@ -92,10 +88,6 @@ private:
 
     /** @brief Does the ConnectionManager use sendDirect or not?*/
     bool sendDirect;
-
-    // proj context
-    PJ_CONTEXT* pj_ctx;
-    PJ* projection;
 
 protected:
     /**
@@ -115,12 +107,6 @@ protected:
     void updateNicConnections(NicEntries::mapped_type nic);
 
 public:
-    WGS84Coordinate omnetCoord2GeoCoord(const veins::Coord omnetCoord);
-
-    RelativeSatellitePosition getRelativeSatellitePosition(const WGS84Coordinate geo, const std::string satelliteName);
-
-    bool isTraCIConnectionEstablished() const;
-
     /** @brief Returns the ingates of all nics in range*/
     const veins::NicEntry::GateList& getGateList(int nicID) const;
 

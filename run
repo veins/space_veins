@@ -4,7 +4,7 @@
 # Copyright (C) 2013-2019 Christoph Sommer <sommer@ccs-labs.org>
 # Copyright (C) 2021 Mario Franke <research@m-franke.net>
 #
-# Documentation for these modules is at http://veins.car2x.org/
+# Documentation for these modules is at http://sat.car2x.org/
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -35,13 +35,14 @@ Runs Veins simulation in current directory
 import os
 import argparse
 import subprocess
+import signal
+import sys
 
 def relpath(s):
     veins_root = os.path.dirname(os.path.realpath(__file__))
     return os.path.relpath(os.path.join(veins_root, s), '.')
 
 parser = argparse.ArgumentParser('Run a Space Veins simulation')
-parser.add_argument('terminal', metavar='TERMINAL', choices=['x-terminal-emulator', 'gnome-terminal', 'kitty'], help='Terminal emulator used to run the skyfield mobility server (kitty or gnome-terminal)')
 parser.add_argument('-d', '--debug', action='store_true', help='Run using opp_run_dbg (instead of opp_run)')
 parser.add_argument('-t', '--tool', metavar='TOOL', dest='tool', choices=['lldb', 'gdb', 'memcheck'], help='Wrap opp_run execution in TOOL (lldb, gdb or memcheck)')
 parser.add_argument('-v', '--verbose', action='store_true', help='Print command line before executing')
@@ -49,18 +50,6 @@ parser.add_argument('--', dest='arguments', help='Arguments to pass to opp_run')
 args, omnet_args = parser.parse_known_args()
 if (len(omnet_args) > 0) and omnet_args[0] == '--':
     omnet_args = omnet_args[1:]
-
-# Start skyfield mobility server
-
-if args.terminal == 'kitty':
-    p = subprocess.Popen(['kitty', '-d', '../../lib/python_skyfield', 'pipenv', 'run', '../skyfield_mobility_server/skyfieldMobilityServer.py'])
-elif args.terminal == 'gnome-terminal' or args.terminal == 'x-terminal-emulator':
-    #p = subprocess.Popen(['gnome-terminal', '--working-directory=' + os.getcwd() + '/../../lib/python_skyfield', '-e', 'pipenv run ../skyfield_mobility_server/skyfieldMobilityServer.py'])
-    p = subprocess.Popen(['gnome-terminal', '--working-directory=' + os.getcwd() + '/../../lib/python_skyfield', '--', 'pipenv', 'run', '../skyfield_mobility_server/skyfieldMobilityServer.py'])
-else:
-    print "Unsupported terminal emulator detected. Kitty, x-term-emulator, and gnome-terminal are currently supported."
-
-# Start space veins
 
 run_libs = [relpath(s) for s in run_libs]
 run_neds = [relpath(s) for s in run_neds] + ['.']
@@ -76,7 +65,7 @@ prefix = []
 if args.tool == 'lldb':
     prefix = ['lldb', '--']
 if args.tool == 'gdb':
-    prefix = ['gdb', '--args']
+    prefix = ['gdb', '-ex', 'run', '--args']
 if args.tool == 'memcheck':
     prefix = ['valgrind', '--tool=memcheck', '--leak-check=full', '--dsymutil=yes', '--log-file=valgrind.out']
 
@@ -86,4 +75,3 @@ if args.verbose:
     print "Running with command line arguments: %s" % ' '.join(['"%s"' % arg for arg in cmdline])
 
 os.execvp('env', ['env'] + cmdline)
-

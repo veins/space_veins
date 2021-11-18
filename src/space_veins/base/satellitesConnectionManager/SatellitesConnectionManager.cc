@@ -61,26 +61,6 @@ void SatellitesConnectionManager::initialize(int stage)
         sendDirect = par("sendDirect").boolValue();
 
         minAltitudeAngle_deg = par("minAltitudeAngle").doubleValue();
-        smc = make_unique<SkyfieldMobilityClient>("localhost");
-        smc->connect();
-        EV_DEBUG << "SkyfieldMobilityClient connected." << std::endl;
-
-        std::string proj = getProjectionString(par("sumoNetXmlFile").xmlValue());
-        EV_DEBUG << "SatellitesConnectionManager proj: " << proj << std::endl;
-
-        // create projection context
-        pj_ctx = proj_context_create();
-        // create projection
-        projection = proj_create_crs_to_crs(
-                pj_ctx,
-                proj.c_str(),   // from UTM of SUMO
-                "EPSG:4326",    // to WGS84
-                NULL);
-        // fix longitude, latitude order, see https://proj.org/development/quickstart.html
-        projection = proj_normalize_for_visualization(pj_ctx, projection);
-        if (projection == 0) {
-            throw cRuntimeError("Uniform axis order error.");
-        }
 
         /* Statistics */
         dist_m_sender_receiver_vec.setName("dist_m_sender_receiver");
@@ -97,57 +77,6 @@ const veins::NicEntry::GateList& SatellitesConnectionManager::getGateList(int ni
     if (ItNic == nics.end()) throw cRuntimeError("No nic with this ID (%d) is registered with this SatellitesConnectionManager.", nicID);
 
     return ItNic->second->getGateList();
-}
-
-std::string SatellitesConnectionManager::getProjectionString(const cXMLElement* sumoNetXmlFile) const
-{
-    if (sumoNetXmlFile == nullptr) {
-        throw cRuntimeError("No .net.xml file specified.");
-    }
-
-    cXMLElementList locationList = sumoNetXmlFile->getElementsByTagName("location");
-
-    if (locationList.empty()) {
-        throw cRuntimeError("No location tag found in .net.xml file.");
-    }
-
-    if (locationList.size() > 1) {
-        throw cRuntimeError("More than one location tag found in .net.xml file.");
-    }
-
-    cXMLElement* location = locationList.front();
-    return std::string(location->getAttribute("projParameter"));
-}
-
-WGS84Coordinate SatellitesConnectionManager::omnetCoord2GeoCoord(const veins::Coord omnetCoord)
-{
-    EV_DEBUG << "SatellitesConnectionManager: Omnet coord: " << omnetCoord << std::endl;
-
-    // traciConnection has to be initialized here because the TraCIConenction is established after the initialization phase.
-    if (!traciConnectionEstablished) {
-        if (!veins::TraCIScenarioManagerAccess().get()->isConnected()) {
-            throw cRuntimeError("TraCIScenarioManager has no connection to SUMO.");
-        }
-        traciConnection.reset(veins::TraCIScenarioManagerAccess().get()->getConnection());
-        EV_DEBUG << "SatellitesConnectionManager has access to TraCIConenction." << std::endl;
-        traciConnectionEstablished = true;
-    }
-    veins::TraCICoord traciCoord = traciConnection->omnet2traci(omnetCoord);
-    EV_DEBUG << "SatellitesConnectionManager: TraCI coord: " << traciCoord.x << ", " << traciCoord.y << std::endl;
-    PJ_COORD toTransfer = proj_coord(traciCoord.x, traciCoord.y, 0, 0);
-    PJ_COORD geo = proj_trans(projection, PJ_FWD, toTransfer);
-    EV_DEBUG << "SatellitesConnectionManager: wgs84 coord: latitude: " << geo.lp.phi << ", longitude: " << geo.lp.lam << std::endl;
-    return WGS84Coordinate(geo.lp.phi, geo.lp.lam);
-}
-
-RelativeSatellitePosition SatellitesConnectionManager::getRelativeSatellitePosition(const WGS84Coordinate geo, const std::string satelliteName)
-{
-    return smc->getRelativeSatellitePosition(satelliteName, simTime(), geo.first, geo.second);
-}
-
-bool SatellitesConnectionManager::isTraCIConnectionEstablished() const
-{
-    return traciConnectionEstablished;
 }
 
 bool SatellitesConnectionManager::isInRange(NicEntries::mapped_type pFromNic, NicEntries::mapped_type pToNic)

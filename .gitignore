@@ -7,6 +7,9 @@ lib/python_skyfield/skyfield_protobuf_protocol.egg-info/
 lib/skyfield_protobuf/skyfield_protobuf_protocol.egg-info/
 __pycache__
 
+build
+tags
+
 src/space_veins/base/satellitesConnectionManager/protobuf
 
 export.sh

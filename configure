@@ -22,9 +22,6 @@ if sys.version_info[0] == 2:
 # Option handling
 parser = OptionParser()
 parser.add_option('--veins', dest='veins', default='../veins', help='Path to Veins library')
-#parser.add_option('--etsimsg', dest='etsi', default=None, help='Path to Etsi Messages library')
-#parser.add_option('--lara', dest='lara', default=None, help='Path to Veins Lanradio Extension library')
-parser.add_option('--protobuf', dest='protobuf', default='lib/skyfield_protobuf/', help='Path to skyfield_protobuf sources')
 (options, args) = parser.parse_args()
 
 if args:
@@ -39,7 +36,6 @@ makemake_flags = [
     '-I', '.',
     '-o', proj_name,
     '-O', '../out',
-    # for veins
     '-I', '../{}/src'.format(options.veins),    # use '..' because cwd is going to be src.
     '-L', '../{}/src/'.format(options.veins),
     '-lveins$(D)',
@@ -57,28 +53,6 @@ run_imgs = [
     os.path.join(options.veins, 'images'),
 ]
 
-# if options.etsi is not None and options.lara is not None:
-#     makemake_flags.extend([
-#         # for lanradio (including etsi-messages)
-#         '-I', '../{}/include'.format(options.etsi),
-#         '-L', '../{}/'.format(options.etsi),
-#         '-letsimsg',
-#         '-I', '../{}/src/'.format(options.lara),
-#         '-L', '../{}/src/'.format(options.lara),
-#         '-lveins_lara$(D)',
-#     ])
-#     run_libs.extend([
-#         '{}/src/veins_lara'.format(options.lara),
-#     ])
-#     run_neds.extend([
-#         '{}/src/veins_lara'.format(options.lara),
-#     ])
-#     run_imgs.extend([
-#         os.path.join(options.lara, 'images'),
-#     ])
-# else:
-#     warning("ETSI and/or LANRadio not specified, not linking against those!")
-
 # Start creating files
 if not os.path.isdir('out'):
     os.mkdir('out')
@@ -88,38 +62,6 @@ f.write('run_libs = %s\n' % repr(run_libs))
 f.write('run_neds = %s\n' % repr(run_neds))
 f.write('run_imgs = %s\n' % repr(run_imgs))
 f.close()
-
-# compile protobuf proto files
-proto_cppout = 'src/space_veins/base/satellitesConnectionManager/protobuf'
-proto_source_dirs = [
-    # add paths to proto files here
-    "{}/protobuf".format(options.protobuf),
-]
-if not os.path.isdir(proto_cppout):
-    os.mkdir(proto_cppout)
-for proto_source in proto_source_dirs:
-    protoc_flags = ['--proto_path', proto_source, '--cpp_out', proto_cppout]
-    # recursivly find proto files
-    protoc_files = [
-        os.path.join(path, fname)
-        for (path, _, fnames) in os.walk(proto_source)
-        for fname in fnames
-        if fname.endswith('.proto')
-    ]
-    subprocess.check_call(['env', 'protoc'] + protoc_flags + protoc_files)
-
-# Fix includes of generated protobuf source files.
-with open(os.getcwd() + "/src/space_veins/base/satellitesConnectionManager/protobuf/skyfield_protobuf/satellite.pb.cc", "r") as file:
-    data = file.readlines()
-data[3] ="#include \"space_veins/base/satellitesConnectionManager/protobuf/skyfield_protobuf/satellite.pb.h\"\n"
-with open(os.getcwd() + "/src/space_veins/base/satellitesConnectionManager/protobuf/skyfield_protobuf/satellite.pb.cc", "w") as file:
-    file.writelines(data)
-
-with open(os.getcwd() + "/src/space_veins/base/satellitesConnectionManager/protobuf/skyfield_protobuf/simulation.pb.cc", "r") as file:
-    data = file.readlines()
-data[3] ="#include \"space_veins/base/satellitesConnectionManager/protobuf/skyfield_protobuf/simulation.pb.h\"\n"
-with open(os.getcwd() + "/src/space_veins/base/satellitesConnectionManager/protobuf/skyfield_protobuf/simulation.pb.cc", "w") as file:
-    file.writelines(data)
 
 subprocess.check_call(['env', 'opp_makemake'] + makemake_flags, cwd='src')
 

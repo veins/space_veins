@@ -48,8 +48,6 @@ simple SatellitesConnectionManager
         // minimum altitude angle [deg]
         double minAltitudeAngle @unit(deg);
 
-        xml sumoNetXmlFile = default(xmldoc("erlangen.net.xml"));
-
         @display("i=abstract/multicast");
 }
 

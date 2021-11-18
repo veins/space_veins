@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-# link in protobuf libraries and headers generated from .proto files
-LIBS+= -lprotobuf
-INCLUDE_PATH += -Iprotobuf
-
-# link in zero mq libraries
-LIBS+= -lzmq
-
-# link to libproj
-LIBS+= -lproj
+# Conan includes
+include ../build/conanbuildinfo.mak
+CFLAGS              += $(CONAN_CFLAGS)
+#CXXFLAGS            += $(CONAN_CXXFLAGS)
+INCLUDE_PATH        += $(addprefix -I, $(CONAN_INCLUDE_DIRS))
+#CPPFLAGS            += $(addprefix -D, $(CONAN_DEFINES))
+LIBS             += $(addprefix -L, $(CONAN_LIB_DIRS))
+LIBS              += $(addprefix -l, $(CONAN_LIBS))
+#EXELINKFLAGS        += $(CONAN_EXELINKFLAGS)

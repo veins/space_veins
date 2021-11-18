@@ -36,7 +36,7 @@
 
 // Version number of last release ("major.minor.patch") or an alpha version, if nonzero
 #define SPACE_VEINS_VERSION_MAJOR 0
-#define SPACE_VEINS_VERSION_MINOR 1
+#define SPACE_VEINS_VERSION_MINOR 2
 #define SPACE_VEINS_VERSION_PATCH 0
 #define SPACE_VEINS_VERSION_ALPHA 0
 

@@ -35,6 +35,7 @@ import org.car2x.veins.modules.mobility.traci.TraCIScenarioManagerForker;
 
 import space_veins.nodes.Satellite;
 import space_veins.base.satellitesConnectionManager.SatellitesConnectionManager;
+import space_veins.modules.mobility.traci.TraCIScenarioManagerSatelliteCompatibleForker;
 
 network RSUExampleScenario
 {
@@ -61,7 +62,7 @@ network RSUExampleScenario
                 playgroundSizeZ = playgroundSizeZ;
                 @display("p=30,0;i=misc/globe");
         }
-        manager: TraCIScenarioManagerForker {
+        manager: TraCIScenarioManagerSatelliteCompatibleForker {
             parameters:
                 @display("p=512,128");
         }

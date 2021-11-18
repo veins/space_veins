@@ -2,7 +2,7 @@
 // Copyright (C) 2008 Christoph Sommer <christoph.sommer@informatik.uni-erlangen.de>
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -32,7 +32,7 @@ module Satellite
     parameters:
         string applType = default("space_veins.base.modules.BaseSatelliteApplLayer"); //type of the application layer
         string nicType = default("space_veins.modules.nic.SatelliteNic"); // type of network interface card
-        //string spaceveinsmobilityType = default("space_veins.mobility.SkyfieldMobility"); //type of the mobility module
+        string satelliteMobilityType = default("space_veins.modules.mobility.SGP4Mobility.SGP4Mobility"); //type of the mobility module
         string satelliteName = default("Sat");
     gates:
         input satelliteradioIn; // gate for sendDirect
@@ -47,7 +47,7 @@ module Satellite
                 @display("p=60,166");
         }
 
-        spaceveinsmobility: space_veins.modules.mobility.SkyfieldMobility {
+        satelliteMobility: <satelliteMobilityType> like org.car2x.veins.base.modules.IMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }

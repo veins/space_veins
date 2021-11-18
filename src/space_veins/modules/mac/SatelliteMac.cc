@@ -118,6 +118,7 @@ void SatelliteMac::handleUpperMsg(cMessage* msg)
 
     sendFrame(mac, macDelay, channelNr, usedMcs, txPower_mW);
     EV_DEBUG << "SatelliteMac of vehicle " << myMacAddr << ": is sending a Satellite Packet. Frequency: " << freq << ", MCS: " << (int)usedMcs << ", txPower_mW: " << txPower_mW << std::endl;
+    delete thisMsg;
 }
 
 void SatelliteMac::handleLowerControl(cMessage* msg)
@@ -230,6 +231,7 @@ void SatelliteMac::handleLowerMsg(cMessage* msg)
     unique_ptr<BaseSatelliteFrame> bsf(check_and_cast<BaseSatelliteFrame*>(macPkt->decapsulate()));
     sendUp(bsf.release());
     EV_DEBUG << "SatelliteMac: Received message from lower gate (SatellitePhy)." << std::endl;
+    delete macPkt;
 }
 
 void SatelliteMac::channelBusy()

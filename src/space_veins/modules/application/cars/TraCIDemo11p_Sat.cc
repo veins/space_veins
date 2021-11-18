@@ -101,6 +101,7 @@ void TraCIDemo11p_Sat::handleLowerSatMessage(cMessage* msg)
         ASSERT(bsf);
         ping_s_vec.record(simTime() - sentPing);
         EV_DEBUG << "TraCIDemo11p_Sat: Received BaseSatelliteFrame: " << bsf->getData() << std::endl;
+        delete bsf;
     }
 }
 

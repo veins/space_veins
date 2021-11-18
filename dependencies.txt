@@ -1,4 +1,0 @@
-pipenv
-python3-venv
-protobuf-compiler
-libzmq3-dev
