@@ -20,24 +20,19 @@
 
 package space_veins.modules.mobility.SGP4Mobility;
 
-import org.car2x.veins.base.modules.BaseMobility;
+import inet.mobility.base.MovingMobilityBase;
 
+//
 // Mobility module for spacecrafts based on SGP4 model.
-
-simple SGP4Mobility extends BaseMobility
+//
+simple SGP4Mobility extends MovingMobilityBase
 {
     parameters:
         @class(space_veins::SGP4Mobility);
-        double updateInterval @unit("s") = default(0.1s); // time interval to update the hosts position (seconds)
-
-        double sop_omnet_x_coord = default(0);  // X coordinate of the satellite observer position in the OMNeT++ coordinate system
-        double sop_omnet_y_coord = default(0);  // Y coordinate of the satellite observer position in the OMNeT++ coordinate system
-        double sop_omnet_z_coord = default(0);  // Z coordinate of the satellite observer position in the OMNeT++ coordinate system
-
-        string wall_clock_sim_start_time_utc = "2021-08-16-09-00-41"; // yyyy-mm-dd-hh-mm-ss
+        @display("i=block/cogwheel");
+        //@signal[mobilityStateChanged](type=inet::MobilityBase);
+        string wall_clock_sim_start_time_utc = default("2021-08-16-09-00-41"); // yyyy-mm-dd-hh-mm-ss
         string satelliteName; // satellite name according to the TLE data
         string tle_line_one;  // TLE data line 1
         string tle_line_two;  // TLE data line 2
-
-        xml sumoNetXmlFile = default(xmldoc("erlangen.net.xml"));  // path to the simulated SUMO scenario, required to read in the proj string
 }

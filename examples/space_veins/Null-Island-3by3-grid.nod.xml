@@ -1,0 +1,27 @@
+<!--
+SPDX-FileCopyrightText: 2023 Mario Franke <research@m-franke.net>
+
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+
+<nodes>
+    <node id="n0_0" x="0" y="0" type="priority"/>
+    <node id="n1_0" x="0.002243591181789219" y="0" type="priority"/>
+    <node id="n2_0" x="0.004487182363578438" y="0" type="priority"/>
+    <node id="n3_0" x="0.006730773545367657" y="0" type="priority"/>
+
+    <node id="n0_1" x="0" y="-0.002243591181789219" type="priority"/>
+    <node id="n1_1" x="0.002243591181789219" y="-0.002243591181789219" type="priority"/>
+    <node id="n2_1" x="0.004487182363578438" y="-0.002243591181789219" type="priority"/>
+    <node id="n3_1" x="0.006730773545367657" y="-0.002243591181789219" type="priority"/>
+
+    <node id="n0_2" x="0" y="-0.004487182363578438" type="priority"/>
+    <node id="n1_2" x="0.002243591181789219" y="-0.004487182363578438" type="priority"/>
+    <node id="n2_2" x="0.004487182363578438" y="-0.004487182363578438" type="priority"/>
+    <node id="n3_2" x="0.006730773545367657" y="-0.004487182363578438" type="priority"/>
+
+    <node id="n0_3" x="0" y="-0.006730773545367657" type="priority"/>
+    <node id="n1_3" x="0.002243591181789219" y="-0.006730773545367657" type="priority"/>
+    <node id="n2_3" x="0.004487182363578438" y="-0.006730773545367657" type="priority"/>
+    <node id="n3_3" x="0.006730773545367657" y="-0.006730773545367657" type="priority"/>
+</nodes>

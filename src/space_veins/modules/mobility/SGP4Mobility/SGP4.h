@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: NLPL
+//
+// SPDX-FileCopyrightText: 2013 David <Vallado dvallado@agi.com>, <davallado@gmail.com.
 
 /*
  * Vallado, David A., Paul Crawford, Richard Hujsak, and T.S. Kelso,

@@ -2,7 +2,7 @@
 // Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -27,26 +27,28 @@
 #include <iomanip>
 #include <chrono>
 
-#include <proj.h>
+#include "proj.h"
+
+#include "inet/mobility/base/MovingMobilityBase.h"
+#include "inet/common/geometry/common/Coord.h"
 
 #include "space_veins/space_veins.h"
-#include "space_veins/base/utils/RelativeSatellitePosition.h"
 #include "space_veins/modules/utility/WGS84Coord.h"
 #include "space_veins/modules/mobility/SGP4Mobility/TLE.h"
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4.h"
+#include "space_veins/modules/SatelliteObservationPoint/SatelliteObservationPoint.h"
+#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
 
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "veins/modules/mobility/traci/TraCIConnection.h"
-#include "veins/base/modules/BaseMobility.h"
 #include "veins/base/utils/FindModule.h"
-#include "veins/modules/utility/TimerManager.h"
 #include "veins/base/utils/Heading.h"
 #include "veins/base/utils/Coord.h"
 #include "veins/base/utils/FWMath.h"
 
 namespace space_veins {
 
-class SPACE_VEINS_API SGP4Mobility : public veins::BaseMobility {
+class SPACE_VEINS_API SGP4Mobility : public inet::MovingMobilityBase {
 
 struct date_time_t {
     int year;
@@ -59,7 +61,7 @@ struct date_time_t {
 
 public:
     SGP4Mobility()
-        : BaseMobility()
+        : MovingMobilityBase()
     {
     }
     ~SGP4Mobility() override
@@ -67,20 +69,12 @@ public:
     }
     void initialize(int) override;
 
+    void initializePosition() override;
+
     int numInitStages() const override
     {
         return std::max(cSimpleModule::numInitStages(), 3);
     }
-
-    /*
-     * Get proj string for translating SUMO coordinates.
-     */
-    std::string getProjectionString(const cXMLElement* sumoNetXmlFile) const;
-
-    /*
-     * Translates an OMNeT++ coord into a WGS84 coordinate (lat, lon, alt)
-     */
-    WGS84Coord omnetCoord2GeoCoord(const veins::Coord omnetCoord);
 
     void set_TLE(const TLE tle);
 
@@ -88,20 +82,19 @@ public:
 
     void finish() override;
 
-    void handleSelfMsg(cMessage* msg) override;
+    virtual void handleSelfMessage(cMessage* message) override;
+
+    virtual void move() override;
+
+    virtual inet::Coord getCurrentPosition() override { return lastPosition; }
+    virtual inet::Coord getCurrentVelocity() override { return inet::Coord::ZERO; }
+    virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
 
     void updateSatellitePosition();
-
-    veins::Heading sgp4Azimuth2VeinsHeading(double azimuth_deg);
-
-    veins::Coord getUnitDirectionVectorAltitude(double altitude_deg);
-
-    veins::Coord getUnitDirectionVector(veins::Heading azimuth, veins::Coord unitDirectionVectorAltitude);
 
 protected:
     // proj context
     PJ_CONTEXT* pj_ctx;
-    PJ* sumo_to_wgs84_projection;
     PJ* itrf2008_to_wgs84_projection;
     PJ* wgs84_to_wgs84cartesian_projection;
     PJ* wgs84cartesian_to_topocentric_projection;
@@ -109,15 +102,11 @@ protected:
     // SGP4
     elsetrec satrec;
 
-    double updateInterval_ms;
-
-    veins::TimerManager timerManager{this};
-
-    std::unique_ptr<veins::TraCIConnection> traciConnection;
-    bool traciConnectionEstablished = false;
-
     // TLE data
     TLE tle;
+
+    // SOP pointer
+    SatelliteObservationPoint* sop;
 
     // Time management
     date_time_t tle_epoch;                      // date_time_t of the TLE's epoch
@@ -127,24 +116,10 @@ protected:
     std::chrono::duration<double, std::chrono::minutes::period> wall_clock_since_tle_epoch_min;  // elapsed minutes since tle epoch considering configured wall clock start time in UTC and elapsed simulation time
     date_time_t current_date_time;
 
-    /**
-     * Static reference position used when the position of the satellite has to be determined.
-     */
-    veins::Coord observerPosition;  // Static reference position (Satellite Observer Position [SOP]) respecting the OMNeT++ coodinate system
-    WGS84Coord sop_wgs84;   // observerPosition translated into a WGS84 coordinate
-    bool sop_wgs84_initialized = false;
-
-
     /* Statistics */
-    cOutVector distance_km_to_observationPosition_vec;
-    cOutVector altitude_deg_to_observationPosition_vec;
-    cOutVector azimuth_deg_to_observationPosition_vec;
+    VehicleStatistics* vehicleStatistics;
 
-    cOutVector currentPosXVec;
-    cOutVector currentPosYVec;
-    cOutVector currentPosZVec;
-
-class VEINS_API SGP4MobilityAccess {
+class SPACE_VEINS_API SGP4MobilityAccess {
 public:
     SGP4Mobility* get(cModule* host)
     {

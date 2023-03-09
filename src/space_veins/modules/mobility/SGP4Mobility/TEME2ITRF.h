@@ -1,7 +1,7 @@
 //
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -44,8 +44,8 @@ std::pair<double, double> theta_GMST1982(double jd_ut1, double fraction_ut1=0.0)
     double t = (jd_ut1 - T0 + fraction_ut1) / 36525.0;
     double g = 67310.54841 + (8640184.812866 + (0.093104 + (-6.2e-6) * t) * t) * t;
     double dg = 8640184.812866 + (0.093104 * 2.0 + (-6.2e-6 * 3.0) * t) * t;
-    double theta = (jd_ut1 + fraction_ut1 + g / DAY_S ) * tau;
-    double theta_dot = (1.0 + dg / (DAY_S * 36525.0)) * tau;
+    double theta = (jd_ut1 + fraction_ut1 + g / DAY_S ) * TAU;
+    double theta_dot = (1.0 + dg / (DAY_S * 36525.0)) * TAU;
     return std::make_pair(theta, theta_dot);
 
 }

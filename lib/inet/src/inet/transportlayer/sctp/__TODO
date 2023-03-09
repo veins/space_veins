@@ -1,0 +1,7 @@
+C++ quirks (to be worked on when SCTP-2.2 is integrated from "master" branch):
+
+- data members of TimeStats start with uppercase
+
+- message files: use "packet" keyword instead of "message Foo extends cPacket"
+
+- cPolymorphic -> cObject

@@ -1,10 +1,29 @@
+**.tle
+examples/space_veins/scenarios/
+
+**.pdf
+**.eps
+**.RData
+**/*_runs.txt
+**/*_runs.log
+
+**/.settings/
+**/.snakemake/
+
+scripts/*.edg.xml
+scripts/*.net.xml
+scripts/*.nod.xml
+scripts/*.trips.xml
+scripts/*.rou.xml
+scripts/*.rou.alt.xml
+
+LICENSES/LicenseRef-ReuseIgnoreFileLicense.txt
+
+**/*.sif
+
 .venv
 .reuse
-lib/skyfield_protobuf/MANIFEST
-lib/skyfield_protobuf/dist
-lib/skyfield_protobuf/skyfield_protobuf
-lib/python_skyfield/skyfield_protobuf_protocol.egg-info/
-lib/skyfield_protobuf/skyfield_protobuf_protocol.egg-info/
+.vscode
 __pycache__
 
 build
@@ -25,7 +44,7 @@ src/out
 doc/doxy
 doc/neddoc
 
-/bin/veins_run
+/bin/space_veins_run
 
 /out
 

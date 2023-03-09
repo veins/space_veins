@@ -1,0 +1,63 @@
+branches:
+  except:
+    - /(cherry-pick-)?backport-\d+-to-/
+
+environment:
+  matrix:
+
+# VS 2015
+  - platform: x86
+    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+    BUILD_SHARED_LIBS: OFF
+
+# VS 2017
+#  - platform: x64
+#    APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#    BUILD_SHARED_LIBS: ON
+
+shallow_clone: true
+
+cache:
+  - C:\Tools\vcpkg\installed\ -> appveyor.yml
+
+build_script:
+  - set VCPKG_INSTALLED=C:\Tools\vcpkg\installed\%platform%-windows
+  # If cached directory does not exist, update vcpkg and install dependencies
+  # The checkout of a precise sha1 for VS2015 is a workaround for https://github.com/microsoft/vcpkg/issues/11666
+  - if not exist %VCPKG_INSTALLED%\bin (
+      cd "C:\Tools\vcpkg" &
+      git pull > nul &
+      (if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (git checkout a64dc07690bc8806e717e190f62eb58e198b599c)) &
+      .\bootstrap-vcpkg.bat -disableMetrics &
+      vcpkg install sqlite3[core,tool]:"%platform%"-windows &
+      vcpkg install tiff:"%platform%"-windows &
+      vcpkg install curl:"%platform%"-windows &
+      cd %APPVEYOR_BUILD_FOLDER%
+    )
+  - dir %VCPKG_INSTALLED%\bin
+  - set PATH=%VCPKG_INSTALLED%\bin;%PATH%
+  # See https://www.appveyor.com/docs/lang/cpp/
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" if %platform%==x86
+      (call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86)
+  - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017"
+      (call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %platform% )
+#
+  - set PROJ_BUILD=%APPVEYOR_BUILD_FOLDER%\build
+  - mkdir %PROJ_BUILD%
+  - cd %PROJ_BUILD%
+  - set PROJ_DIR=%APPVEYOR_BUILD_FOLDER%\proj_dir
+  - cmake -GNinja .. -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS="%BUILD_SHARED_LIBS%" -DCMAKE_C_FLAGS="/WX" -DCMAKE_CXX_FLAGS="/WX" -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_INSTALL_PREFIX="%PROJ_DIR%"
+  - ninja -v
+  - ninja install
+  - dir %PROJ_DIR%\bin
+
+test_script:
+  - echo test_script
+  - set PROJ_LIB=%PROJ_DIR%\share\proj
+  - cd %PROJ_BUILD%
+  - ctest -V -C Release
+  - set PATH=%PROJ_DIR%\bin;%PATH%
+  - call %APPVEYOR_BUILD_FOLDER%\test\postinstall\test_cmake.bat %PROJ_DIR%
+  - proj
+
+deploy: off

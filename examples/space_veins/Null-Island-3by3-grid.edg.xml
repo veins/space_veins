@@ -1,0 +1,76 @@
+<!--
+SPDX-FileCopyrightText: 2023 Mario Franke <research@m-franke.net>
+
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
+
+<edges>
+    <edge id="he0_0" from="n0_0" to="n1_0" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he1_0" from="n1_0" to="n2_0" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he2_0" from="n2_0" to="n3_0" priority="10" numLanes="1" speed="13.89"/>
+
+    <edge id="-he0_0" to="n0_0" from="n1_0" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he1_0" to="n1_0" from="n2_0" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he2_0" to="n2_0" from="n3_0" priority="10" numLanes="1" speed="13.89"/>
+
+
+    <edge id="he0_1" from="n0_1" to="n1_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he1_1" from="n1_1" to="n2_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he2_1" from="n2_1" to="n3_1" priority="10" numLanes="1" speed="13.89"/>
+
+    <edge id="-he0_1" to="n0_1" from="n1_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he1_1" to="n1_1" from="n2_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he2_1" to="n2_1" from="n3_1" priority="10" numLanes="1" speed="13.89"/>
+
+
+    <edge id="he0_2" from="n0_2" to="n1_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he1_2" from="n1_2" to="n2_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he2_2" from="n2_2" to="n3_2" priority="10" numLanes="1" speed="13.89"/>
+
+    <edge id="-he0_2" to="n0_2" from="n1_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he1_2" to="n1_2" from="n2_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he2_2" to="n2_2" from="n3_2" priority="10" numLanes="1" speed="13.89"/>
+
+
+    <edge id="he0_3" from="n0_3" to="n1_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he1_3" from="n1_3" to="n2_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="he2_3" from="n2_3" to="n3_3" priority="10" numLanes="1" speed="13.89"/>
+
+    <edge id="-he0_3" to="n0_3" from="n1_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he1_3" to="n1_3" from="n2_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-he2_3" to="n2_3" from="n3_3" priority="10" numLanes="1" speed="13.89"/>
+
+
+
+    <edge id="ve0_0" from="n0_0" to="n0_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve1_0" from="n1_0" to="n1_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve2_0" from="n2_0" to="n2_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve3_0" from="n3_0" to="n3_1" priority="10" numLanes="1" speed="13.89"/>
+
+    <edge id="-ve0_0" to="n0_0" from="n0_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve1_0" to="n1_0" from="n1_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve2_0" to="n2_0" from="n2_1" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve3_0" to="n3_0" from="n3_1" priority="10" numLanes="1" speed="13.89"/>
+
+
+    <edge id="ve0_1" from="n0_1" to="n0_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve1_1" from="n1_1" to="n1_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve2_1" from="n2_1" to="n2_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve3_1" from="n3_1" to="n3_2" priority="10" numLanes="1" speed="13.89"/>
+
+    <edge id="-ve0_1" to="n0_1" from="n0_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve1_1" to="n1_1" from="n1_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve2_1" to="n2_1" from="n2_2" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve3_1" to="n3_1" from="n3_2" priority="10" numLanes="1" speed="13.89"/>
+
+
+    <edge id="ve0_2" from="n0_2" to="n0_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve1_2" from="n1_2" to="n1_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve2_2" from="n2_2" to="n2_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="ve3_2" from="n3_2" to="n3_3" priority="10" numLanes="1" speed="13.89"/>
+
+    <edge id="-ve0_2" to="n0_2" from="n0_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve1_2" to="n1_2" from="n1_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve2_2" to="n2_2" from="n2_3" priority="10" numLanes="1" speed="13.89"/>
+    <edge id="-ve3_2" to="n3_2" from="n3_3" priority="10" numLanes="1" speed="13.89"/>
+</edges>

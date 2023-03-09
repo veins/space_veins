@@ -1,7 +1,8 @@
 //
 // Copyright (C) 2004 Telecommunication Networks Group (TKN) at Technische Universitaet Berlin, Germany.
+// Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //

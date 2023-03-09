@@ -2,7 +2,7 @@
 // Copyright (C) 2008 Christoph Sommer <christoph.sommer@informatik.uni-erlangen.de>
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -23,53 +23,48 @@
 
 package space_veins.nodes;
 
-import space_veins.base.modules.*;
-import org.car2x.veins.modules.nic.Nic80211p;
-import space_veins.modules.nic.SatelliteNic;
+import org.car2x.veins.subprojects.veins_inet.VeinsInetCar;
 
-module SatCar
+import inet.linklayer.contract.IWirelessInterface;
+
+import space_veins.modules.statistics.VehicleStatistics.VehicleStatistics;
+import space_veins.modules.nic.SamacInterface;
+
+module SatCar extends VeinsInetCar
 {
     parameters:
-        string applType; //type of the application layer
-        string c2xNicType = default("Nic80211p"); // type of network interface card for c2x
-        string satelliteNicType = default("SatelliteNic"); // type of network interface card for satellite communication
-        string veinsmobilityType = default("org.car2x.veins.modules.mobility.traci.TraCIMobility"); //type of the mobility module
+        int numSatelliteNics = default(1);
+        bool useSamac = default(false);
+
     gates:
-        input veinsradioIn; // gate for sendDirect
-        input satelliteradioIn;
+        input satelliteRadioIn[numSatelliteNics];  // gate for satellite communication
+
     submodules:
-        appl: <applType> like space_veins.base.modules.IBaseSatelliteCarApplLayer {
+        samacNic: SamacInterface if useSamac!=false {
             parameters:
-                @display("p=60,50");
+                @display("p=150,150");
+        }
+        satNic[numSatelliteNics]: <default("SatelliteInterface")> like IWirelessInterface {
+            parameters:
+                @display("p=825,616,row,150;q=queue");
         }
 
-        c2xNic: <c2xNicType> like org.car2x.veins.modules.nic.INic80211p {
-            parameters:
-                @display("p=60,166");
+        vehicleStatistics: VehicleStatistics;
+
+    connections allowunconnected:
+        for i=0..sizeof(satelliteRadioIn)-1 {
+            satelliteRadioIn[i] --> { @display("m=s"); } --> satNic[i].radioIn;
         }
-
-        satelliteNic: <satelliteNicType> like space_veins.modules.nic.ISatelliteNic {
-            parameters:
-                @display("p=60,176");
+        for i=1..sizeof(satelliteRadioIn)-1 {
+            satNic[i].upperLayerOut --> nl.in++;
+            satNic[i].upperLayerIn <-- nl.out++;
         }
+        satNic[0].upperLayerOut --> nl.in++ if !useSamac;
+        satNic[0].upperLayerIn <-- nl.out++ if !useSamac;
 
-        veinsmobility: <veinsmobilityType> like org.car2x.veins.base.modules.IMobility {
-            parameters:
-                @display("p=130,172;i=block/cogwheel");
-        }
+        satNic[0].upperLayerOut --> samacNic.lowerLayerIn if useSamac;
+        satNic[0].upperLayerIn <-- samacNic.lowerLayerOut if useSamac;
 
-    connections:
-        c2xNic.upperLayerOut --> appl.lowerLayerIn;
-        c2xNic.upperLayerIn <-- appl.lowerLayerOut;
-        c2xNic.upperControlOut --> appl.lowerControlIn;
-        c2xNic.upperControlIn <-- appl.lowerControlOut;
-
-        satelliteNic.upperLayerOut --> appl.satLowerLayerIn;
-        satelliteNic.upperLayerIn <-- appl.satLowerLayerOut;
-        satelliteNic.upperControlOut --> appl.satLowerControlIn;
-        satelliteNic.upperControlIn <-- appl.satLowerControlOut;
-
-        veinsradioIn --> c2xNic.radioIn;
-        satelliteradioIn --> satelliteNic.radioIn;
-
+        samacNic.upperLayerOut --> nl.in++ if useSamac;
+        samacNic.upperLayerIn <-- nl.out++ if useSamac;
 }

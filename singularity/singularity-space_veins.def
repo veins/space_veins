@@ -1,0 +1,284 @@
+# singularity-space_veins -- Singularity container for quickly building and running space_Veins simulations anywhere
+#
+# Copyright (C) 2020 Christoph Sommer <sommer@cms-labs.org>
+# Copyright (C) 2022 Mario Franke <research@m-franke.net>
+#
+# Documentation for these modules is at http://veins.car2x.org/ or https://sat.car2x.org/
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+Bootstrap: debootstrap
+OSVersion: bullseye
+MirrorURL:  http://httpredir.debian.org/debian
+
+# Alternative: bootstrap from docker
+#Bootstrap: docker
+#From: debian:buster
+
+%labels
+    Author sommer@cms-labs.org research@m-franke.net
+    Version v0.0.1
+
+%help
+    Singularity container for quickly building and running space_veins simulations anywhere.
+    Tested with Singularity 3.5.2.
+
+    Run this container with its `--help` option for details:
+    ```
+    singularity run singularity-space_veins.sif --help
+    ```
+
+%setup
+    # create stub hosts file contents (necessary for resolving "localhost" if network isolation is turned on)
+    test -s "${SINGULARITY_ROOTFS}/etc/hosts" || echo '127.0.0.1\tlocalhost' >> "${SINGULARITY_ROOTFS}/etc/hosts"
+
+%post
+    set -e
+
+    # Use default versions if environment variables (SINGULARITYENV_VEINS_VERSION etc.) are left unset
+    : ${VEINS_VERSION=5.2}
+    : ${OPP_VERSION=5.7}
+    : ${SUMO_VERSION=1.11.0}
+    : ${SPACE_VEINS_VERSION=0.3-alpha4}
+
+    export VEINS_VERSION
+    export OPP_VERSION
+    export SUMO_VERSION
+
+    export SUMO_TAG=v$(echo "$SUMO_VERSION" | tr . _)
+
+    apt-get -y update
+
+    # version info
+    mkdir -p /opt/singularity-space_veins
+    echo "singularity-space_veins-0.0.1" > /opt/singularity-space_veins/version.txt
+
+    # help text
+    mkdir -p /opt/singularity-space_veins
+    echo "This container includes:" >> /opt/singularity-space_veins/help.txt
+    echo "- Debian Buster;" >> /opt/singularity-space_veins/help.txt
+    echo "- Veins ${VEINS_VERSION} (for sumo-launchd.py);" >> /opt/singularity-space_veins/help.txt
+    echo "- OMNeT++ ${OPP_VERSION}; and" >> /opt/singularity-space_veins/help.txt
+    echo "- SUMO ${SUMO_VERSION}." >> /opt/singularity-space_veins/help.txt
+    echo "- space_Veins ${SPACE_VEINS_VERSION}." >> /opt/singularity-space_veins/help.txt
+    echo "" >> /opt/singularity-space_veins/help.txt
+    echo "Its runscript will simply run the given command;" >> /opt/singularity-space_veins/help.txt
+    echo "- optionally in parallel to sumo-launchd.py (runscript --launchd option);" >> /opt/singularity-space_veins/help.txt
+    echo "- optionally after changing to a given directory (runscript --chdir option)." >> /opt/singularity-space_veins/help.txt
+    echo "" >> /opt/singularity-space_veins/help.txt
+    echo "You might want to turn on "contain all" (singularity -C option) to isolate programs run in this container from the host system (and vice versa)." >> /opt/singularity-space_veins/help.txt
+    echo "You might want to mount a home directory (singularity -H option) to make simulations to be built/run available in the container." >> /opt/singularity-space_veins/help.txt
+    echo "" >> /opt/singularity-space_veins/help.txt
+    echo "For example, to compile and run the space_Veins example simulation in work/space_veins/examples/space_veins, you would run the following:" >> /opt/singularity-space_veins/help.txt
+    echo "git clone --branch space_Veins-${SPACE_VEINS_VERSION} https://github.com/veins/space_veins work/space_veins" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make makefiles" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv" >> /opt/singularity-space_veins/help.txt
+
+    # script for singularity-space_veins
+    mkdir -p /opt/singularity-space_veins
+    echo '#!/bin/bash' > /opt/singularity-space_veins/run-with-launchd.sh
+    echo 'set -e' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo '/opt/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo 'trap "kill $(cat /tmp/sumo-launchd.pid)" EXIT' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo '"$@"' >> /opt/singularity-space_veins/run-with-launchd.sh
+    chmod a+x /opt/singularity-space_veins/run-with-launchd.sh
+
+    # prerequisites for Veins
+    apt-get -y install git python python3 xterm clang-format uncrustify valgrind gdb lldb doxygen graphviz nemiver
+
+    # prerequisites for OMNeT++
+    apt-get -y install curl clang bison flex tcl-dev tk-dev qtbase5-dev libopenscenegraph-dev xvfb libwebkit2gtk-4.0-dev doxygen graphviz python3-numpy python3-pandas python3-matplotlib
+    # openjdk-17-jre: cannot be found
+
+    # prerequisites for SUMO
+    apt-get -y install cmake libxerces-c-dev libgdal-dev libproj-dev libfox-1.6-dev libopenscenegraph-dev libavformat-dev libavcodec-dev libswscale-dev python-dev
+
+    # prerequisites for space_Veins
+    apt-get -y install sqlite3
+
+    # Install Snakemake
+    # 1. install mambaforge
+    apt-get -y install wget
+    wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+    bash Mambaforge-$(uname)-$(uname -m).sh -b -p /opt/mambaforge
+    export PATH=$PATH:/opt/mambaforge/bin
+    # 2. install snakemake
+    mamba install -n base  -c conda-forge -c bioconda snakemake
+
+    cd /opt
+    git clone --branch space_Veins-${SPACE_VEINS_VERSION} https://github.com/veins/space_veins space_Veins-${SPACE_VEINS_VERSION}
+    ln -s space_Veins-${SPACE_VEINS_VERSION} space_veins
+    cd space_veins
+    rm -fr .git
+
+    cd /opt
+    git clone --depth 1 --branch veins-${VEINS_VERSION} https://github.com/sommer/veins veins-${VEINS_VERSION}
+    ln -s veins-${VEINS_VERSION} veins
+    cd veins
+    rm -fr .git
+
+    cd /opt
+    case "$OPP_VERSION" in
+    5.0)
+        curl --location https://gateway.ipfs.io/ipns/ipfs.omnetpp.org/release/${OPP_VERSION}/omnetpp-${OPP_VERSION}-src.tgz | tar -xzv
+        ;;
+    5.1 | 5.1.1 | 5.2 | 5.2.1 | 5.3)
+        curl --location https://gateway.ipfs.io/ipns/ipfs.omnetpp.org/release/${OPP_VERSION}/omnetpp-${OPP_VERSION}-src-core.tgz | tar -xzv
+        ;;
+    5.4 | 5.5)
+        echo "Error: No mirror configured for this version of OMNeT++"
+        ;;
+    *)
+        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-core.tgz | tar -xzv
+    esac
+
+    ln -s omnetpp-${OPP_VERSION} omnetpp
+    export PATH=$PATH:/opt/omnetpp/bin
+    cd /opt/omnetpp
+
+    case "$OPP_VERSION" in
+    5.0 | 5.1 | 5.1.1 | 5.2 | 5.2.1)
+        # patch configure.user since command line override is not available
+        perl -p -i -e s/WITH_TKENV=yes/WITH_TKENV=no/ configure.user
+        perl -p -i -e s/WITH_QTENV=yes/WITH_QTENV=no/ configure.user
+        ;;
+    esac
+
+    . /opt/omnetpp/setenv
+    ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
+    make -j8 base MODE=debug
+    make -j8 base MODE=release
+    rm -fr doc out test samples misc config.log config.status
+    # patch Makefile.in such that no hardlinks are generated because beegfs (used by TUD HPC) does not support hardlinks.
+    sed -i 's/LN = ln -f/LN = cp -pR/' /opt/omnetpp/Makefile.inc
+
+    cd /opt
+    git clone --depth 1 --branch "${SUMO_TAG}" https://github.com/eclipse/sumo sumo-${SUMO_VERSION}
+    ln -s sumo-${SUMO_VERSION} sumo
+    export PATH=$PATH:/opt/sumo/bin
+    cd sumo
+
+    case "$SUMO_VERSION" in
+    0.32.0)
+        # SUMO 0.32.0 needs a patch to compile
+        curl --location https://github.com/eclipse/sumo/files/2159974/patch-sumo-0.32.0-ComparatorIdLess.txt | patch -p1
+        ;;
+    1.0.0 | 1.0.1 | 1.2.0)
+        echo "Error: this version of SUMO will not compile without GUI support, which this .def file does not install."
+    esac
+
+    case "$SUMO_VERSION" in
+    0.32.0)
+        make -f Makefile.cvs
+        ./configure
+        make -j8
+        ;;
+    *)
+        cd build
+        cmake ..
+        make -j8
+        cd ..
+        ;;
+    esac
+
+    rm -fr .git docs build tests
+
+    apt-get -y autoremove
+    apt-get -y clean
+    apt-get -y autoclean
+
+%environment
+    export LC_ALL=C
+    #PATH
+    export PATH="$PATH:/opt/omnetpp/bin"
+    export PATH="$PATH:/opt/sumo/bin"
+    export PATH="$PATH:/opt/mambaforge/bin"
+
+%runscript
+
+    #
+    # singularity-space_veins -- Singularity container for quickly building and running Veins simulations anywhere
+    # Copyright (C) 2020 Christoph Sommer <sommer@cms-labs.org>
+    #
+    # Documentation for these modules is at http://veins.car2x.org/
+    #
+    # SPDX-License-Identifier: GPL-2.0-or-later
+    #
+    # This program is free software; you can redistribute it and/or modify
+    # it under the terms of the GNU General Public License as published by
+    # the Free Software Foundation; either version 2 of the License, or
+    # (at your option) any later version.
+    #
+    # This program is distributed in the hope that it will be useful,
+    # but WITHOUT ANY WARRANTY; without even the implied warranty of
+    # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    # GNU General Public License for more details.
+    #
+    # You should have received a copy of the GNU General Public License
+    # along with this program; if not, write to the Free Software
+    # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    #
+
+    set -e
+
+    WITH_LAUNCHD=0
+    GETOPT_RESULT=$(getopt --name "singularity-space_veins runscript" --options Vhc:l --longoptions version,help,chdir:,launchd -- "$@")
+    eval set -- "$GETOPT_RESULT"
+    while true; do
+        case "$1" in
+        -V | --version)
+            cat /opt/singularity-space_veins/version.txt
+            exit 0
+            ;;
+        -h | --help)
+            cat /opt/singularity-space_veins/help.txt
+            exit 0
+            ;;
+        -c | --chdir)
+            shift
+            cd "$1"
+            ;;
+        -l | --launchd)
+            WITH_LAUNCHD=1
+            ;;
+        --)
+            shift
+            break
+            ;;
+        esac
+        shift
+    done
+
+    # Make sure that we should actually run something
+    test "$#" -ge 1 || (echo "singularity-space_veins runscript: No command line to execute. For more information, run this container with its '--help' option."; exit 1)
+
+    # set up build/run environment
+    export PATH="$PATH:/opt/omnetpp/bin"
+    export PATH="$PATH:/opt/sumo/bin"
+    export PATH="$PATH:/opt/mambaforge/bin"
+
+    case "$WITH_LAUNCHD" in
+    0)
+        exec "$@"
+        ;;
+    1)
+        exec /opt/singularity-space_veins/run-with-launchd.sh "$@"
+        ;;
+    esac
+

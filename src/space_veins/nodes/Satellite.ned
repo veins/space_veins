@@ -23,40 +23,34 @@
 
 package space_veins.nodes;
 
-import org.car2x.veins.base.modules.*;
-import space_veins.modules.nic.SatelliteNic;
-import space_veins.base.modules.BaseSatelliteApplLayer;
+import inet.node.base.ApplicationLayerNodeBase;
+import inet.linklayer.contract.IWirelessInterface;
 
-module Satellite
+import space_veins.modules.statistics.VehicleStatistics.VehicleStatistics;
+
+module Satellite extends ApplicationLayerNodeBase
 {
     parameters:
-        string applType = default("space_veins.base.modules.BaseSatelliteApplLayer"); //type of the application layer
-        string nicType = default("space_veins.modules.nic.SatelliteNic"); // type of network interface card
-        string satelliteMobilityType = default("space_veins.modules.mobility.SGP4Mobility.SGP4Mobility"); //type of the mobility module
-        string satelliteName = default("Sat");
+        int numSatelliteNics = default(1);
+
     gates:
-        input satelliteradioIn; // gate for sendDirect
+        input satelliteRadioIn[numSatelliteNics];  // gate for satellite communication
+
     submodules:
-        appl: <applType> like space_veins.base.modules.IBaseSatelliteApplLayer {
+        satNic[numSatelliteNics]: <default("SatelliteInterface")> like IWirelessInterface {
             parameters:
-                @display("p=60,50");
+                @display("p=825,616,row,150;q=queue");
         }
 
-        nic: <nicType> like space_veins.modules.nic.ISatelliteNic {
-            parameters:
-                @display("p=60,166");
-        }
+        vehicleStatistics: VehicleStatistics;
 
-        satelliteMobility: <satelliteMobilityType> like org.car2x.veins.base.modules.IMobility {
-            parameters:
-                @display("p=130,172;i=block/cogwheel");
+    connections allowunconnected:
+        for i=0..sizeof(satelliteRadioIn)-1 {
+            satelliteRadioIn[i] --> { @display("m=s"); } --> satNic[i].radioIn;
         }
-    connections:
-        nic.upperLayerOut --> appl.lowerLayerIn;
-        nic.upperLayerIn <-- appl.lowerLayerOut;
-        nic.upperControlOut --> appl.lowerControlIn;
-        nic.upperControlIn <-- appl.lowerControlOut;
-
-        satelliteradioIn --> nic.radioIn;
+        for i=0..sizeof(satelliteRadioIn)-1 {
+            satNic[i].upperLayerOut --> nl.in++;
+            satNic[i].upperLayerIn <-- nl.out++;
+        }
 
 }

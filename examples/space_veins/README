@@ -1,7 +1,0 @@
-space_Veins tutorial example.
-
-The satellites' mobility requires TLE data. You can download it
-on e.g., https://celestrak.com/NORAD/elements/
-
-Copy the tle data of a single satellite in the lines 61-63
-of the omnetpp.ini file and uncomment these lines.

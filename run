@@ -1,10 +1,10 @@
-#!/usr/bin/env python2
+#!/bin/bash
 
 #
-# Copyright (C) 2013-2019 Christoph Sommer <sommer@ccs-labs.org>
-# Copyright (C) 2021 Mario Franke <research@m-franke.net>
+# Copyright (C) 2020 Christoph Sommer <sommer@cms-labs.org>
+# Copyright (C) 2022 Mario Franke <research@m-franke.net>
 #
-# Documentation for these modules is at http://sat.car2x.org/
+# Documentation for these modules is at http://veins.car2x.org/
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -23,55 +23,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-run_libs = ['src/space_veins']
-run_neds = ['src/space_veins', '../veins/src/veins']
+echo "WARNING: the run script is deprecated in favor of bin/space_veins_run. Redirecting." >&2
+echo "WARNING: the run script is deprecated in favor of bin/space_veins_run. Redirecting."
 
-# ^-- contents of out/config.py go here
+test -f $(dirname "$0")/bin/space_veins_run || echo "ERROR: bin/space_veins_run does not exist; this will likely fail. Did you run 'make bin/space_veins_run'?" >&2
+test -f $(dirname "$0")/bin/space_veins_run || echo "ERROR: bin/space_veins_run does not exist; this will likely fail. Did you run 'make bin/space_veins_run'?"
 
-"""
-Runs Veins simulation in current directory
-"""
+$(dirname "$0")/bin/space_veins_run "$@"
 
-import os
-import argparse
-import subprocess
-import signal
-import sys
-
-def relpath(s):
-    veins_root = os.path.dirname(os.path.realpath(__file__))
-    return os.path.relpath(os.path.join(veins_root, s), '.')
-
-parser = argparse.ArgumentParser('Run a Space Veins simulation')
-parser.add_argument('-d', '--debug', action='store_true', help='Run using opp_run_dbg (instead of opp_run)')
-parser.add_argument('-t', '--tool', metavar='TOOL', dest='tool', choices=['lldb', 'gdb', 'memcheck'], help='Wrap opp_run execution in TOOL (lldb, gdb or memcheck)')
-parser.add_argument('-v', '--verbose', action='store_true', help='Print command line before executing')
-parser.add_argument('--', dest='arguments', help='Arguments to pass to opp_run')
-args, omnet_args = parser.parse_known_args()
-if (len(omnet_args) > 0) and omnet_args[0] == '--':
-    omnet_args = omnet_args[1:]
-
-run_libs = [relpath(s) for s in run_libs]
-run_neds = [relpath(s) for s in run_neds] + ['.']
-
-opp_run = 'opp_run'
-if args.debug:
-    opp_run = 'opp_run_dbg'
-
-lib_flags = ['-l%s' % s for s in run_libs]
-ned_flags = ['-n' + ';'.join(run_neds)]
-
-prefix = []
-if args.tool == 'lldb':
-    prefix = ['lldb', '--']
-if args.tool == 'gdb':
-    prefix = ['gdb', '-ex', 'run', '--args']
-if args.tool == 'memcheck':
-    prefix = ['valgrind', '--tool=memcheck', '--leak-check=full', '--dsymutil=yes', '--log-file=valgrind.out']
-
-cmdline = prefix + [opp_run] + lib_flags + ned_flags + omnet_args
-
-if args.verbose:
-    print "Running with command line arguments: %s" % ' '.join(['"%s"' % arg for arg in cmdline])
-
-os.execvp('env', ['env'] + cmdline)
+echo "WARNING: the run script is deprecated in favor of bin/space_veins_run. Redirecting." >&2
+echo "WARNING: the run script is deprecated in favor of bin/space_veins_run. Redirecting."

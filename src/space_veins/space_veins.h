@@ -2,7 +2,7 @@
 // Copyright (C) 2006-2018 Christoph Sommer <sommer@ccs-labs.org>
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -22,9 +22,9 @@
 //
 
 /**
- * @mainpage %Veins - The open source vehicular network simulation framework.
+ * @mainpage %space_Veins - An extension for Veins simulating Vehicle-to-Satellite Communication.
  *
- * See the %Veins website <a href="http://veins.car2x.org/"> for a tutorial, documentation, and publications </a>.
+ * See the %space_Veins website <a href="http://sat.car2x.org/"> for a tutorial, documentation, and publications </a>.
  */
 
 #pragma once
@@ -36,9 +36,9 @@
 
 // Version number of last release ("major.minor.patch") or an alpha version, if nonzero
 #define SPACE_VEINS_VERSION_MAJOR 0
-#define SPACE_VEINS_VERSION_MINOR 2
+#define SPACE_VEINS_VERSION_MINOR 3
 #define SPACE_VEINS_VERSION_PATCH 0
-#define SPACE_VEINS_VERSION_ALPHA 0
+#define SPACE_VEINS_VERSION_ALPHA 4
 
 // Explicitly check OMNeT++ version number
 #if OMNETPP_VERSION < 0x500

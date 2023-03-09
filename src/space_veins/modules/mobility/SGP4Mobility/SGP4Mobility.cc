@@ -2,7 +2,7 @@
 // Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -28,21 +28,17 @@ using namespace space_veins;
 
 Define_Module(space_veins::SGP4Mobility);
 
+void SGP4Mobility::initializePosition() 
+{
+    //updateSatellitePosition();
+}
+
 void SGP4Mobility::initialize(int stage)
 {
-    BaseMobility::initialize(stage);
+    MovingMobilityBase::initialize(stage);
     if (stage == 0) {
 
-        // Read in the update interval of the mobility
-        updateInterval_ms = par("updateInterval").doubleValue() * 1000;
-
-        // Set satellite observer position (SOP)
-        observerPosition = veins::Coord(par("sop_omnet_x_coord").doubleValue(),
-                                        par("sop_omnet_y_coord").doubleValue(),
-                                        par("sop_omnet_z_coord").doubleValue());
-
         EV_DEBUG << "Initializing SGP4Mobility module." << std::endl;
-        EV_DEBUG << "SGP4Mobility updateInterval_ms: " << updateInterval_ms << std::endl;
         // Read wall_clock_sim_start_time_utc store it in wall_clock_start_time
         wall_clock_sim_start_time_utc = par("wall_clock_sim_start_time_utc").stringValue();
         EV_DEBUG << "SGP4 model wall_clock_sim_start_time_utc: " << wall_clock_sim_start_time_utc << std::endl;
@@ -71,34 +67,22 @@ void SGP4Mobility::initialize(int stage)
         ss >> std::get_time(&tm, "%Y-%m-%d-%H-%M-%S");
         wct = std::chrono::system_clock::from_time_t(std::mktime(&tm));
 
-        // Initialize projections
-        std::string proj = getProjectionString(par("sumoNetXmlFile").xmlValue());
-        EV_DEBUG << "SatellitesConnectionManager proj: " << proj << std::endl;
-
         // create projection context
         pj_ctx = proj_context_create();
-        // create sumo_to_wgs84_projection
-        sumo_to_wgs84_projection = proj_create_crs_to_crs(
-                pj_ctx,
-                proj.c_str(),   // from UTM of SUMO
-                "EPSG:4326",    // to WGS84
-                NULL);
-        // fix longitude, latitude order, see https://proj.org/development/quickstart.html
-        sumo_to_wgs84_projection= proj_normalize_for_visualization(pj_ctx, sumo_to_wgs84_projection);
-        if (sumo_to_wgs84_projection == 0) {
-            throw cRuntimeError("sumo_to_wgs84_projection initialization error");
-        }
+
         // create itrf2008_to_wgs84_projection
         itrf2008_to_wgs84_projection = proj_create_crs_to_crs(
                 pj_ctx,
                 "EPSG:5332",    // from ITRF2008
                 "EPSG:4326",    // to WGS84
                 NULL);
+
         // fix longitude, latitude order, see https://proj.org/development/quickstart.html
         itrf2008_to_wgs84_projection = proj_normalize_for_visualization(pj_ctx, itrf2008_to_wgs84_projection);
         if (itrf2008_to_wgs84_projection == 0) {
             throw cRuntimeError("itrf2008_to_wgs84_projection initialization error");
         }
+
         // create wgs84_to_wgs84cartesian_projection
         wgs84_to_wgs84cartesian_projection = proj_create(
                 pj_ctx,
@@ -109,6 +93,7 @@ void SGP4Mobility::initialize(int stage)
                   par("tle_line_one").stringValue(),
                   par("tle_line_two").stringValue()
                   );
+
         // Initialize SGP4 model
         double startmfe = -1440;  // in min -> 1 day before epoch
         double stopmfe = 1440;  // in min -> 1 day after epoch
@@ -151,101 +136,25 @@ void SGP4Mobility::initialize(int stage)
 
         wall_clock_since_tle_epoch_min = std::chrono::duration<double, std::chrono::minutes::period>(wct - ep);
         EV_DEBUG << "wall_clock_since_tle_epoch_min: wct - ep: " << wall_clock_since_tle_epoch_min.count() << " min" << std::endl;
-
-        /* Statistics */
-        // TODO: FIX result collection statistics
-        // distance_km_to_observationPosition_vec.setName("distance_km_to_observationPosition");
-        // altitude_deg_to_observationPosition_vec.setName("altitude_deg_to_observationPosition");
-        // azimuth_deg_to_observationPosition_vec.setName("azimuth_deg_to_observationPosition");
-
-        currentPosXVec.setName("satellitePosX");
-        currentPosYVec.setName("satellitePosY");
-        currentPosZVec.setName("satellitePosZ");
     }
+    else if (stage == 1) {
+        // Get access to SOP
+        sop = SatelliteObservationPointAccess().get();
+        const PJ_COORD sop_wgs84_proj_cart = sop->get_sop_wgs84_proj_cart();
+        // create geocentric to topocentric projection (requires sop_wgs84 as Cartesian coordinate)
+        std::stringstream ss_proj;
+        ss_proj << "+proj=topocentric +ellps=WGS84 +X_0=" << sop_wgs84_proj_cart.xyz.x << " +Y_0=" << sop_wgs84_proj_cart.xyz.y << " +Z_0=" << sop_wgs84_proj_cart.xyz.z;
+        EV_DEBUG << "SGP4Mobility: ss_proj: " << ss_proj.str() << std::endl;
+        // geocentric to topocentric projection
+        wgs84cartesian_to_topocentric_projection = proj_create(pj_ctx, ss_proj.str().c_str());
 
-    /*
-     * updateSatellitePosition event has to be scheduled in stage 2 because the TraCIScenarioManager
-     * schedules its update in stage 1. The updateSatellitePosition event has to be processed after
-     * the update event of the TraCIScenarioManager such that the SatellitesConnectionManager gets
-     * informed when a vehicle leaves the simulation. In this order the update events of the
-     * TraCIScenarioManager get process before the updateSatellitePosition event.
-     */
-    if (stage == 2) {
-        EV_ERROR << "SGP4Mobility stage 2" << std::endl;
-        // Schedule updateSatellitePosition event
-        auto t_spec = veins::TimerSpecification([this]() {updateSatellitePosition();});
-        t_spec.absoluteStart(SimTime(updateInterval_ms, SIMTIME_MS));
-        t_spec.interval(SimTime(updateInterval_ms, SIMTIME_MS));
-        timerManager.create(t_spec, "updateSatellitePosition");
-
+        // Statistics
+        vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
     }
-}
-
-std::string SGP4Mobility::getProjectionString(const cXMLElement* sumoNetXmlFile) const
-{
-    if (sumoNetXmlFile == nullptr) {
-        throw cRuntimeError("No .net.xml file specified.");
-    }
-
-    cXMLElementList locationList = sumoNetXmlFile->getElementsByTagName("location");
-
-    if (locationList.empty()) {
-        throw cRuntimeError("No location tag found in .net.xml file.");
-    }
-
-    if (locationList.size() > 1) {
-        throw cRuntimeError("More than one location tag found in .net.xml file.");
-    }
-
-    cXMLElement* location = locationList.front();
-    return std::string(location->getAttribute("projParameter"));
-}
-
-WGS84Coord SGP4Mobility::omnetCoord2GeoCoord(const veins::Coord omnetCoord)
-{
-    EV_DEBUG << "SGP4Mobility: Omnet coord: " << omnetCoord << std::endl;
-
-    // traciConnection has to be initialized here because the TraCIConenction is established after the initialization phase.
-    if (!traciConnectionEstablished) {
-        if (!veins::TraCIScenarioManagerAccess().get()->isConnected()) {
-            throw cRuntimeError("TraCIScenarioManager has no connection to SUMO.");
-        }
-        traciConnection.reset(veins::TraCIScenarioManagerAccess().get()->getConnection());
-        EV_TRACE << "SGP4Mobility has access to TraCIConenction." << std::endl;
-        traciConnectionEstablished = true;
-    }
-    veins::TraCICoord traciCoord = traciConnection->omnet2traci(omnetCoord);    // get the SUMO coordinate (UTM)
-    EV_TRACE << "SGP4Mobility: TraCI coord: " << traciCoord.x << ", " << traciCoord.y << std::endl;
-    PJ_COORD toTransfer = proj_coord(traciCoord.x, traciCoord.y, 0, 0);     // translate the SUMO coordinate (UTM) into a WGS84 coordinate
-    PJ_COORD geo = proj_trans(sumo_to_wgs84_projection, PJ_FWD, toTransfer);
-    EV_TRACE << "SGP4Mobility: wgs84 coord: latitude: " << geo.lp.phi << ", longitude: " << geo.lp.lam << std::endl;
-    return WGS84Coord(geo.lp.phi, geo.lp.lam, 0.0);
 }
 
 void SGP4Mobility::updateSatellitePosition()
 {
-    EV_DEBUG << "SGP4Mobility updateSatellitePosition: simTime() (elapsed seconds):  " << simTime() << std::endl;
-    EV_DEBUG << "SGP4Mobility current position: " << this->getPositionAt(simTime()) << std::endl;
-
-    // Calculate SOP as WGS84Coord
-    if (!sop_wgs84_initialized) {
-        sop_wgs84 = omnetCoord2GeoCoord(observerPosition);
-        EV_DEBUG << "SGP4Mobility sop_wgs84: " << sop_wgs84 << std::endl;
-        sop_wgs84_initialized = true;
-        // sop_wgs84 to cartesian coordinates, proj somehow needs radians for this conversion
-        EV_TRACE << "PJ_COORD test = proj_coord(sop_wgs84.lon * (pi/180), sop_wgs84.lat * (pi/180), sop_wgs84.alt, 0)" << std::endl;
-        PJ_COORD test = proj_coord(sop_wgs84.lon * (pi/180), sop_wgs84.lat * (pi/180), sop_wgs84.alt, 0); // conversion km -> m!
-        PJ_COORD sop_cart = proj_trans(wgs84_to_wgs84cartesian_projection, PJ_FWD, test);
-        EV_TRACE << "sop_pos_wgs84 cartesian: x: " << sop_cart.xyz.x << ", y: " << sop_cart.xyz.y << ", z: " << sop_cart.xyz.z << std::endl;
-        // create geocentric to topocentric projection (require sop_wgs84 as Cartesian coordinate
-        std::stringstream ss_proj;
-        ss_proj << "+proj=topocentric +ellps=WGS84 +X_0=" << sop_cart.xyz.x << " +Y_0=" << sop_cart.xyz.y << " +Z_0=" << sop_cart.xyz.z;
-        EV_DEBUG << "ss_proj: " << ss_proj.str() << std::endl;
-        wgs84cartesian_to_topocentric_projection = proj_create(
-                pj_ctx,
-                ss_proj.str().c_str());      // to topocentric cartesian coordinates
-    }
-
     // t is the duration from tle epoch until current simTime() in minutes as required by SGP4Funcs::sgp4
     std::chrono::duration<double, std::chrono::minutes::period> t = wall_clock_since_tle_epoch_min + std::chrono::duration<double, std::chrono::seconds::period>(simTime().dbl());
     EV_DEBUG << "SGP4Mobility wall_clock_since_tle_epoch_min: " << wall_clock_since_tle_epoch_min.count() << " min" << std::endl;
@@ -355,7 +264,7 @@ void SGP4Mobility::updateSatellitePosition()
         // Years to add
         current_date_time.year = tle_epoch.year + years_to_add;
     }
-    EV_DEBUG << "SGP4Mobility current_date_time: year: " << current_date_time.year
+    EV_TRACE << "SGP4Mobility current_date_time: year: " << current_date_time.year
              << ",  month: " << current_date_time.mon
              << ",  day: " << current_date_time.day
              << ",  hour: " << current_date_time.hour
@@ -381,51 +290,53 @@ void SGP4Mobility::updateSatellitePosition()
     PJ_COORD toTransfer = proj_coord(itrf.first[0] * 1000, itrf.first[1] * 1000, itrf.first[2] * 1000, 0); // conversion km -> m!
     PJ_COORD geo = proj_trans(itrf2008_to_wgs84_projection, PJ_FWD, toTransfer);
     WGS84Coord sat_pos_wgs84 = WGS84Coord(geo.lpz.phi, geo.lpz.lam, geo.lpz.z);
-    EV_DEBUG << "SGP4Mobility sat_pos_wgs84: " << sat_pos_wgs84 << std::endl;
+    vehicleStatistics->recordWGS84Coord(sat_pos_wgs84);
+    EV_TRACE << "SGP4Mobility simTime(): " << simTime() << std::endl;
+    EV_TRACE << "SGP4Mobility sat_pos_wgs84: " << sat_pos_wgs84 << std::endl;
 
     // Transform satellite's WGS84 coordinate from geodetic to cartesian representation, proj needs Radians for an unknown reason
-    toTransfer = proj_coord(sat_pos_wgs84.lon * (pi/180), sat_pos_wgs84.lat * (pi/180), sat_pos_wgs84.alt, 0);
+    // see https://proj.org/operations/conversions/cart.html
+    toTransfer = proj_coord(sat_pos_wgs84.lon * (PI/180), sat_pos_wgs84.lat * (PI/180), sat_pos_wgs84.alt, 0);
     PJ_COORD geo_cart = proj_trans(wgs84_to_wgs84cartesian_projection, PJ_FWD, toTransfer);
-    EV_DEBUG << "SGP4Mobility sat_pos_wgs84 cartesian: x: " << geo_cart.xyz.x << ", y: " << geo_cart.xyz.y << ", z: " << geo_cart.xyz.z << std::endl;
+    vehicleStatistics->recordWGS84CartCoord(geo_cart);
+    EV_TRACE << "SGP4Mobility sat_pos_wgs84 cartesian: x: " << geo_cart.xyz.x << ", y: " << geo_cart.xyz.y << ", z: " << geo_cart.xyz.z << std::endl;
 
-    // Geocentric to topocentric
+    // Geocentric to topocentric, see https://proj.org/operations/conversions/topocentric.html
     PJ_COORD topo_cart = proj_trans(wgs84cartesian_to_topocentric_projection, PJ_FWD, geo_cart);
-    EV_DEBUG << "SGP4Mobility topo as cartesian coordinates: e: " << topo_cart.enu.e << ", n:" << topo_cart.enu.n << ", u: " << topo_cart.enu.u << std::endl;
+    EV_TRACE << "SGP4Mobility topo as cartesian coordinates: e: " << topo_cart.enu.e << ", n:" << -topo_cart.enu.n << ", u: " << topo_cart.enu.u << std::endl;
+    vehicleStatistics->recordSopRelativeCoord(veins::Coord(topo_cart.enu.e, -topo_cart.enu.n, topo_cart.enu.u));
 
-    veins::Coord satellitePosition(topo_cart.xyz.x, -topo_cart.xyz.y, topo_cart.xyz.z);
-    EV_DEBUG << "SGP4Mobility topocentric satellitePosition: " << satellitePosition << std::endl;
-    move.setStart(satellitePosition);
-    // Update direction and orientation
-    // TODO: Currently there are no values for the direction of the satellite
-    // viewing angle of the reference position is used instead.
-    // move.setDirectionByVector(rspUnitDirVec);
-    // move.setOrientationByVector(rspUnitDirVec);
-    // Set speed
-    // TODO: Consider the speed returned by the SGP4 model
-    move.setSpeed(0);
-    // publish the the new move
-    emit(mobilityStateChangedSignal, this);
+    // Note the minus operator at the northing: The reason is OMNeT++'s coordinate system. The origin is in the upper left corner,
+    // the x-axis goes from west to east in the positiv direction and the y-axis goes from north to south in the positiv direction.
+    // According to the figure at https://proj.org/operations/conversions/topocentric.html the enu.n-axis needs to be inverted.
+    //
+    // Further, the position of the SOP is added such that the satellite position is relative to OMNeT++'s origin.
+    auto sop_omnet_coord = sop->get_sop_omnet_coord();
+    inet::Coord satellitePosition(topo_cart.enu.e + sop_omnet_coord.x, -topo_cart.enu.n + sop_omnet_coord.y, topo_cart.enu.u + sop_omnet_coord.z);
+    EV_TRACE << "SGP4Mobility new lastPosition: " << satellitePosition << std::endl;
 
-    /* Statistics */
-    // TODO: Fix statistics collection
-    // distance_km_to_observationPosition_vec.record(rsp.distance_km);
-    // altitude_deg_to_observationPosition_vec.record(rsp.altitude_deg);
-    // azimuth_deg_to_observationPosition_vec.record(rsp.azimuth_deg);
+    lastPosition = satellitePosition;
+    vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
+}
 
-    currentPosXVec.record(satellitePosition.x);
-    currentPosYVec.record(satellitePosition.y);
-    currentPosZVec.record(satellitePosition.z);
+void SGP4Mobility::handleSelfMessage(cMessage* message)
+{
+    MovingMobilityBase::handleSelfMessage(message);
+}
+
+void SGP4Mobility::move()
+{
+    updateSatellitePosition();
+    lastVelocity = inet::Coord();                       // TODO: Consider the speed returned by the SGP4 model
+    //lastOrientation = inet::Quaternion(0, 0, 0, 0);     // TODO: Currently there are no values for the direction of the satellite
+    lastUpdate = simTime();
+    nextChange = simTime() + updateInterval;
+
+    emitMobilityStateChangedSignal();
+    refreshDisplay();
 }
 
 void SGP4Mobility::finish()
 {
-    BaseMobility::finish();
-}
-
-void SGP4Mobility::handleSelfMsg(cMessage* msg)
-{
-    EV_DEBUG << "SGP4Mobility self msg: " << msg->info() << std::endl;
-    if (timerManager.handleMessage(msg)) {
-        return;
-    }
+    MovingMobilityBase::finish();
 }

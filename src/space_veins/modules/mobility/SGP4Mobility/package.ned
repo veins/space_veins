@@ -2,7 +2,7 @@
 // Copyright (C) 2013 Christoph Sommer <sommer@ccs-labs.org>
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -23,7 +23,7 @@
 
 //
 // @titlepage
-// <h1>spaec_Veins Framework</h1>
+// <h1>space_Veins Framework</h1>
 //
 // See the spaec_Veins website <a href="http://sat.car2x.org/"> for a tutorial, documentation, and publications </a>.
 //
