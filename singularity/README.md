@@ -46,7 +46,7 @@ singularity run-help singularity-space_veins.sif
 git clone --branch space_Veins-0.3-alpha4 https://github.com/veins/space_veins work/space_veins
 singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make makefiles
 singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make
-singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv
+singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
 ```
 
 Alternatively the following commands can be used:
@@ -55,7 +55,7 @@ Alternatively the following commands can be used:
 git clone --branch space_Veins-0.3-alpha4 https://github.com/veins/space_veins work/space_veins
 ./singularity-space_veins.sh /work/space_veins -- make makefiles
 ./singularity-space_veins.sh /work/space_veins -- make
-./singularity-space_veins.sh /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv
+./singularity-space_veins.sh /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
 ```
 
 ## License ##
