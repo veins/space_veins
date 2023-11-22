@@ -20,17 +20,22 @@
 
 package space_veins.modules.SatelliteObservationPoint;
 
+import inet.mobility.static.StationaryMobility;
+
 //
 // Module representing the satellite observation point used for the SGP4Mobility
 //
-simple SatelliteObservationPoint
+module SatelliteObservationPoint
 {
     parameters:
         @class(space_veins::SatelliteObservationPoint);
         @display("i=block/cogwheel");
-        double sop_omnet_x_coord = default(0);  // X coordinate of the satellite observer position in the OMNeT++ coordinate system
-        double sop_omnet_y_coord = default(0);  // Y coordinate of the satellite observer position in the OMNeT++ coordinate system
-        double sop_omnet_z_coord = default(0);  // Z coordinate of the satellite observer position in the OMNeT++ coordinate system
         int margin = default(25); // margin added by the TraCIScenarioManager. Both value must be identical.
         xml sumoNetXmlFile = default(xmldoc("erlangen.net.xml"));  // path to the simulated SUMO scenario, required to read in the proj string
+
+    submodules:
+        mobility: StationaryMobility {
+            parameters:
+                @display("p=200,200");
+        }
 }

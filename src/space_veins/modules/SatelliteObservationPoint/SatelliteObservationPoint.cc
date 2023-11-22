@@ -108,10 +108,43 @@ veins::Coord SatelliteObservationPoint::netOffsetString2Coord(const std::string 
     return offset;
 }
 
+void SatelliteObservationPoint::handleMessage(cMessage* message)
+{
+    if (message->isSelfMessage()) {
+        handleSelfMessage(message);
+    }else{
+        EV_DEBUG << "SOP: Error received cMessage that is not self message." << std::endl;
+        delete message;
+    }
+}
+
+void SatelliteObservationPoint::handleSelfMessage(cMessage* message)
+{
+    switch (message->getKind()) {
+    case 0: {
+        // draw SOP in SUMO
+        annotations->drawPoint(sop_omnet_coord, "red", "SOP");
+        EV_TRACE << "SOP: drawn SOP in SUMO at veins::Coord: " << sop_omnet_coord << std::endl;
+        break;
+    }
+    }
+}
+
 void SatelliteObservationPoint::initialize(int stage)
 {
     if (stage == 0) {
-        // Initialize projections
+        // get Mobility
+        mobility = static_cast<inet::StationaryMobility*>(getSubmodule("mobility"));
+        ASSERT(mobility);
+        // get AnnotationManager
+        annotations = veins::AnnotationManagerAccess().getIfExists();
+        ASSERT(annotations);
+
+        cMessage *drawPosition = new cMessage("drawMessage", 0);
+        scheduleAt(simTime() + 0.01, drawPosition);
+    }
+    if (stage == 3) {
+        // Initialize projections after lastPosition of the mobility submodule is initialized
         std::string sumo_proj = getProjectionString(par("sumoNetXmlFile").xmlValue());
         EV_DEBUG << "SOP: sumo_proj: " << sumo_proj << std::endl;
 
@@ -143,9 +176,10 @@ void SatelliteObservationPoint::initialize(int stage)
                 "+proj=pipeline +step proj=cart +ellps=WGS84");    // from WGS84 geodetic to cartesian
 
         // Set satellite observer position (SOP)
-        sop_omnet_coord = veins::Coord(par("sop_omnet_x_coord").doubleValue(),
-                           par("sop_omnet_y_coord").doubleValue(),
-                           par("sop_omnet_z_coord").doubleValue());
+        sop_omnet_coord = veins::Coord(
+                            mobility->getCurrentPosition().x,
+                            mobility->getCurrentPosition().y,
+                            mobility->getCurrentPosition().z);
         EV_DEBUG << "SOP: sop_omnet_coord: " << sop_omnet_coord << std::endl;
 
         // Move SOP to the right position on the canvas
