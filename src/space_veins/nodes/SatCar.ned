@@ -59,8 +59,8 @@ module SatCar extends VeinsInetCar
             satNic[i].upperLayerOut --> nl.in++;
             satNic[i].upperLayerIn <-- nl.out++;
         }
-        satNic[0].upperLayerOut --> nl.in++ if !useSamac;
-        satNic[0].upperLayerIn <-- nl.out++ if !useSamac;
+        satNic[0].upperLayerOut --> nl.in++ if !useSamac && numSatelliteNics>0;
+        satNic[0].upperLayerIn <-- nl.out++ if !useSamac && numSatelliteNics>0;
 
         satNic[0].upperLayerOut --> samacNic.lowerLayerIn if useSamac;
         satNic[0].upperLayerIn <-- samacNic.lowerLayerOut if useSamac;
