@@ -30,9 +30,5 @@ simple SGP4Mobility extends MovingMobilityBase
     parameters:
         @class(space_veins::SGP4Mobility);
         @display("i=block/cogwheel");
-        //@signal[mobilityStateChanged](type=inet::MobilityBase);
-        string wall_clock_sim_start_time_utc = default("2021-08-16-09-00-41"); // yyyy-mm-dd-hh-mm-ss
-        string satelliteName; // satellite name according to the TLE data
-        string tle_line_one;  // TLE data line 1
-        string tle_line_two;  // TLE data line 2
+        @signal[mobilityStateChanged](type=inet::MobilityBase);
 }
