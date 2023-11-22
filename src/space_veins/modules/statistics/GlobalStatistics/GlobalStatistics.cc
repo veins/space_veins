@@ -27,14 +27,19 @@ void GlobalStatistics::initialize(int stage)
 {
     if (stage == 0) {
         EV_DEBUG << "GlobalStatistics initialized." << std::endl;
-        vecCurrentCars.setName("vecCurrentCars");
+
+        WATCH(numTotalCars);
+        WATCH(numRemovedCars);
+        WATCH(numCurrentCars);
+
+        vecCurrentCars.setName("vecCurrentCars:vector");
     }
 }
 
 void GlobalStatistics::finish() {
-    recordScalar("numTotalCars", numTotalCars);
-    recordScalar("numRemovedCars", numRemovedCars);
-    recordScalar("numCurrentCars", numCurrentCars);
+    recordScalar("numTotalCars:count", numTotalCars);
+    recordScalar("numRemovedCars:count", numRemovedCars);
+    recordScalar("numCurrentCars:count", numCurrentCars);
 }
 
 void GlobalStatistics::handleMessage(cMessage *msg)

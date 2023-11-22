@@ -19,15 +19,10 @@
 
 #pragma once
 
-#include <proj.h>
-
 #include "veins/veins.h"
-
 #include "veins/base/utils/FindModule.h"
-#include "veins/base/utils/Coord.h"
 
 #include "space_veins/space_veins.h"
-#include "space_veins/modules/utility/WGS84Coord.h"
 
 using namespace omnetpp;
 
@@ -40,6 +35,7 @@ class SPACE_VEINS_API GlobalStatistics : public cSimpleModule
         virtual void handleMessage(cMessage *msg) override;
         ~GlobalStatistics();
 
+    protected:
         unsigned long numTotalCars = 0;
         unsigned long numRemovedCars = 0;
         unsigned long numCurrentCars = 0;
