@@ -114,6 +114,8 @@ void SAMAC::handleMessageWhenUp(cMessage* message)
             EV_TRACE << "handleMessageWhenUp -- received packet from LEO satellite." << std::endl;
             handleLeoPacket(check_and_cast<Packet*>(message));
         }else if (message->arrivedOn("upperLayerIn")) {
+            // emit signal for data link visualization
+            emit(packetReceivedFromUpperSignal, message);
             handleUpperPacket(check_and_cast<Packet*>(message));
             EV_TRACE << "handleMessageWhenUp -- received packet from upper layer (expected to be a packet for the sidelink channel)." << std::endl;
         }
