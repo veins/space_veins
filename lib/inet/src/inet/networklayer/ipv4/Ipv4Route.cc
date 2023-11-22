@@ -15,6 +15,12 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
+// ---------------------------------------------------------------------------------
+//
+// This file is modified compared to the original version of INET such that it works
+// with space_Veins <https://github.com/veins/space_veins>. Please use a tool like
+// 'meld' in order to see the differences.
+// Author of the modifications is Mario Franke <research@m-franke.net>.
 
 #include <sstream>
 #include <stdio.h>
@@ -124,7 +130,7 @@ IRoutingTable *Ipv4Route::getRoutingTableAsGeneric() const
 
 Ipv4MulticastRoute::~Ipv4MulticastRoute()
 {
-    delete inInterface;
+    // delete inInterface; this forced a segmentation fault at shutdown
     for (auto & elem : outInterfaces)
         delete elem;
     outInterfaces.clear();
