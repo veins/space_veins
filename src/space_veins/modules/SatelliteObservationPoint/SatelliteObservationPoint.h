@@ -18,17 +18,22 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#pragma once
+
 #include <string>
 #include <sstream>
 #include <utility>
 #include <memory>
 
-#include "proj.h"
+#include <proj.h>
+
+#include "inet/mobility/static/StationaryMobility.h"
 
 #include "veins/base/utils/FindModule.h"
 #include "veins/base/utils/Coord.h"
 #include "veins/modules/mobility/traci/TraCICoord.h"
 #include "veins/modules/mobility/traci/TraCICoordinateTransformation.h"
+#include "veins/modules/world/annotations/AnnotationManager.h"
 
 #include "space_veins/modules/mobility/SGP4Mobility/constants.h"
 #include "space_veins/modules/utility/WGS84Coord.h"
@@ -65,6 +70,8 @@ public:
 
 
 protected:
+    inet::StationaryMobility* mobility;
+    veins::AnnotationManager* annotations;
     veins::Coord sop_omnet_coord;
     veins::TraCICoord sop_traci_coord;    // SUMO coordinate
     veins::TraCICoord sop_utm_coord;      // UTM coordinate: sumo coordinates + sumo netOffset
@@ -83,7 +90,7 @@ protected:
 
     int numInitStages() const override
     {
-        return std::max(cSimpleModule::numInitStages(), 1);
+        return std::max(cSimpleModule::numInitStages(), 4);
     }
 
     std::string getProjectionString(const cXMLElement* sumoNetXmlFile) const;
@@ -95,6 +102,10 @@ protected:
     std::string getNetOffsetString(const cXMLElement* sumoNetXmlFile) const;
 
     veins::Coord netOffsetString2Coord(const std::string no) const;
+
+    virtual void handleMessage(cMessage* message) override;
+
+    virtual void handleSelfMessage(cMessage* message);
 
 private:
     std::unique_ptr<veins::TraCICoordinateTransformation> coordinateTransformation;
