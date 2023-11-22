@@ -2,30 +2,6 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-# space_Veins system libs
-SPACE_VEINS_SYSTEM_LIBS_PROJ +=  \
-m \
-pthread \
-stdc++
-
-SPACE_VEINS_SYSTEM_LIBS_SQLITE3 +=  \
-pthread \
-dl \
-m
-
-SPACE_VEINS_SYSTEM_LIBS += \
-$(SPACE_VEINS_SYSTEM_LIBS_PROJ) \
-$(SPACE_VEINS_SYSTEM_LIBS_SQLITE3) \
-
-# link libproj-dev staticly
-OMNETPP_LIBS += ../lib/proj/build/lib/libproj.a
-OMNETPP_LIBS += $(libsqlite3.a)
-OMNETPP_LIBS += $(addprefix -l, $(SPACE_VEINS_SYSTEM_LIBS))
-
-#TODO: CHeck CONAN_FRAMEWORKS contains entries
-#TODO: Check if this works with linux
-#OMNETPP_LIBS += $(addprefix -framework , $(CONAN_FRAMEWORKS))
-
 #
 # Use the new message compiler introduced in OMNeT++ 5.3
 #
@@ -39,11 +15,3 @@ $(info *** LINKING with:)
 $(info $(SHLIB_LD) -o $O/$(TARGET) $(AS_NEEDED_OFF) $(WHOLE_ARCHIVE_ON) $(LIBS) $(WHOLE_ARCHIVE_OFF) $(OMNETPP_LIBS) $(LDFLAGS))
 $(info Building...)
 endif
-
-ifeq ($(WITH_OSGEARTH),yes)
-	@echo "------------------------------------------------------------------------------"
-	@echo "-- You have built OMNeT++ with WITH_OSGEARTH. This will likely break stuff. --"
-	@echo "------------------------------------------------------------------------------"
-	exit 1
-endif
-

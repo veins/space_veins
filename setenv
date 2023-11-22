@@ -33,7 +33,3 @@ fi
 # Add space_Veins directory to PATH
 SPACE_VEINS_ROOT="$(pwd)"
 export PATH="$PATH":"$SPACE_VEINS_ROOT/bin"
-
-# Set PROJ_LIB
-export PROJ_LIB="${SPACE_VEINS_ROOT}/lib/proj/build/data"
-
