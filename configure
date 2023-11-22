@@ -55,7 +55,6 @@ def versions_to_hr(vv):
 parser = OptionParser()
 parser.add_option("-v", "--verbose", dest="count_verbose", default=0, action="count", help="increase verbosity [default: don't log infos, debug]")
 parser.add_option("-q", "--quiet", dest="count_quiet", default=0, action="count", help="decrease verbosity [default: log warnings, errors]")
-parser.add_option("--with-libproj", dest="libproj", help="link with a version of libproj installed in PATH [default: lib/proj]", metavar="PATH", default="lib/proj")
 parser.add_option("--with-veins", dest="veins", help="link with a version of Veins installed in PATH [default: lib/veins]", metavar="PATH", default="lib/veins")
 parser.add_option("--with-inet", dest="inet", help="link with a version of the INET Framework installed in PATH [default: lib/inet]", metavar="PATH", default="lib/inet")
 parser.add_option("--with-veins-inet", dest="veins_inet", help="link with a version of the veins subproject veins_inet installed in PATH [default: lib/veins/subprojects/veins_inet]", metavar="PATH", default="lib/veins/subprojects/veins_inet")
@@ -70,38 +69,10 @@ if args:
 
 
 # Start with default flags
-makemake_flags = ['-f', '--deep', '--no-deep-includes', '--make-so', '-I', '.', '-o', proj_name, '-O', 'out', '-p', proj_name_caps]
+makemake_flags = ['-f', '--deep', '--no-deep-includes', '--make-so', '-I', '.', '-o', proj_name, '-O', 'out', '-p', proj_name_caps, '-lproj']
 run_libs = [os.path.join('src', proj_name)]
 run_neds = [os.path.join('src', proj_name)]
 run_imgs = [os.path.join('images')]
-
-# Add flags for libproj
-if options.libproj:
-    # TODO: check for correct version
-    #fname = os.path.join(options.libproj, 'print-veins-version')
-    #expect_version = [b'5.1', b'5.2']
-    #try:
-    #    info('Running "%s" to determine Veins version.' % fname)
-    #    version = subprocess.check_output(['env', fname]).strip()
-    #    if not version in expect_version:
-    #        warning('')
-    #        warning('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    #        warning('Unsupported Veins Version. Expecting %s, found %s' % (versions_to_hr(expect_version), version_to_hr(version)))
-    #        warning('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    #        warning('')
-    #    else:
-    #        info('Found Veins version %s. Okay.' % version_to_hr(version))
-    #except subprocess.CalledProcessError as e:
-    #    error('Could not determine Veins Version (by running %s): %s. Check the path to Veins (--with-veins=... option) and the Veins version (should be version %s)' % (fname, e, versions_to_hr(expect_version)))
-    #    sys.exit(1)
-
-    libproj_header_dirs = [os.path.join(os.path.relpath(options.libproj, 'src'), 'src')]
-    libproj_includes = ['-I' + s for s in libproj_header_dirs]
-    #libproj_link = ["-L" + os.path.join(os.path.relpath(options.libproj, 'src'), 'src'), "-lveins$(D)"]
-    #libproj_defs = []
-
-    #makemake_flags += veins_includes + veins_link + veins_defs
-    makemake_flags += libproj_includes
 
 # Add flags for Veins
 if options.veins:

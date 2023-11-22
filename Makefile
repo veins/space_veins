@@ -14,7 +14,7 @@ bin/space_veins_run: src/scripts/space_veins_run.in.py
 	@sed '/# v-- contents of out\/config.py go here/r out/config.py' "$<" > "$@"
 	@chmod a+x "$@"
 
-space_veins: checkmakefiles bin/space_veins_run veins_inet libproj
+space_veins: checkmakefiles bin/space_veins_run veins_inet
 	cd src && $(MAKE) MODE=release
 	cd src && $(MAKE) MODE=debug
 
@@ -52,15 +52,9 @@ clean: checkmakefiles checkInetMakefiles checkVeinsInetMakefiles
 	cd lib/inet && $(MAKE) clean
 	cd lib/veins/subprojects/veins_inet/src && $(MAKE) clean
 
-libproj:
-	cd lib/proj && mkdir -p build
-	cd lib/proj/build && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DBUILD_PROJSYNC=OFF -DENABLE_TIFF=OFF -DENABLE_CURL=OFF -DBUILD_TESTING=OFF -DCMAKE_CXX_FLAGS=-fPIC ..
-	cd lib/proj/build && $(MAKE)
-
 cleanall: checkmakefiles checkInetMakefiles checkVeinsInetMakefiles
 	rm -rf out/config.py
 	rm -rf bin
-	rm -rf lib/proj/build
 	cd src && $(MAKE) MODE=release clean
 	cd src && $(MAKE) MODE=debug clean
 	rm -f src/Makefile
@@ -93,7 +87,7 @@ veinsMakefiles:
 	cd lib/veins && ./configure
 
 veinsInetMakefiles:
-	cd lib/veins/subprojects/veins_inet && ./configure --with-inet ../../../inet
+	cd lib/veins/subprojects/veins_inet && ./configure
 
 checkmakefiles:
 	@if [ ! -f src/Makefile ]; then \
