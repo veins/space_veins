@@ -49,7 +49,13 @@ public:
     void set_tle_line1(const std::string& line1);
     void set_tle_line2(const std::string& line2);
 
-private:
+    friend std::ostream& operator<< (std::ostream& os, const TLE& tle)
+    {
+        return os << tle.satellite_name << std::endl
+                  << tle.tle_line1 << std::endl
+                  << tle.tle_line2 << std::endl;
+    }
+
     std::string satellite_name;
     std::string tle_line1;
     std::string tle_line2;
