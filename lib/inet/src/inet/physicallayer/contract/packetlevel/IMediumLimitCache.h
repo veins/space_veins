@@ -127,10 +127,19 @@ class INET_API IMediumLimitCache : public IPrintableObject
     virtual m getMaxInterferenceRange(const IRadio *radio) const = 0;
 
     /**
-     * Returns the minimum required elevation angle such that two satNics can
-     * communicate, NaN if unspecified.
+     * Returns the minimum required elevation angle such that a vehicle and
+     * a satellite can communicate, NaN if unspecified.
      */
-    virtual deg getMinElevationAngle() const = 0;
+    virtual deg getMinElevationAngleV2S() const = 0;
+    /**
+     * Returns the minimum required elevation angle such that a drone and
+     * a satellite can communicate, NaN if unspecified.
+     */
+    virtual deg getMinElevationAngleD2S() const = 0;
+    /**
+    * Returns whether satellite to satellite communication is disabled.
+    */
+    virtual bool getDisableS2SCommunication() const = 0;
 };
 
 } // namespace physicallayer

@@ -204,28 +204,64 @@ bool RadioMedium::matchesMacAddressFilter(const IRadio *radio, const Packet *pac
     return false;
 }
 
-bool RadioMedium::isElevationAngleLargeEnough(const ITransmission *transmission, const IArrival *arrival) const
+bool RadioMedium::areReceiverAndTransmitterSatellites(const Radio* receiverRadio, const ITransmission *transmission) const
 {
-    deg minElevationAngle = mediumLimitCache->getMinElevationAngle();
-    if (std::isnan(minElevationAngle.get())) return true;
+    // Determine whether the transmitter is a satellite
     const Radio* transmitter = dynamic_cast<const Radio*>(transmission->getTransmitter());
     if (transmitter == nullptr) {
         throw cRuntimeError("No radio found with id %d", transmission->getTransmitter()->getId());
     }
-    // Determine whether the transmitter is a vehicle or a satellite
-    std::string moduleType(transmitter->getParentModule()->getParentModule()->getNedTypeName());
+    std::string transmitterModuleType(transmitter->getParentModule()->getParentModule()->getNedTypeName());
+    if (transmitterModuleType != "space_veins.nodes.Satellite") {
+        return false;
+    }
+    // Determine whether the receiver is a satellite
+    if (receiverRadio == nullptr) {
+        throw cRuntimeError("receiverRadio is nullptr.");
+    }
+    std::string receiverModuleType(receiverRadio->getParentModule()->getParentModule()->getNedTypeName());
+    if (receiverModuleType != "space_veins.nodes.Satellite") {
+        return false;
+    }
+    return true;
+}
+
+bool RadioMedium::isElevationAngleLargeEnough(const Radio *receiverRadio, const ITransmission *transmission, const IArrival *arrival) const
+{
+    // Get receiver and transmitter type
+    const Radio* transmitter = dynamic_cast<const Radio*>(transmission->getTransmitter());
+    if (transmitter == nullptr) {
+        throw cRuntimeError("No radio found with id %d", transmission->getTransmitter()->getId());
+    }
+    std::string transmitterModuleType(transmitter->getParentModule()->getParentModule()->getNedTypeName());
+    if (receiverRadio == nullptr) {
+        throw cRuntimeError("receiverRadio is nullptr.");
+    }
+    std::string receiverModuleType(receiverRadio->getParentModule()->getParentModule()->getNedTypeName());
+    // Set minElvationAngle according to the communication type
+    deg minElevationAngle;
+    if (receiverModuleType == "space_veins.nodes.SatDrone" || transmitterModuleType == "space_veins.nodes.SatDrone") {
+        minElevationAngle = mediumLimitCache->getMinElevationAngleD2S();
+    } else if (receiverModuleType == "space_veins.nodes.SatCar" || transmitterModuleType == "space_veins.nodes.SatCar") {
+        minElevationAngle = mediumLimitCache->getMinElevationAngleV2S();
+    } else {
+        throw cRuntimeError("Neither V2S nor D2S communication: transmitter module: %s, receiver module: %s", transmitterModuleType.c_str(), receiverModuleType.c_str());
+    }
+    // Check whether the minElevationAngle is NaN
+    if (std::isnan(minElevationAngle.get())) return true;
+    // Check whether the transmitter or receiver is the satellite
     Coord direction;    // transmission direction vector always has to point towards the satellite such that we can properly calculate the elevation angle between vehicle and satellite.
-    if (moduleType == "space_veins.nodes.Satellite") {
+    if (transmitterModuleType == "space_veins.nodes.Satellite") {
         // satellite is transmitter
         direction = transmission->getStartPosition() - arrival->getEndPosition();
     }
-    else if (moduleType == "space_veins.nodes.SatCar") {
-        // vehicle is transmitter
+    else if (receiverModuleType == "space_veins.nodes.Satellite") {
+        // satellite is receiver
         direction = arrival->getEndPosition() - transmission->getStartPosition();
     }
     direction.normalize();
     deg elevationAngle = inet::deg(inet::rad(asin(direction.z)));
-    if (elevationAngle.get() > minElevationAngle.get()) return true;
+    if (elevationAngle.get() >= minElevationAngle.get()) return true;
     return false;
 }
 
@@ -678,7 +714,11 @@ bool RadioMedium::isPotentialReceiver(const IRadio *radio, const ITransmission *
         const IArrival *arrival = getArrival(radio, transmission);
         return isInCommunicationRange(transmission, arrival->getStartPosition(), arrival->getEndPosition());
     }
-    else if (!isElevationAngleLargeEnough(transmission, getArrival(radio, transmission))) {
+    else if (mediumLimitCache->getDisableS2SCommunication() && areReceiverAndTransmitterSatellites(receiverRadio, transmission)) {
+        EV_DEBUG << "Satellite to satellite communication is disabled." << std::endl;
+        return false;
+    }
+    else if (!isElevationAngleLargeEnough(receiverRadio, transmission, getArrival(radio, transmission))) {
         EV_DEBUG << "ElevationAngle is not large enough -> is not a potential receiver." << std::endl;
         return false;
     }
