@@ -287,7 +287,8 @@ class INET_API RadioMedium : public cSimpleModule, public cListener, public IRad
      */
     virtual bool isPotentialReceiver(const IRadio *receiver, const ITransmission *transmission) const;
 
-    virtual bool isElevationAngleLargeEnough(const ITransmission *transmission, const IArrival *arrival) const;
+    virtual bool areReceiverAndTransmitterSatellites(const Radio* receiverRadio, const ITransmission *transmission) const;
+    virtual bool isElevationAngleLargeEnough(const Radio *receiverRadio, const ITransmission *transmission, const IArrival *arrival) const;
     virtual bool isInCommunicationRange(const ITransmission *transmission, const Coord startPosition, const Coord endPosition) const;
     virtual bool isInInterferenceRange(const ITransmission *transmission, const Coord startPosition, const Coord endPosition) const;
 

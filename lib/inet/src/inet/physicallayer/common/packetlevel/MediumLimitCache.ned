@@ -39,7 +39,9 @@ module MediumLimitCache like IMediumLimitCache
         double maxTransmissionDuration @unit(s) = default(10ms);  // maximum duration of a transmission on the medium
         double maxCommunicationRange @unit(m) = default(nan m);    // maximum communication range on the medium, NaN means medium computes using transmitter and receiver models
         double maxInterferenceRange @unit(m) = default(nan m);     // maximum interference range on the medium, NaN means medium computes using transmitter and receiver models
-        double minElevationAngle @unit(deg) = default(nan deg);// minimum elevation angle between to vehicles transmitting via the satNic, NaN completly ignores the minElevationAngle.
+        double minElevationAngleV2S @unit(deg) = default(nan deg);    // minimum elevation angle between a vehicle and a satelite such that communication is possible, NaN completly ignores the minElevationAngle.
+        double minElevationAngleD2S @unit(deg) = default(nan deg);    // minimum elevation angle between a drone and a satelite such that communication is possible, NaN completly ignores the minElevationAngle.
+        bool disableS2SCommunication = default(false);            // disables communication between satelites
         @display("i=block/table2");
         @class(MediumLimitCache);
 }

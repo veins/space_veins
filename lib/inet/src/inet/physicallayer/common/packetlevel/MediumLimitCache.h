@@ -103,9 +103,17 @@ class INET_API MediumLimitCache : public cModule, public IMediumLimitCache
      */
     m maxInterferenceRange;
     /**
-     * The minimum elevation angle between devices using the satNic.
+     * The minimum elevation angle between SatCars and Satellites using the satNic.
      */
-    deg minElevationAngle;
+    deg minElevationAngleV2S;
+    /**
+     * The minimum elevation angle between Drones and Satellites using the satNic.
+     */
+    deg minElevationAngleD2S;
+    /**
+     * Disable satellite to satellite communication.
+     */
+    bool disableS2SCommunication;
     //@}
 
   protected:
@@ -131,7 +139,8 @@ class INET_API MediumLimitCache : public cModule, public IMediumLimitCache
     virtual m computeMaxRange(W maxTransmissionPower, W minReceptionPower) const;
     virtual m computeMaxCommunicationRange() const;
     virtual m computeMaxInterferenceRange() const;
-    virtual deg computeMinElevationAngle() const;
+    virtual deg computeMinElevationAngleV2S() const;
+    virtual deg computeMinElevationAngleD2S() const;
 
     virtual void updateLimits();
     //@}
@@ -162,7 +171,9 @@ class INET_API MediumLimitCache : public cModule, public IMediumLimitCache
 
     virtual m getMaxCommunicationRange() const override { return maxCommunicationRange; }
     virtual m getMaxInterferenceRange() const override { return maxInterferenceRange; }
-    virtual deg getMinElevationAngle() const override { return minElevationAngle;}
+    virtual deg getMinElevationAngleV2S() const override { return minElevationAngleV2S;}
+    virtual deg getMinElevationAngleD2S() const override { return minElevationAngleD2S;}
+    virtual bool getDisableS2SCommunication() const override { return disableS2SCommunication;}
 
     virtual m getMaxCommunicationRange(const IRadio *radio) const override;
     virtual m getMaxInterferenceRange(const IRadio *radio) const override;

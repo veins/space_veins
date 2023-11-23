@@ -80,7 +80,9 @@ MediumLimitCache::MediumLimitCache() :
     maxTransmissionDuration(NaN),
     maxCommunicationRange(m(NaN)),
     maxInterferenceRange(m(NaN)),
-    minElevationAngle(deg(NaN))
+    minElevationAngleV2S(deg(NaN)),
+    minElevationAngleD2S(deg(NaN)),
+    disableS2SCommunication(false)
 {
 }
 
@@ -99,7 +101,9 @@ void MediumLimitCache::initialize(int stage)
         WATCH(maxTransmissionDuration);
         WATCH(maxCommunicationRange);
         WATCH(maxInterferenceRange);
-        WATCH(minElevationAngle);
+        WATCH(minElevationAngleV2S);
+        WATCH(minElevationAngleD2S);
+        WATCH(disableS2SCommunication);
     }
 }
 
@@ -118,7 +122,9 @@ std::ostream& MediumLimitCache::printToStream(std::ostream &stream, int level) c
                << ", maxTransmissionDuration = " << maxTransmissionDuration
                << ", maxCommunicationRange = " << maxCommunicationRange
                << ", maxInterferenceRange = " << maxInterferenceRange
-               << ", minElevationAngle = " << minElevationAngle;
+               << ", minElevationAngleV2S = " << minElevationAngleV2S
+               << ", minElevationAngleD2S = " << minElevationAngleD2S
+               << ", disableS2SCommunication = " << disableS2SCommunication;
     return stream;
 }
 
@@ -135,7 +141,9 @@ void MediumLimitCache::updateLimits()
     maxTransmissionDuration = computeMaxTransmissionDuration();
     maxCommunicationRange = computeMaxCommunicationRange();
     maxInterferenceRange = computeMaxInterferenceRange();
-    minElevationAngle = computeMinElevationAngle();
+    minElevationAngleV2S = computeMinElevationAngleV2S();
+    minElevationAngleD2S = computeMinElevationAngleD2S();
+    disableS2SCommunication = par("disableS2SCommunication");
 }
 
 void MediumLimitCache::addRadio(const IRadio *radio)
@@ -218,9 +226,14 @@ m MediumLimitCache::computeMaxInterferenceRange() const
     return maxIgnoreNaN(m(par("maxInterferenceRange")), computeMaxRange(maxTransmissionPower, minInterferencePower));
 }
 
-deg MediumLimitCache::computeMinElevationAngle() const
+deg MediumLimitCache::computeMinElevationAngleV2S() const
 {
-    return deg(par("minElevationAngle"));
+    return deg(par("minElevationAngleV2S"));
+}
+
+deg MediumLimitCache::computeMinElevationAngleD2S() const
+{
+    return deg(par("minElevationAngleD2S"));
 }
 
 const simtime_t MediumLimitCache::computeMinInterferenceTime() const
