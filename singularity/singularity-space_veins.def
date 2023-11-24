@@ -23,16 +23,12 @@
 #
 
 Bootstrap: debootstrap
-OSVersion: bullseye
-MirrorURL:  http://httpredir.debian.org/debian
-
-# Alternative: bootstrap from docker
-#Bootstrap: docker
-#From: debian:buster
+OSVersion: jammy
+MirrorURL:  http://archive.ubuntu.com/ubuntu
 
 %labels
     Author sommer@cms-labs.org research@m-franke.net
-    Version v0.0.1
+    Version v0.0.2
 
 %help
     Singularity container for quickly building and running space_veins simulations anywhere.
@@ -42,7 +38,6 @@ MirrorURL:  http://httpredir.debian.org/debian
     ```
     singularity run singularity-space_veins.sif --help
     ```
-
 %setup
     # create stub hosts file contents (necessary for resolving "localhost" if network isolation is turned on)
     test -s "${SINGULARITY_ROOTFS}/etc/hosts" || echo '127.0.0.1\tlocalhost' >> "${SINGULARITY_ROOTFS}/etc/hosts"
@@ -51,31 +46,32 @@ MirrorURL:  http://httpredir.debian.org/debian
     set -e
 
     # Use default versions if environment variables (SINGULARITYENV_VEINS_VERSION etc.) are left unset
-    : ${VEINS_VERSION=5.2}
     : ${OPP_VERSION=5.7}
-    : ${SUMO_VERSION=1.11.0}
-    : ${SPACE_VEINS_VERSION=0.3-alpha4}
+    : ${SUMO_VERSION=1.18.0}
 
-    export VEINS_VERSION
     export OPP_VERSION
     export SUMO_VERSION
 
     export SUMO_TAG=v$(echo "$SUMO_VERSION" | tr . _)
 
     apt-get -y update
+    apt-get -y install software-properties-common
+    add-apt-repository main
+    add-apt-repository universe
+    add-apt-repository restricted
+    add-apt-repository multiverse
+    apt-get -y update
 
     # version info
     mkdir -p /opt/singularity-space_veins
-    echo "singularity-space_veins-0.0.1" > /opt/singularity-space_veins/version.txt
+    echo "singularity-space_veins-0.0.2" > /opt/singularity-space_veins/version.txt
 
     # help text
     mkdir -p /opt/singularity-space_veins
     echo "This container includes:" >> /opt/singularity-space_veins/help.txt
-    echo "- Debian Buster;" >> /opt/singularity-space_veins/help.txt
-    echo "- Veins ${VEINS_VERSION} (for sumo-launchd.py);" >> /opt/singularity-space_veins/help.txt
+    echo "- Ubuntu 22.04 Jammy;" >> /opt/singularity-space_veins/help.txt
     echo "- OMNeT++ ${OPP_VERSION}; and" >> /opt/singularity-space_veins/help.txt
     echo "- SUMO ${SUMO_VERSION}." >> /opt/singularity-space_veins/help.txt
-    echo "- space_Veins ${SPACE_VEINS_VERSION}." >> /opt/singularity-space_veins/help.txt
     echo "" >> /opt/singularity-space_veins/help.txt
     echo "Its runscript will simply run the given command;" >> /opt/singularity-space_veins/help.txt
     echo "- optionally in parallel to sumo-launchd.py (runscript --launchd option);" >> /opt/singularity-space_veins/help.txt
@@ -84,54 +80,38 @@ MirrorURL:  http://httpredir.debian.org/debian
     echo "You might want to turn on "contain all" (singularity -C option) to isolate programs run in this container from the host system (and vice versa)." >> /opt/singularity-space_veins/help.txt
     echo "You might want to mount a home directory (singularity -H option) to make simulations to be built/run available in the container." >> /opt/singularity-space_veins/help.txt
     echo "" >> /opt/singularity-space_veins/help.txt
-    echo "For example, to compile and run the space_Veins example simulation in work/space_veins/examples/space_veins, you would run the following:" >> /opt/singularity-space_veins/help.txt
-    echo "git clone --branch space_Veins-${SPACE_VEINS_VERSION} https://github.com/veins/space_veins work/space_veins" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make makefiles" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv" >> /opt/singularity-space_veins/help.txt
+    echo "For example, to compile and run the space_Veins example simulation, you would run the following:" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H ..:/space_veins -C singularity-space_veins.sif --chdir /space_veins -- make makefiles" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H ..:/space_veins -C singularity-space_veins.sif --chdir /space_veins -- ucc make -j4" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H ..:/space_veins -C singularity-space_veins.sif --chdir /space_veins/examples/space_veins --launchd -- ./run -u Cmdenv" >> /opt/singularity-space_veins/help.txt
 
     # script for singularity-space_veins
     mkdir -p /opt/singularity-space_veins
     echo '#!/bin/bash' > /opt/singularity-space_veins/run-with-launchd.sh
     echo 'set -e' >> /opt/singularity-space_veins/run-with-launchd.sh
-    echo '/opt/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo '/space_veins/lib/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
     echo 'trap "kill $(cat /tmp/sumo-launchd.pid)" EXIT' >> /opt/singularity-space_veins/run-with-launchd.sh
     echo '"$@"' >> /opt/singularity-space_veins/run-with-launchd.sh
     chmod a+x /opt/singularity-space_veins/run-with-launchd.sh
 
+    # script for ccache
+    mkdir -p /opt/singularity-space_veins
+    echo '#!/bin/bash' > /opt/singularity-space_veins/ucc
+    echo 'export "PATH=/usr/lib/ccache:$PATH"' >> /opt/singularity-space_veins/ucc
+    echo '"$@"' >> /opt/singularity-space_veins/ucc
+    chmod a+x /opt/singularity-space_veins/ucc
+
     # prerequisites for Veins
-    apt-get -y install git python python3 xterm clang-format uncrustify valgrind gdb lldb doxygen graphviz nemiver
+    apt-get -y install git python2 python3 xterm clang-format uncrustify valgrind gdb lldb doxygen graphviz nemiver
 
     # prerequisites for OMNeT++
-    apt-get -y install curl clang bison flex tcl-dev tk-dev qtbase5-dev libopenscenegraph-dev xvfb libwebkit2gtk-4.0-dev doxygen graphviz python3-numpy python3-pandas python3-matplotlib
-    # openjdk-17-jre: cannot be found
+    apt-get -y install curl clang bison flex tcl-dev tk-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5opengl5-dev libopenscenegraph-dev xvfb libwebkit2gtk-4.0-dev doxygen graphviz python3-numpy python3-pandas python3-matplotlib
 
     # prerequisites for SUMO
-    apt-get -y install cmake libxerces-c-dev libgdal-dev libproj-dev libfox-1.6-dev libopenscenegraph-dev libavformat-dev libavcodec-dev libswscale-dev python-dev
+    apt-get -y install cmake libxerces-c-dev libgdal-dev libproj-dev libfox-1.6-dev libopenscenegraph-dev libavformat-dev libavcodec-dev libswscale-dev python2-dev
 
     # prerequisites for space_Veins
-    apt-get -y install sqlite3
-
-    # Install Snakemake
-    # 1. install mambaforge
-    apt-get -y install wget
-    wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-    bash Mambaforge-$(uname)-$(uname -m).sh -b -p /opt/mambaforge
-    export PATH=$PATH:/opt/mambaforge/bin
-    # 2. install snakemake
-    mamba install -n base  -c conda-forge -c bioconda snakemake
-
-    cd /opt
-    git clone --branch space_Veins-${SPACE_VEINS_VERSION} https://github.com/veins/space_veins space_Veins-${SPACE_VEINS_VERSION}
-    ln -s space_Veins-${SPACE_VEINS_VERSION} space_veins
-    cd space_veins
-    rm -fr .git
-
-    cd /opt
-    git clone --depth 1 --branch veins-${VEINS_VERSION} https://github.com/sommer/veins veins-${VEINS_VERSION}
-    ln -s veins-${VEINS_VERSION} veins
-    cd veins
-    rm -fr .git
+    apt-get -y install ccache
 
     cd /opt
     case "$OPP_VERSION" in
@@ -143,6 +123,9 @@ MirrorURL:  http://httpredir.debian.org/debian
         ;;
     5.4 | 5.5)
         echo "Error: No mirror configured for this version of OMNeT++"
+        ;;
+    5.7)
+        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-src-core.tgz | tar -xzv
         ;;
     *)
         curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-core.tgz | tar -xzv
@@ -161,12 +144,14 @@ MirrorURL:  http://httpredir.debian.org/debian
     esac
 
     . /opt/omnetpp/setenv
-    ./configure WITH_QTENV=no WITH_OSG=no WITH_OSGEARTH=no
+    ./configure WITH_OSGEARTH=no
     make -j8 base MODE=debug
     make -j8 base MODE=release
     rm -fr doc out test samples misc config.log config.status
     # patch Makefile.in such that no hardlinks are generated because beegfs (used by TUD HPC) does not support hardlinks.
     sed -i 's/LN = ln -f/LN = cp -pR/' /opt/omnetpp/Makefile.inc
+    # make directory world-writable (as the IDE writes to its install location)
+    chmod -R a+wX /opt/omnetpp/
 
     cd /opt
     git clone --depth 1 --branch "${SUMO_TAG}" https://github.com/eclipse/sumo sumo-${SUMO_VERSION}
@@ -208,7 +193,11 @@ MirrorURL:  http://httpredir.debian.org/debian
     #PATH
     export PATH="$PATH:/opt/omnetpp/bin"
     export PATH="$PATH:/opt/sumo/bin"
-    export PATH="$PATH:/opt/mambaforge/bin"
+    export PATH="$PATH:/opt/singularity-space_veins"
+    #CCACHE
+    export CCACHE_DIR="/space_veins/.cache"
+    #SHELL
+    export SHELL="/usr/bin/bash"
 
 %runscript
 
@@ -271,7 +260,7 @@ MirrorURL:  http://httpredir.debian.org/debian
     # set up build/run environment
     export PATH="$PATH:/opt/omnetpp/bin"
     export PATH="$PATH:/opt/sumo/bin"
-    export PATH="$PATH:/opt/mambaforge/bin"
+    export SHELL="/usr/bin/bash"
 
     case "$WITH_LAUNCHD" in
     0)
@@ -281,4 +270,3 @@ MirrorURL:  http://httpredir.debian.org/debian
         exec /opt/singularity-space_veins/run-with-launchd.sh "$@"
         ;;
     esac
-

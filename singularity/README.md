@@ -11,21 +11,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 Scripts for building a [Singularity][SYLABS] container for quickly building and running space_Veins simulations anywhere.
 
 
-## Requirements ##
+## Tested with ##
 
-- [Singularity][SYLABS] 3.5.2
-- [Debootstrap][DEBIAN] 1.0.114
+- [Singularity][SYLABS] 3.11.0
+- [Debootstrap][DEBIAN] 1.0.126
 
 [SYLABS]: https://sylabs.io/
 [DEBIAN]: https://wiki.debian.org/Debootstrap
-
-
-## Contents ##
-
-- Debian Buster
-- space_Veins-0.3-alpha4
-- OMNeT++ 5.7
-- SUMO 1.11.0
 
 
 ## Building ##
@@ -43,19 +35,17 @@ singularity run-help singularity-space_veins.sif
 ## Building/running simulations ##
 
 ```
-git clone --branch space_Veins-0.3-alpha4 https://github.com/veins/space_veins work/space_veins
-singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make makefiles
-singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins -- make
-singularity run -H work:/work -C singularity-space_veins.sif --chdir /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
+singularity run -H ..:/space_veins -C --net --network none singularity-space_veins.sif --chdir /space_veins -- make makefiles
+singularity run -H ..:/space_veins -C --net --network none singularity-space_veins.sif --chdir /space_veins -- make
+singularity run -H ..:/space_veins -C --net --network none singularity-space_veins.sif --chdir /space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
 ```
 
 Alternatively the following commands can be used:
 
 ```
-git clone --branch space_Veins-0.3-alpha4 https://github.com/veins/space_veins work/space_veins
-./singularity-space_veins.sh /work/space_veins -- make makefiles
-./singularity-space_veins.sh /work/space_veins -- make
-./singularity-space_veins.sh /work/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
+./singularity-space_veins.sh /space_veins -- make makefiles
+./singularity-space_veins.sh /space_veins -- make
+./singularity-space_veins.sh /space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
 ```
 
 ## License ##
