@@ -2,7 +2,7 @@
 // Copyright (C) 2017 Christoph Sommer <sommer@ccs-labs.org>
 // Copyright (C) 2021 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://veins.car2x.org/
+// Documentation for these modules is at http://sat.car2x.org/
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -21,24 +21,24 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-import org.car2x.veins.subprojects.veins_inet.IVeinsInetManager;
+// Veins
 import org.car2x.veins.visualizer.roads.RoadsCanvasVisualizer;
-import org.car2x.veins.visualizer.roads.RoadsOsgVisualizer;
+import org.car2x.veins.modules.world.annotations.AnnotationManager;
 
+// Veins_INET
+import org.car2x.veins.subprojects.veins_inet.IVeinsInetManager;
 import org.car2x.veins.subprojects.veins_inet.VeinsInetTraCIVehicleInserter;
 
-import space_veins.nodes.Satellite;
+// space_Veins
 import space_veins.nodes.SatCar;
 import space_veins.modules.SatelliteObservationPoint.SatelliteObservationPoint;
 import space_veins.modules.statistics.GlobalStatistics.GlobalStatistics;
+import space_veins.modules.mobility.SatelliteInserter.SatelliteInserter;
 
+// INET
 import inet.node.inet.INetworkNode;
 import inet.physicallayer.contract.packetlevel.IRadioMedium;
-import inet.visualizer.contract.IIntegratedVisualizer;
 import inet.visualizer.integrated.IntegratedMultiVisualizer;
-import inet.visualizer.integrated.IntegratedVisualizer;
-import inet.physicallayer*.ieee80211.packetlevel.Ieee80211DimensionalRadioMedium;
-import inet.physicallayer*.ieee80211.packetlevel.Ieee80211ScalarRadioMedium;
 import inet.environment.common.PhysicalEnvironment;
 
 network SatelliteExampleScenario
@@ -47,8 +47,6 @@ network SatelliteExampleScenario
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
-
-        int numSatellites = default(1);
         string satelliteType = default("Satellite");
 
         @display("bgb=$playgroundSizeX,$playgroundSizeY");
@@ -56,12 +54,12 @@ network SatelliteExampleScenario
 
     submodules:
         // Veins
-        roadsCanvasVisualizer: RoadsCanvasVisualizer {
-            @display("p=64,416");
+        annotations: AnnotationManager {
+            @display("p=750,744.98");
         }
-        // roadsOsgVisualizer: RoadsOsgVisualizer {
-        //     @display("p=192,416");
-        // }
+        roadsCanvasVisualizer: RoadsCanvasVisualizer {
+            @display("p=750,750");
+        }
 
         // Veins INET
         manager: <default("VeinsInetManager")> like IVeinsInetManager {
@@ -89,13 +87,37 @@ network SatelliteExampleScenario
         globalStatistics: GlobalStatistics {
             @display("p=580, 425");
         }
+        satelliteInserter : SatelliteInserter {
+            @display("p=128, 612");
+        }
         sop: SatelliteObservationPoint {
             @display("p=0,0");
         }
-        satellite[numSatellites]: <default(satelliteType)> like INetworkNode {
-            @display("p=250,240");
+        leoSatellite[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=250, 612");
         }
-        node[0]: SatCar {
+        leoSTARLINK[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=300, 612");
+        }
+        leoIRIDIUM[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=350, 612");
+        }
+        leoONEWEB[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=400, 612");
+        }
+        leoORBCOMM[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=450, 612");
+        }
+        leoGLOBALSTAR[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=500, 612");
+        }
+        leoSPACEBEE[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=550, 612");
+        }
+        leoSPACEBEENZ[0]: <default(satelliteType)> like INetworkNode {
+            @display("p=600, 612");
+        }
+        node[1]: SatCar {
         }
 
     connections allowunconnected:
