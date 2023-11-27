@@ -21,9 +21,13 @@ LICENSES/LicenseRef-ReuseIgnoreFileLicense.txt
 
 **/*.sif
 
+.bash_history
+.cache
+.qtenvrc
+compile_commands.json
+
 .venv
 .reuse
-.vscode
 __pycache__
 
 build
