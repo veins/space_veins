@@ -1,0 +1,69 @@
+//
+// Copyright (C) 2023 Christoph Sommer <sommer@cms-labs.org>
+//
+// Documentation for these modules is at http://veins.car2x.org/
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "attach",
+            "name": "attach to running simulation (debug mode)",
+            "program": "opp_run_dbg",
+        }
+        ,
+        {
+            "type": "lldb",
+            "request": "attach",
+            "name": "wait for (and attach to) running simulation (debug mode)",
+            "program": "opp_run_dbg",
+            "waitFor": true
+        }
+        ,
+        {
+            "name": "attach to running simulation (release mode)",
+            "type": "lldb",
+            "request": "attach",
+            "program": "opp_run",
+        }
+        ,
+        {
+            "type": "lldb",
+            "request": "attach",
+            "name": "wait for (and attach to) running simulation (release mode)",
+            "program": "opp_run",
+            "waitFor": true
+        }
+        ,
+        {
+            // launch server with `lldb-server-13 platform --server --listen 127.0.0.1:1234` in directory of simulation (or symbols from dynamic libraries loaded at runtime won't be found)
+            "name": "wait for (and attach to) running simulation (debug mode) (on 127.0.0.1:1234)",
+            "type": "lldb",
+            "request": "attach",
+            "program": "opp_run_dbg",
+            "waitFor": true,
+            "initCommands": [
+                "platform select remote-linux",
+                "platform connect connect://127.0.0.1:1234",
+                "settings set target.inherit-env false",
+            ]
+        }
+    ]
+}

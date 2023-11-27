@@ -1,0 +1,131 @@
+//
+// Copyright (C) 2023 Christoph Sommer <sommer@cms-labs.org>
+//
+// Documentation for these modules is at http://veins.car2x.org/
+//
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+
+// The following list shows changes made by Mario Franke
+// Copyright (C) 2023 Mario Franke <research@m-franke.net>
+// Documentation for space_Veins is at http://sat.car2x.org/
+// SPDX-License-Identifier: GPL-2.0-or-later
+//
+// 2023-11-27 adapt veins_launchd command
+//            add `make cleanall` task
+//            add `make makefiles` task
+//            change dependency of task `build all` from `run configure` to `run make makefiles`
+//            delete `run configure` task
+
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "run make makefiles",
+            "type": "shell",
+            "command": "make makefiles",
+            "args": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "recreate compile database",
+            "type": "shell",
+            "dependsOn": [
+                "run make cleanall"
+            ],
+            "command": "bear",
+            "args": [
+                "--",
+                "make",
+                "all",
+                "-j$(nproc)",
+                "MODE=debug"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "build all",
+            "type": "shell",
+            "dependsOn": [
+                "run make makefiles"
+            ],
+            "command": "bear",
+            "args": [
+                "--append",
+                "--",
+                "make",
+                "all",
+                "-j$(nproc)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "run make clean",
+            "type": "shell",
+            "command": "make clean",
+            "args": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "run make cleanall",
+            "type": "shell",
+            "command": "make cleanall",
+            "args": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "run veins_launchd",
+            "type": "shell",
+            "command": "./lib/veins/bin/veins_launchd",
+            "args": [
+                "-vvv"
+            ],
+            "group": "build",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated"
+            }
+        }
+    ]
+}
