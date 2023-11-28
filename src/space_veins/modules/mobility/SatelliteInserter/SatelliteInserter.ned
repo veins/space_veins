@@ -26,7 +26,7 @@ simple SatelliteInserter
     parameters:
         @class(space_veins::SatelliteInserter);
         string satelliteModuleType = default("space_veins.nodes.Satellite");
-        string satelliteModuleDefaultName = default("leoSatellite");
+        string satelliteModuleDefaultName = default("Satellite");
         bool ignoreUnknownSatellites = default(true); // Satellites whose name does not start with a constellation name listed in examples/space_veins/SatelliteExampleScenario.ned will be ignored
         string pathToTleFile = default("satellite_tle.txt");
         string wall_clock_sim_start_time_utc; // yyyy-mm-dd-hh-mm-ss
