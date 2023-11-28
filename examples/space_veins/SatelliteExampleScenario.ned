@@ -117,7 +117,7 @@ network SatelliteExampleScenario
         leoSPACEBEENZ[0]: <default(satelliteType)> like INetworkNode {
             @display("p=600, 612");
         }
-        node[1]: SatCar {
+        node[0]: SatCar {
         }
 
     connections allowunconnected:
