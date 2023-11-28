@@ -32,7 +32,7 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
 
 %help
     Singularity container for quickly building and running space_veins simulations anywhere.
-    Tested with Singularity 3.5.2.
+    Tested with Singularity 3.11.0.
 
     Run this container with its `--help` option for details:
     ```
@@ -94,13 +94,6 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
     echo '"$@"' >> /opt/singularity-space_veins/run-with-launchd.sh
     chmod a+x /opt/singularity-space_veins/run-with-launchd.sh
 
-    # script for ccache
-    mkdir -p /opt/singularity-space_veins
-    echo '#!/bin/bash' > /opt/singularity-space_veins/ucc
-    echo 'export "PATH=/usr/lib/ccache:$PATH"' >> /opt/singularity-space_veins/ucc
-    echo '"$@"' >> /opt/singularity-space_veins/ucc
-    chmod a+x /opt/singularity-space_veins/ucc
-
     # prerequisites for Veins
     apt-get -y install git python2 python3 xterm clang-format uncrustify valgrind gdb lldb doxygen graphviz nemiver
 
@@ -113,6 +106,8 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
     # prerequisites for space_Veins
     apt-get -y install ccache
 
+    # enable ccache
+    export PATH="/usr/lib/ccache:$PATH"
     cd /opt
     case "$OPP_VERSION" in
     5.0)
@@ -125,10 +120,10 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
         echo "Error: No mirror configured for this version of OMNeT++"
         ;;
     5.7)
-        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-src-core.tgz | tar -xzv
+        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-src-linux.tgz | tar -xzv
         ;;
     *)
-        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-core.tgz | tar -xzv
+        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-linux.tgz | tar -xzv
     esac
 
     ln -s omnetpp-${OPP_VERSION} omnetpp
@@ -196,6 +191,7 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
     export PATH="$PATH:/opt/singularity-space_veins"
     #CCACHE
     export CCACHE_DIR="/space_veins/.cache"
+    export PATH="/usr/lib/ccache:$PATH"
     #SHELL
     export SHELL="/usr/bin/bash"
 
@@ -261,6 +257,7 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
     export PATH="$PATH:/opt/omnetpp/bin"
     export PATH="$PATH:/opt/sumo/bin"
     export SHELL="/usr/bin/bash"
+    export PATH="/usr/lib/ccache:$PATH"
 
     case "$WITH_LAUNCHD" in
     0)
