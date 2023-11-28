@@ -27,4 +27,4 @@
 SCRIPTDIR=$(dirname "$0")
 SCRIPTSTEM=$(basename -s .sh "$0")
 
-singularity run -H ..:/space_veins -C --net --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
+singularity run -H ..:/space_veins --net --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
