@@ -35,9 +35,9 @@ singularity run-help singularity-space_veins.sif
 ## Building/running simulations ##
 
 ```
-singularity run -H ..:/space_veins -C --net --network none singularity-space_veins.sif --chdir /space_veins -- make makefiles
-singularity run -H ..:/space_veins -C --net --network none singularity-space_veins.sif --chdir /space_veins -- make
-singularity run -H ..:/space_veins -C --net --network none singularity-space_veins.sif --chdir /space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
+singularity run -H ..:/space_veins --net --network none singularity-space_veins.sif --chdir /space_veins -- make makefiles
+singularity run -H ..:/space_veins --net --network none singularity-space_veins.sif --chdir /space_veins -- make
+singularity run -H ..:/space_veins --net --network none singularity-space_veins.sif --chdir /space_veins/examples/space_veins --launchd -- ./run -u Cmdenv -c Null-Island-Launchd -r 0
 ```
 
 Alternatively the following commands can be used:
