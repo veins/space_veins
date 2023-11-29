@@ -7,6 +7,7 @@
 //
 
 #include "space_veins/modules/mac/sidelink/SAMAC/vehicles/SAMAC.h"
+#include "inet/physicallayer/ieee80211/mode/Ieee80211OfdmMode.h"
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/SpaceVeinsRegistrationMessage_m.h"
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/SpaceVeinsSatelliteAck_m.h"
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/SpaceVeinsWlanScheduleMessage_m.h"
@@ -28,6 +29,7 @@
 #include "inet/linklayer/common/InterfaceTag_m.h"
 #include "inet/linklayer/ieee80211/llc/Ieee80211EtherTypeHeader_m.h"
 #include "inet/linklayer/ieee80211/llc/LlcProtocolTag_m.h"
+#include "inet/physicallayer/ieee80211/packetlevel/Ieee80211Tag_m.h"
 
 #define SATELLITE_REGISTRATION_ACK_TIMER 0
 
@@ -53,6 +55,9 @@ void SAMAC::initialize(int stage)
         pendingQueue = check_and_cast<inet::queueing::IPacketQueue *>(getSubmodule("pendingQueue"));
         inProgressFrames = check_and_cast<inet::queueing::IPacketQueue *>(getSubmodule("inProgressFrames"));
         mib = check_and_cast<inet::ieee80211::Ieee80211Mib*>(getModuleFromPar<inet::ieee80211::Ieee80211Mib>(par("mibModule"), this));
+
+        wlanBitrate = bps(par("wlanBitrate"));
+        wlanBandwidth = Hz(par("wlanBandwidth"));
 
         maxSatelliteProcDelay_s = par("maxSatelliteProcDelay_s");
         WATCH(maxSatelliteProcDelay_s);
@@ -89,7 +94,7 @@ void SAMAC::configureInterfaceEntry()
     address = parseMacAddressParameter(par("localMacAddress"));
     EV_DEBUG << "configureInterfaceEntry -- assigned SAMAC address: " << address.str() << std::endl;
 
-    interfaceEntry->setDatarate(par("bitrate"));
+    interfaceEntry->setDatarate(wlanBitrate.get());
 
     // generate a link-layer address to be used as interface token for IPv6
     interfaceEntry->setMacAddress(address);
@@ -153,11 +158,11 @@ void SAMAC::handleUpperPacket(Packet *packet)
       // put appl. layer packet in pending packet queue and wait for schedule
       pendingQueue->pushPacket(packet);
     }
-     else {
-         EV_WARN << "handleUpperPacket -- no LEO satellite available, deleting packet" << std::endl;
-         delete packet;
-         // no LEO satellite available forward packet to Ieee80211Interface for CSMA channel access
-         //sendDown(packet);
+    else {
+        EV_WARN << "handleUpperPacket -- no LEO satellite available, deleting packet" << std::endl;
+        delete packet;
+        // no LEO satellite available forward packet to Ieee80211Interface for CSMA channel access
+        //sendDown(packet);
     }
 }
 
@@ -256,6 +261,11 @@ void SAMAC::encapsulate(inet::Packet* packet)
     packet->insertAtBack(macTrailer);
     auto packetProtocolTag = packet->addTagIfAbsent<PacketProtocolTag>();
     packetProtocolTag->setProtocol(&Protocol::ieee80211Mac);
+    // set OfdmMode
+    auto ieee80211ModeReq = packet->addTagIfAbsent<inet::physicallayer::Ieee80211ModeReq>();
+    // TODO: Try not use the magic number -> figure out how to get the signalRateField OR implement a dictonary mbps -> signalRateField
+    // signalRateField == 9 -> corresponds to ofdmMode12MbpsCS10Mhz
+    ieee80211ModeReq->setMode(&inet::physicallayer::Ieee80211OfdmCompliantModes::getCompliantMode(9, wlanBandwidth));
 }
 
 std::unique_ptr<inet::Packet> SAMAC::createPacket(std::string name)

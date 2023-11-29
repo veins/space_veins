@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "inet/common/Units.h"
 #include "veins/modules/utility/TimerManager.h"
 
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/SpaceVeinsWlanScheduleMessage_m.h"
@@ -65,6 +66,8 @@ protected:
     bool registeredAtSatellite = false;
     bool receivedInitialWlanSchedule = false;
     bool qosStation = false;
+    inet::units::values::Hz wlanBandwidth;
+    inet::units::values::bps wlanBitrate;
 
     VehicleStatistics* vehicleStatistics;
 
