@@ -37,7 +37,8 @@ module SAMAC extends MacProtocolBase like IMacProtocol
 
         int leoSatelliteSamacDestPort = default(9001);
         string leoSatelliteSamacMulticastAddress = default("224.0.0.1");
-        double bitrate @unit(bps) = default(100000000bps); // default 100Mbps TODO: magic number, might be irrelevant.
+        double wlanBitrate @unit(bps) = default(12Mbps);
+        double wlanBandwidth @unit(Hz) = default(10MHz);
         int mtu @unit(B) = default(4470B);
         string mibModule = default("^.^.wlan[0].mib");
 
