@@ -26,7 +26,8 @@ LICENSES/LicenseRef-ReuseIgnoreFileLicense.txt
 .cache
 .qtenvrc
 compile_commands.json
-
+.Xauthority
+.foxrc
 .venv
 .reuse
 __pycache__
