@@ -21,6 +21,7 @@ LICENSES/LicenseRef-ReuseIgnoreFileLicense.txt
 
 **/*.sif
 
+.DS_Store
 .bash_history
 .cache
 .qtenvrc
