@@ -22,6 +22,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+# The following list shows changes made by Mario Franke
+# Copyright (C) 2024 Mario Franke <research@m-franke.net>
+# Documentation for space_Veins is at http://sat.car2x.org/
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# 2024-11-12 install ccache
+
 set -e
 
 # install dependencies
@@ -32,4 +39,5 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --
     bear \
     clangd-13 \
     lldb-13 \
+    ccache \
     ;
