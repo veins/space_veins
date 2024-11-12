@@ -29,6 +29,9 @@
 # 2023-08-17 change OS from Debian Bookworm to Ubuntu Jammy
 #            change OPP version from 6.0.1 to 5.7
 #            install snakemake
+#
+# 2024-11-12 Install desktop lite for noVNC support
+#            Move install-docker-env.sh to the end of the Dockerfile
 
 FROM mcr.microsoft.com/devcontainers/base:jammy
 
@@ -47,12 +50,15 @@ ARG SUMO_VERSION=1.18.0
 COPY install-sumo.sh .
 RUN ./install-sumo.sh && rm ./install-sumo.sh
 
-COPY docker-env.sh .
-COPY install-docker-env.sh .
-RUN ./install-docker-env.sh && rm ./install-docker-env.sh
-
 COPY install-misc.sh .
 RUN ./install-misc.sh && rm ./install-misc.sh
 
 COPY install-snakemake.sh .
 RUN ./install-snakemake.sh && rm ./install-snakemake.sh
+
+COPY install-desktop-lite.sh .
+RUN ./install-desktop-lite.sh && rm ./install-desktop-lite.sh
+
+COPY docker-env.sh .
+COPY install-docker-env.sh .
+RUN ./install-docker-env.sh && rm ./install-docker-env.sh

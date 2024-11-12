@@ -30,9 +30,12 @@
 # 2023-08-17 change PYTHONPATH variable because Ubuntu Jammy brings
 #            python3.10
 #            add /opt/mambaforge/bin to PATH variable
+#
+# 2024-11-12 Add location of startVNC.sh to PATH variable
 
 export PYTHONPATH=/opt/pip/usr/local/lib/python3.10/dist-packages:$PYTHONPATH
 export PATH=/usr/lib/ccache:$PATH
 export PATH=$PATH:/opt/omnetpp/bin
 export PATH=$PATH:/opt/sumo/bin
 export PATH=$PATH:/opt/mambaforge/bin
+export PATH=$PATH:/opt/vnc/
