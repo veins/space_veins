@@ -32,6 +32,7 @@
 #
 # 2024-11-12 Install desktop lite for noVNC support
 #            Move install-docker-env.sh to the end of the Dockerfile
+#            Move install-misc.sh to the beginning because it installs ccache
 
 FROM mcr.microsoft.com/devcontainers/base:jammy
 
@@ -42,6 +43,9 @@ RUN \
 
 WORKDIR /opt
 
+COPY install-misc.sh .
+RUN ./install-misc.sh && rm ./install-misc.sh
+
 ARG OPP_VERSION=5.7
 COPY install-omnetpp.sh .
 RUN ./install-omnetpp.sh && rm ./install-omnetpp.sh
@@ -49,9 +53,6 @@ RUN ./install-omnetpp.sh && rm ./install-omnetpp.sh
 ARG SUMO_VERSION=1.18.0
 COPY install-sumo.sh .
 RUN ./install-sumo.sh && rm ./install-sumo.sh
-
-COPY install-misc.sh .
-RUN ./install-misc.sh && rm ./install-misc.sh
 
 COPY install-snakemake.sh .
 RUN ./install-snakemake.sh && rm ./install-snakemake.sh

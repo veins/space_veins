@@ -31,6 +31,8 @@
 #            python3.10
 #            disable WITH_OSGEARTH
 #            Set OMNeT++ download URL
+#
+# 2024-11-12 do not install ccache here, moved to install-misc.sh
 
 # This script needs the following environment variables to be set:
 #   - OPP_VERSION: the version of OMNeT++ to install (e.g. 6.0.1)
@@ -54,7 +56,6 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --
 apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends \
     bison \
     build-essential \
-    ccache \
     clang-13 \
     curl \
     doxygen \
