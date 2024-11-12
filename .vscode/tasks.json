@@ -30,6 +30,9 @@
 //            add `make makefiles` task
 //            change dependency of task `build all` from `run configure` to `run make makefiles`
 //            delete `run configure` task
+//
+// 2024-11-12 Add detail labels
+//            time build all command
 
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
@@ -38,6 +41,7 @@
     "tasks": [
         {
             "label": "run make makefiles",
+            "detail": "make makefiles",
             "type": "shell",
             "command": "make makefiles",
             "args": [],
@@ -49,6 +53,7 @@
         },
         {
             "label": "recreate compile database",
+            "detail": "bear -- make all -j <nproc> MODE=debug",
             "type": "shell",
             "dependsOn": [
                 "run make cleanall"
@@ -69,12 +74,14 @@
         },
         {
             "label": "build all",
+            "detail": "time bear --append -- make all -j <nproc>",
             "type": "shell",
             "dependsOn": [
                 "run make makefiles"
             ],
-            "command": "bear",
+            "command": "time",
             "args": [
+                "bear",
                 "--append",
                 "--",
                 "make",
@@ -93,6 +100,7 @@
         },
         {
             "label": "run make clean",
+            "detail": "make clean",
             "type": "shell",
             "command": "make clean",
             "args": [],
@@ -104,6 +112,7 @@
         },
         {
             "label": "run make cleanall",
+            "detail": "make cleanall",
             "type": "shell",
             "command": "make cleanall",
             "args": [],
@@ -115,6 +124,7 @@
         },
         {
             "label": "run veins_launchd",
+            "detail": "./lib/veins/bin/veins_launchd -vvv",
             "type": "shell",
             "command": "./lib/veins/bin/veins_launchd",
             "args": [
