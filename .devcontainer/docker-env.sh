@@ -32,10 +32,13 @@
 #            add /opt/mambaforge/bin to PATH variable
 #
 # 2024-11-12 Add location of startVNC.sh to PATH variable
+#
+# 2024-12-09 remove /opt/mambaforge/bin from PATH variable
+#            set CCACHE_DIR
 
 export PYTHONPATH=/opt/pip/usr/local/lib/python3.10/dist-packages:$PYTHONPATH
 export PATH=/usr/lib/ccache:$PATH
 export PATH=$PATH:/opt/omnetpp/bin
 export PATH=$PATH:/opt/sumo/bin
-export PATH=$PATH:/opt/miniforge3/bin
 export PATH=$PATH:/opt/vnc/
+export CCACHE_DIR=/workspaces/space_veins/.ccache

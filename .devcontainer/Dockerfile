@@ -33,6 +33,9 @@
 # 2024-11-12 Install desktop lite for noVNC support
 #            Move install-docker-env.sh to the end of the Dockerfile
 #            Move install-misc.sh to the beginning because it installs ccache
+#
+# 2024-12-09 Do not install snakemake
+#            change SUMO version from 1.18.0 to 1.11.0
 
 FROM mcr.microsoft.com/devcontainers/base:jammy
 
@@ -50,12 +53,9 @@ ARG OPP_VERSION=5.7
 COPY install-omnetpp.sh .
 RUN ./install-omnetpp.sh && rm ./install-omnetpp.sh
 
-ARG SUMO_VERSION=1.18.0
+ARG SUMO_VERSION=1.11.0
 COPY install-sumo.sh .
 RUN ./install-sumo.sh && rm ./install-sumo.sh
-
-COPY install-snakemake.sh .
-RUN ./install-snakemake.sh && rm ./install-snakemake.sh
 
 COPY install-desktop-lite.sh .
 RUN ./install-desktop-lite.sh && rm ./install-desktop-lite.sh

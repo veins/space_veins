@@ -21,6 +21,7 @@ LICENSES/LicenseRef-ReuseIgnoreFileLicense.txt
 
 **/*.sif
 
+.ccache
 .DS_Store
 .bash_history
 .cache
