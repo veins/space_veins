@@ -40,4 +40,5 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --
     clangd-13 \
     lldb-13 \
     ccache \
+    x11-apps \
     ;
