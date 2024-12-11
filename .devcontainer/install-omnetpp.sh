@@ -33,6 +33,8 @@
 #            Set OMNeT++ download URL
 #
 # 2024-11-12 do not install ccache here, moved to install-misc.sh
+#
+# 2024-12-11 install ccache here, such that this script has no dependencies
 
 # This script needs the following environment variables to be set:
 #   - OPP_VERSION: the version of OMNeT++ to install (e.g. 6.0.1)
@@ -56,6 +58,7 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --
 apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends \
     bison \
     build-essential \
+    ccache \
     clang-13 \
     curl \
     doxygen \
@@ -89,7 +92,7 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --
     xdg-utils \
     zlib1g-dev \
     ;
- 
+
 # ensure xdg-utils is happy with the system
 mkdir -p /usr/share/desktop-directories/
 

@@ -36,6 +36,8 @@
 #
 # 2024-12-09 Do not install snakemake
 #            change SUMO version from 1.18.0 to 1.11.0
+#
+# 2024-12-11 Move install-misc.sh to the end, to easily add new packages
 
 FROM mcr.microsoft.com/devcontainers/base:jammy
 
@@ -45,9 +47,6 @@ RUN \
     ;
 
 WORKDIR /opt
-
-COPY install-misc.sh .
-RUN ./install-misc.sh && rm ./install-misc.sh
 
 ARG OPP_VERSION=5.7
 COPY install-omnetpp.sh .
@@ -59,6 +58,9 @@ RUN ./install-sumo.sh && rm ./install-sumo.sh
 
 COPY install-desktop-lite.sh .
 RUN ./install-desktop-lite.sh && rm ./install-desktop-lite.sh
+
+COPY install-misc.sh .
+RUN ./install-misc.sh && rm ./install-misc.sh
 
 COPY docker-env.sh .
 COPY install-docker-env.sh .
