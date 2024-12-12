@@ -35,6 +35,8 @@
 # 2024-11-12 do not install ccache here, moved to install-misc.sh
 #
 # 2024-12-11 install ccache here, such that this script has no dependencies
+#
+# 2024-12-12 change default IDE workspace directory
 
 # This script needs the following environment variables to be set:
 #   - OPP_VERSION: the version of OMNeT++ to install (e.g. 6.0.1)
@@ -142,3 +144,6 @@ make -j$(nproc) MODE=release
 
 # make directory world-writable (as the IDE writes to its install location)
 chmod -R a+wX /opt/omnetpp/
+
+# change the default OMNeT++ workspace path to a path inside the devcontainer's workspace
+sed -i 's/DEFAULT_WORKSPACE_ARGS="-vmargs -Dosgi\.instance\.area\.default=\$IDEDIR\/\.\.\/samples"/DEFAULT_WORKSPACE_ARGS="-vmargs -Dosgi\.instance\.area\.default=\/workspaces\/space_veins\/.container_opp_ide_workspace"/g' /opt/omnetpp/bin/opp_ide
