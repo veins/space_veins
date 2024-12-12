@@ -31,6 +31,16 @@ compile_commands.json
 .foxrc
 .venv
 .reuse
+.config
+.debug
+.devcontainer/*.tar
+.viminfo
+.zcompdump
+error.log
+.opp_ide_error.log
+.eclipse
+.local
+.swt
 __pycache__
 
 build
@@ -54,6 +64,8 @@ doc/neddoc
 /bin/space_veins_run
 
 /out
+
+**/.cmdenv-log
 
 examples/**/results
 examples/**/.tkenvrc
