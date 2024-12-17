@@ -145,5 +145,15 @@ make -j$(nproc) MODE=release
 # make directory world-writable (as the IDE writes to its install location)
 chmod -R a+wX /opt/omnetpp/
 
-# change the default OMNeT++ workspace path to a path inside the devcontainer's workspace
-sed -i 's/DEFAULT_WORKSPACE_ARGS="-vmargs -Dosgi\.instance\.area\.default=\$IDEDIR\/\.\.\/samples"/DEFAULT_WORKSPACE_ARGS="-vmargs -Dosgi\.instance\.area\.default=\/workspaces\/space_veins\/.container_opp_ide_workspace"/g' /opt/omnetpp/bin/opp_ide
+# change the default OMNeT++ workspace path to a path mounted into the dev container
+case "$OPP_VERSION" in
+5.7)
+    OPP_DEFAULT_WORKSPACE_CONFIG_FILE=/opt/omnetpp/bin/omnetpp
+    ;;
+6.*)
+    OPP_DEFAULT_WORKSPACE_CONFIG_FILE=/opt/omnetpp/bin/opp_ide
+    ;;
+*)
+    echo "Unsupported OMNeT++ version"
+esac
+sed -i 's/DEFAULT_WORKSPACE_ARGS="-vmargs -Dosgi\.instance\.area\.default=\$IDEDIR\/\.\.\/samples"/DEFAULT_WORKSPACE_ARGS="-vmargs -Dosgi\.instance\.area\.default=\/opt\/omnetpp.workspace"/g' $OPP_DEFAULT_WORKSPACE_CONFIG_FILE

@@ -28,6 +28,8 @@
 // 2023-08-17 change the name of the container
 //
 // 2024-11-12 forward port 6080 for noVNC support
+//
+// 2024-12-13 Mount OMNeT++ IDE workspace directory
 
 {
 	// name of the container
@@ -44,6 +46,14 @@
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [6080]
+	,
+
+	// Mount ../.container_opp_ide_workspace under /opt/omnetpp.workspace
+	// The IDE complains when the workspace directory is inside a project folder.
+	// By explicitly mounting it to a different location, the IDE does not complain anymore.
+	"mounts": [
+		"source=.container_opp_ide_workspace,target=/opt/omnetpp.workspace,type=bind,consistency=cached"
+	]
 	,
 
 	// allow debugger to attach to running processes (part 1)
