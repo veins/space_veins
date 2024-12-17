@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # singularity-space_veins -- Singularity container for quickly building and running space_Veins simulations anywhere
@@ -27,4 +27,9 @@
 SCRIPTDIR=$(dirname "$0")
 SCRIPTSTEM=$(basename -s .sh "$0")
 
-singularity run -H ..:/space_veins --net --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
+if [ $1 == "shell" ]
+    then
+        singularity shell -H ..:/workspaces/space_veins -B ~/.Xauthority:/workspaces/space_veins/.Xauthority -B ../.container_opp_ide_workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif"
+    else
+        singularity run -H ..:/workspaces/space_veins -B ~/.Xauthority:/workspaces/space_veins/.Xauthority -B ../.container_opp_ide_workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
+fi
