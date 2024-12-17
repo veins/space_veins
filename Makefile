@@ -4,20 +4,65 @@
 
 .PHONY: all space_veins clean_space_veins cleanall_space_veins inet clean_inet cleanall_inet veins_inet clean cleanall makefiles spaceVeinsMakefiles inetMakefiles veinsInetMakefiles checkmakefiles checkInetMakefiles checkVeinsInetMakefiles veins veinsMakefiles checkVeinsMakefiles
 
-all: space_veins
+# if lib/veins/out/config.py exists, we can also create command line scripts for running Veins simulations
+VEINS_ADDL_TARGETS =
+ifeq ($(wildcard lib/veins/out/config.py),)
+else
+    VEINS_ADDL_TARGETS += lib/veins/bin/veins_run
+endif
+
+# if out/config.py exists, we can also create command line scripts for running space_Veins simulations
+SPACE_VEINS_ADDL_TARGETS=
+ifeq ($(wildcard out/config.py),)
+else
+    SPACE_VEINS_ADDL_TARGETS += bin/space_veins_run
+endif
+
+all: space_veins $(SPACE_VEINS_ADDL_TARGETS)
 	@echo 'space_Veins compiled successfully'
 
-# command line scripts
+space_veins: checkmakefiles lib/veins/subprojects/veins_inet/libveins_inet_dbg.so lib/veins/subprojects/veins_inet/libveins_inet.so
+	cd src && $(MAKE) MODE=release
+	cd src && $(MAKE) MODE=debug
+
+# space_Veins command line scripts
 bin/space_veins_run: src/scripts/space_veins_run.in.py
 	@echo "Creating script \"$@\""
 	@mkdir -p bin
 	@sed '/# v-- contents of out\/config.py go here/r out/config.py' "$<" > "$@"
 	@chmod a+x "$@"
 
-space_veins: checkmakefiles bin/space_veins_run veins_inet
-	cd src && $(MAKE) MODE=release
-	cd src && $(MAKE) MODE=debug
+# Veins_INET
+lib/veins/subprojects/veins_inet/libveins_inet_dbg.so: checkVeinsInetMakefiles lib/veins/src/libveins_dbg.so lib/inet/src/libINET_dbg.so
+	cd lib/veins/subprojects/veins_inet/src && $(MAKE) MODE=debug
 
+lib/veins/subprojects/veins_inet/libveins_inet.so: checkVeinsInetMakefiles lib/veins/src/libveins.so lib/inet/src/libINET.so
+	cd lib/veins/subprojects/veins_inet/src && $(MAKE) MODE=release
+
+veins_inet: lib/veins/subprojects/veins_inet/libveins_inet_dbg.so lib/veins/subprojects/veins_inet/libveins_inet.so
+
+# Veins
+lib/veins/src/libveins_dbg.so: checkVeinsMakefiles $(VEINS_ADDL_TARGETS)
+	cd lib/veins/src && $(MAKE) MODE=debug
+
+lib/veins/src/libveins.so: checkVeinsMakefiles $(VEINS_ADDL_TARGETS)
+	cd lib/veins/src && $(MAKE) MODE=release
+
+lib/veins/bin/veins_run:
+	cd lib/veins && $(MAKE) bin/veins_run
+
+veins: lib/veins/src/libveins_dbg.so lib/veins/src/libveins.so 
+
+# INET
+lib/inet/src/libINET_dbg.so: checkInetMakefiles
+	cd lib/inet/src && $(MAKE) MODE=debug
+
+lib/inet/src/libINET.so: checkInetMakefiles
+	cd lib/inet/src && $(MAKE) MODE=release
+
+inet: lib/inet/src/libINET_dbg.so lib/inet/src/libINET.so
+
+# Clean
 clean_space_veins: checkmakefiles
 	cd src && $(MAKE) clean
 
@@ -28,24 +73,11 @@ cleanall_space_veins: checkmakefiles
 	rm -rf out/config.py
 	rm -rf build/
 
-inet: checkInetMakefiles
-	cd lib/inet/src && $(MAKE) MODE=release
-	cd lib/inet/src && $(MAKE) MODE=debug
-
 clean_inet: checkInetMakefiles
 	cd lib/inet && $(MAKE) clean
 
 cleanall_inet: checkInetMakefiles
 	cd lib/inet && $(MAKE) cleanall
-
-veins: checkVeinsMakefiles
-	cd lib/veins/src && $(MAKE) MODE=release
-	cd lib/veins/src && $(MAKE) MODE=debug
-	cd lib/veins && $(MAKE) bin/veins_run
-
-veins_inet: checkVeinsInetMakefiles veins inet
-	cd lib/veins/subprojects/veins_inet/src && $(MAKE) MODE=release
-	cd lib/veins/subprojects/veins_inet/src && $(MAKE) MODE=debug
 
 clean: checkmakefiles checkInetMakefiles checkVeinsInetMakefiles
 	cd src && $(MAKE) clean
@@ -63,6 +95,7 @@ cleanall: checkmakefiles checkInetMakefiles checkVeinsInetMakefiles
 	cd lib/veins && $(MAKE) cleanall
 	cd lib/veins/subprojects/veins_inet && $(MAKE) cleanall
 
+# Create Makefiles
 makefiles: inetMakefiles veinsMakefiles veinsInetMakefiles spaceVeinsMakefiles
 
 spaceVeinsMakefiles:
@@ -89,6 +122,7 @@ veinsMakefiles:
 veinsInetMakefiles:
 	cd lib/veins/subprojects/veins_inet && ./configure
 
+# Check if Makefiles exists
 checkmakefiles:
 	@if [ ! -f src/Makefile ]; then \
 	echo; \
