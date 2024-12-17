@@ -22,181 +22,72 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-Bootstrap: debootstrap
-OSVersion: jammy
-MirrorURL:  http://archive.ubuntu.com/ubuntu
+bootstrap: docker-archive
+From: ../.devcontainer/space_veins-0.3-0546b9b.tar
 
 %labels
     Author sommer@cms-labs.org research@m-franke.net
-    Version v0.0.2
+    Version 0.3-0546b9b
 
 %help
     Singularity container for quickly building and running space_veins simulations anywhere.
-    Tested with Singularity 3.11.0.
+    Tested with SingularityCE 4.1.5
 
     Run this container with its `--help` option for details:
     ```
     singularity run singularity-space_veins.sif --help
     ```
+
 %setup
     # create stub hosts file contents (necessary for resolving "localhost" if network isolation is turned on)
     test -s "${SINGULARITY_ROOTFS}/etc/hosts" || echo '127.0.0.1\tlocalhost' >> "${SINGULARITY_ROOTFS}/etc/hosts"
 
 %post
-    set -e
+    # make sure that /opt/docker-env.sh is sourced for every shell (bash, zsh, ...)
+    # /opt/docker-env.sh has to be sourced after /.singularity.d/env/10-docker2singularity.sh sucht that $PATH is set correctly
+    ln -sf /opt/docker-env.sh /.singularity.d/env/11-docker-env.sh
 
-    # Use default versions if environment variables (SINGULARITYENV_VEINS_VERSION etc.) are left unset
-    : ${OPP_VERSION=5.7}
-    : ${SUMO_VERSION=1.18.0}
-
-    export OPP_VERSION
-    export SUMO_VERSION
-
-    export SUMO_TAG=v$(echo "$SUMO_VERSION" | tr . _)
-
-    apt-get -y update
-    apt-get -y install software-properties-common
-    add-apt-repository main
-    add-apt-repository universe
-    add-apt-repository restricted
-    add-apt-repository multiverse
-    apt-get -y update
-
-    # version info
-    mkdir -p /opt/singularity-space_veins
-    echo "singularity-space_veins-0.0.2" > /opt/singularity-space_veins/version.txt
+    # Set OMNeT++ IDE error log to $HOME/omnetpp_error.log because the installation location is a read-only file system.
+    OPP_LONG_VERSION=$(cat /opt/omnetpp/Version)
+    OPP_VERSION=$(echo $OPP_LONG_VERSION | cut -d'-' -f2)
+    echo $OPP_VERSION
+    case "$OPP_VERSION" in
+    5.7)
+        OPP_IDE_START_SCRIPT=/opt/omnetpp/bin/omnetpp
+        ;;
+    6.*)
+        OPP_IDE_START_SCRIPT=/opt/omnetpp/bin/opp_ide
+        ;;
+    *)
+        echo "Unsupported OMNeT++ version"
+    esac
+    sed -i 's/\t\$IDEDIR\/\${LAUNCHER} "\$@" \$DEFAULT_WORKSPACE_ARGS 2>\$IDEDIR\/error\.log &/\t\$IDEDIR\/\${LAUNCHER} "\$@" \$DEFAULT_WORKSPACE_ARGS 2>\$HOME\/.opp_ide_error\.log \&/g' $OPP_IDE_START_SCRIPT
 
     # help text
     mkdir -p /opt/singularity-space_veins
-    echo "This container includes:" >> /opt/singularity-space_veins/help.txt
-    echo "- Ubuntu 22.04 Jammy;" >> /opt/singularity-space_veins/help.txt
-    echo "- OMNeT++ ${OPP_VERSION}; and" >> /opt/singularity-space_veins/help.txt
-    echo "- SUMO ${SUMO_VERSION}." >> /opt/singularity-space_veins/help.txt
+    echo "This singularity container is build from the space_Veins Dev Container." >> /opt/singularity-space_veins/help.txt
     echo "" >> /opt/singularity-space_veins/help.txt
     echo "Its runscript will simply run the given command;" >> /opt/singularity-space_veins/help.txt
     echo "- optionally in parallel to sumo-launchd.py (runscript --launchd option);" >> /opt/singularity-space_veins/help.txt
     echo "- optionally after changing to a given directory (runscript --chdir option)." >> /opt/singularity-space_veins/help.txt
     echo "" >> /opt/singularity-space_veins/help.txt
-    echo "You might want to turn on "contain all" (singularity -C option) to isolate programs run in this container from the host system (and vice versa)." >> /opt/singularity-space_veins/help.txt
-    echo "You might want to mount a home directory (singularity -H option) to make simulations to be built/run available in the container." >> /opt/singularity-space_veins/help.txt
+    echo "You might want to turn on \"contain all\" (singularity -C option) to isolate programs run in this container from the host system (and vice versa)." >> /opt/singularity-space_veins/help.txt
     echo "" >> /opt/singularity-space_veins/help.txt
     echo "For example, to compile and run the space_Veins example simulation, you would run the following:" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H ..:/space_veins -C singularity-space_veins.sif --chdir /space_veins -- make makefiles" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H ..:/space_veins -C singularity-space_veins.sif --chdir /space_veins -- ucc make -j4" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H ..:/space_veins -C singularity-space_veins.sif --chdir /space_veins/examples/space_veins --launchd -- ./run -u Cmdenv" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H ..:/workspaces/space_veins -C singularity-space_veins.sif --chdir /workspaces/space_veins -- make makefiles" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H ..:/workspaces/space_veins -C singularity-space_veins.sif --chdir /workspaces/space_veins -- make -j4" >> /opt/singularity-space_veins/help.txt
+    echo "singularity run -H ..:/workspaces/space_veins -C singularity-space_veins.sif --chdir /workspaces/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv" >> /opt/singularity-space_veins/help.txt
 
     # script for singularity-space_veins
     mkdir -p /opt/singularity-space_veins
     echo '#!/bin/bash' > /opt/singularity-space_veins/run-with-launchd.sh
     echo 'set -e' >> /opt/singularity-space_veins/run-with-launchd.sh
-    echo '/space_veins/lib/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo '/workspaces/space_veins/lib/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
     echo 'trap "kill $(cat /tmp/sumo-launchd.pid)" EXIT' >> /opt/singularity-space_veins/run-with-launchd.sh
     echo '"$@"' >> /opt/singularity-space_veins/run-with-launchd.sh
     chmod a+x /opt/singularity-space_veins/run-with-launchd.sh
 
-    # prerequisites for Veins
-    apt-get -y install git python2 python3 xterm clang-format uncrustify valgrind gdb lldb doxygen graphviz nemiver
-
-    # prerequisites for OMNeT++
-    apt-get -y install curl clang bison flex tcl-dev tk-dev qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5opengl5-dev libopenscenegraph-dev xvfb libwebkit2gtk-4.0-dev doxygen graphviz python3-numpy python3-pandas python3-matplotlib
-
-    # prerequisites for SUMO
-    apt-get -y install cmake libxerces-c-dev libgdal-dev libproj-dev libfox-1.6-dev libopenscenegraph-dev libavformat-dev libavcodec-dev libswscale-dev python2-dev
-
-    # prerequisites for space_Veins
-    apt-get -y install ccache
-
-    # enable ccache
-    export PATH="/usr/lib/ccache:$PATH"
-    cd /opt
-    case "$OPP_VERSION" in
-    5.0)
-        curl --location https://gateway.ipfs.io/ipns/ipfs.omnetpp.org/release/${OPP_VERSION}/omnetpp-${OPP_VERSION}-src.tgz | tar -xzv
-        ;;
-    5.1 | 5.1.1 | 5.2 | 5.2.1 | 5.3)
-        curl --location https://gateway.ipfs.io/ipns/ipfs.omnetpp.org/release/${OPP_VERSION}/omnetpp-${OPP_VERSION}-src-core.tgz | tar -xzv
-        ;;
-    5.4 | 5.5)
-        echo "Error: No mirror configured for this version of OMNeT++"
-        ;;
-    5.7)
-        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-src-linux.tgz | tar -xzv
-        ;;
-    *)
-        curl --location https://github.com/omnetpp/omnetpp/releases/download/omnetpp-${OPP_VERSION}/omnetpp-${OPP_VERSION}-linux.tgz | tar -xzv
-    esac
-
-    ln -s omnetpp-${OPP_VERSION} omnetpp
-    export PATH=$PATH:/opt/omnetpp/bin
-    cd /opt/omnetpp
-
-    case "$OPP_VERSION" in
-    5.0 | 5.1 | 5.1.1 | 5.2 | 5.2.1)
-        # patch configure.user since command line override is not available
-        perl -p -i -e s/WITH_TKENV=yes/WITH_TKENV=no/ configure.user
-        perl -p -i -e s/WITH_QTENV=yes/WITH_QTENV=no/ configure.user
-        ;;
-    esac
-
-    . /opt/omnetpp/setenv
-    ./configure WITH_OSGEARTH=no
-    make -j8 base MODE=debug
-    make -j8 base MODE=release
-    rm -fr doc out test samples misc config.log config.status
-    # patch Makefile.in such that no hardlinks are generated because beegfs (used by TUD HPC) does not support hardlinks.
-    sed -i 's/LN = ln -f/LN = cp -pR/' /opt/omnetpp/Makefile.inc
-    # make directory world-writable (as the IDE writes to its install location)
-    chmod -R a+wX /opt/omnetpp/
-
-    cd /opt
-    git clone --depth 1 --branch "${SUMO_TAG}" https://github.com/eclipse/sumo sumo-${SUMO_VERSION}
-    ln -s sumo-${SUMO_VERSION} sumo
-    export PATH=$PATH:/opt/sumo/bin
-    cd sumo
-
-    case "$SUMO_VERSION" in
-    0.32.0)
-        # SUMO 0.32.0 needs a patch to compile
-        curl --location https://github.com/eclipse/sumo/files/2159974/patch-sumo-0.32.0-ComparatorIdLess.txt | patch -p1
-        ;;
-    1.0.0 | 1.0.1 | 1.2.0)
-        echo "Error: this version of SUMO will not compile without GUI support, which this .def file does not install."
-    esac
-
-    case "$SUMO_VERSION" in
-    0.32.0)
-        make -f Makefile.cvs
-        ./configure
-        make -j8
-        ;;
-    *)
-        cd build
-        cmake ..
-        make -j8
-        cd ..
-        ;;
-    esac
-
-    rm -fr .git docs build tests
-
-    apt-get -y autoremove
-    apt-get -y clean
-    apt-get -y autoclean
-
-%environment
-    export LC_ALL=C
-    #PATH
-    export PATH="$PATH:/opt/omnetpp/bin"
-    export PATH="$PATH:/opt/sumo/bin"
-    export PATH="$PATH:/opt/singularity-space_veins"
-    #CCACHE
-    export CCACHE_DIR="/space_veins/.cache"
-    export PATH="/usr/lib/ccache:$PATH"
-    #SHELL
-    export SHELL="/usr/bin/bash"
-
 %runscript
-
     #
     # singularity-space_veins -- Singularity container for quickly building and running Veins simulations anywhere
     # Copyright (C) 2020 Christoph Sommer <sommer@cms-labs.org>
@@ -223,11 +114,11 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
     set -e
 
     WITH_LAUNCHD=0
-    GETOPT_RESULT=$(getopt --name "singularity-space_veins runscript" --options Vhc:l --longoptions version,help,chdir:,launchd -- "$@")
+    GETOPT_RESULT=$(getopt --name "singularity-space_veins runscript" --options vhc:l --longoptions version,help,chdir:,launchd -- "$@")
     eval set -- "$GETOPT_RESULT"
     while true; do
         case "$1" in
-        -V | --version)
+        -v | --version)
             cat /opt/singularity-space_veins/version.txt
             exit 0
             ;;
@@ -252,12 +143,6 @@ MirrorURL:  http://archive.ubuntu.com/ubuntu
 
     # Make sure that we should actually run something
     test "$#" -ge 1 || (echo "singularity-space_veins runscript: No command line to execute. For more information, run this container with its '--help' option."; exit 1)
-
-    # set up build/run environment
-    export PATH="$PATH:/opt/omnetpp/bin"
-    export PATH="$PATH:/opt/sumo/bin"
-    export SHELL="/usr/bin/bash"
-    export PATH="/usr/lib/ccache:$PATH"
 
     case "$WITH_LAUNCHD" in
     0)
