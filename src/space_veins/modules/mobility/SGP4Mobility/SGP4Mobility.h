@@ -98,6 +98,7 @@ public:
     virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
 
     void updateSatellitePosition();
+    inet::Coord calculateSatellitePosition(simtime_t simulationTime, bool recordStatistics);
 
 protected:
     bool isPreInitialized;
