@@ -54,7 +54,6 @@ void SGP4Mobility::initialize(int stage)
     EV_DEBUG << "SGP4Mobility stage: " << stage << std::endl;
     MovingMobilityBase::initialize(stage);
     if (stage == 0) {
-
         EV_DEBUG << "Initializing SGP4Mobility module." << std::endl;
         EV_DEBUG << "isPreInitialized: " << isPreInitialized << std::endl;
         ASSERT(isPreInitialized);
@@ -62,6 +61,12 @@ void SGP4Mobility::initialize(int stage)
         WATCH(tle.tle_line1);
         WATCH(tle.tle_line2);
         WATCH(wall_clock_sim_start_time_utc);
+
+        // parse ned parameters
+        updatePositionOnlyAboveHorizon = par("updatePositionOnlyAboveHorizon").boolValue();
+        WATCH(updatePositionOnlyAboveHorizon);
+        precalculationInterval_s = par("precalculationInterval_s");
+        WATCH(precalculationInterval_s);
 
         // create projection context
         pj_ctx = proj_context_create();
@@ -174,16 +179,81 @@ void SGP4Mobility::initialize(int stage)
 
         // Statistics
         vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
+
+        // updatePositionOnlyAboveHorizon
+        if (updatePositionOnlyAboveHorizon) {
+            // precalculate time periods in which the satellite is above the horizon of the SOP
+            // set up vector of intervals to investigate
+            setUpPrecalculationIntervals();
+            // check that precalculation intervals are created, otherwise abort precalculation
+            if (!precalculationIntervals.empty()) {
+                // TODO: determine for every interval if it is rising or falling
+            } else {
+                // disable updatePositionOnlyAboveHorizon
+                updatePositionOnlyAboveHorizon = false;
+            }
+        }
+    }
+}
+
+void SGP4Mobility::setUpPrecalculationIntervals()
+{
+    // get simTimeLimit
+    const char* sim_time_limit_str = getEnvir()->getConfig()->getConfigValue("sim-time-limit");
+    simtime_t simTimeLimit = SimTime::parse(sim_time_limit_str);
+    // set up pre calculation intervals only if simTimeLimit is greater then 5 times the preCalculationInterval_s
+    // This should ensure that enough intervals are created, otherwise precalculationIntervals remains empty and precalculation is cancelled.
+    if (simTimeLimit > 5 * precalculationInterval_s) {
+        // set up first interval
+        precalculationInterval_t firstInterval;
+        firstInterval.start = SimTime::ZERO - precalculationInterval_s;
+        firstInterval.isStartDummy = true;
+        firstInterval.end = SimTime::ZERO;
+        precalculationIntervals.push_back(firstInterval);
+        // set up intermediate intervals
+        simtime_t simTimeIterate = SimTime::ZERO;
+        while (simTimeIterate < simTimeLimit) {
+            precalculationInterval_t intermediateInterval;
+            intermediateInterval.start = simTimeIterate;
+            intermediateInterval.end = simTimeIterate + precalculationInterval_s;
+            precalculationIntervals.push_back(intermediateInterval);
+            if (intermediateInterval.end > simTimeLimit) {
+                intermediateInterval.isEndDummy = true;
+            }
+            simTimeIterate = simTimeIterate + precalculationInterval_s;
+        }
+        // set up last interval
+        precalculationInterval_t lastInterval;
+        lastInterval.start = simTimeIterate;
+        if (lastInterval.start > simTimeLimit) {
+            lastInterval.isStartDummy = true;
+        }
+        lastInterval.end = simTimeIterate + precalculationInterval_s;
+        if (lastInterval.end > simTimeLimit) {
+            lastInterval.isEndDummy = true;
+        }
+        precalculationIntervals.push_back(lastInterval);
     }
 }
 
 void SGP4Mobility::updateSatellitePosition() {
     // calculate current satellite position and record statistics
-    lastPosition = calculateSatellitePosition(simTime(), true);
+    calculatedSatellitePositions_t satellitePosition = calculateSatellitePosition(simTime());
+    lastPosition = satellitePosition.omnetppCoord;
+    // statistics
+    vehicleStatistics->recordWGS84Coord(satellitePosition.wgs84);
+    vehicleStatistics->recordWGS84CartCoord(satellitePosition.wgs84CartesianGeocentric);
+    // Note the minus operator at the northing: The reason is OMNeT++'s coordinate system. The origin is in the upper left corner,
+    // the x-axis goes from west to east in the positiv direction and the y-axis goes from north to south in the positiv direction.
+    // According to the figure at https://proj.org/operations/conversions/topocentric.html the enu.n-axis needs to be inverted.
+    vehicleStatistics->recordSopRelativeCoord(veins::Coord(satellitePosition.wgs84CartesianTopocentric.enu.e, -satellitePosition.wgs84CartesianTopocentric.enu.n, satellitePosition.wgs84CartesianTopocentric.enu.u));
+    vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
 }
 
-inet::Coord SGP4Mobility::calculateSatellitePosition(simtime_t simulationTime, bool recordStatistics)
+SGP4Mobility::calculatedSatellitePositions_t SGP4Mobility::calculateSatellitePosition(simtime_t simulationTime)
 {
+    calculatedSatellitePositions_t returnValues;
+    returnValues.simulationTime = simulationTime;
     EV_TRACE << "calculateSatellitePosition for simulationTime: " << simulationTime << std::endl;
     // add simulationTime to diffTleEpochWctMin to calculate the satellite position according to the current simulation time
     EV_TRACE << "simulationTime in minutes: " << simulationTime.dbl() / 60 << " min" << std::endl;
@@ -202,6 +272,7 @@ inet::Coord SGP4Mobility::calculateSatellitePosition(simtime_t simulationTime, b
     std::vector<double> r_TEME(r_array, r_array + n);
     std::vector<double> v_TEME(v_array, v_array + n);
     EV_TRACE << "TEME x: " << r_TEME[0] << ", y: " << r_TEME[1] << ", z: " << r_TEME[2] << std::endl;
+    returnValues.teme = inet::Coord(r_TEME[0], r_TEME[1], r_TEME[2]);
 
     // Calculate the current wall clock time as julian date for TEME to ITRF conversion
     // ignore leap seconds for now
@@ -214,21 +285,25 @@ inet::Coord SGP4Mobility::calculateSatellitePosition(simtime_t simulationTime, b
     // Coordinate transformation TEME -> ITRF
     std::pair<std::vector<double>, std::vector<double>> itrf = TEME_to_ITRF(current_wall_clock_time_jd, r_TEME, v_TEME, 0.0, 0.0, current_wall_clock_time_frac);
     EV_TRACE << "SGP4Mobility itrf: x: " << itrf.first[0] << ", y: " << itrf.first[1] << ", z: " << itrf.first[2] << std::endl;
+    returnValues.itrf2008 = inet::Coord(itrf.first[0] * 1000, itrf.first[1] * 1000, itrf.first[2] * 1000); // conversion km -> m!
     // Coordinate transformation ITRF -> WGS84
     PJ_COORD toTransfer = proj_coord(itrf.first[0] * 1000, itrf.first[1] * 1000, itrf.first[2] * 1000, 0); // conversion km -> m!
     PJ_COORD geo = proj_trans(itrf2008_to_wgs84_projection, PJ_FWD, toTransfer);
     WGS84Coord sat_pos_wgs84 = WGS84Coord(geo.lpz.phi, geo.lpz.lam, geo.lpz.z);
+    returnValues.wgs84 = sat_pos_wgs84;
     EV_TRACE << "SGP4Mobility sat_pos_wgs84: " << sat_pos_wgs84 << std::endl;
 
     // Transform satellite's WGS84 coordinate from geodetic to cartesian representation, proj needs Radians for an unknown reason
     // see https://proj.org/operations/conversions/cart.html
     toTransfer = proj_coord(sat_pos_wgs84.lon * (PI/180), sat_pos_wgs84.lat * (PI/180), sat_pos_wgs84.alt, 0);
     PJ_COORD geo_cart = proj_trans(wgs84_to_wgs84cartesian_projection, PJ_FWD, toTransfer);
+    returnValues.wgs84CartesianGeocentric = geo_cart;
     EV_TRACE << "SGP4Mobility sat_pos_wgs84 cartesian: x: " << geo_cart.xyz.x << ", y: " << geo_cart.xyz.y << ", z: " << geo_cart.xyz.z << std::endl;
 
     // Geocentric to topocentric, see https://proj.org/operations/conversions/topocentric.html
     PJ_COORD topo_cart = proj_trans(wgs84cartesian_to_topocentric_projection, PJ_FWD, geo_cart);
-    EV_TRACE << "SGP4Mobility topo as cartesian coordinates: e: " << topo_cart.enu.e << ", n:" << -topo_cart.enu.n << ", u: " << topo_cart.enu.u << std::endl;
+    returnValues.wgs84CartesianTopocentric = topo_cart;
+    EV_TRACE << "SGP4Mobility topo as cartesian coordinates: e: " << topo_cart.enu.e << ", n:" << topo_cart.enu.n << ", u: " << topo_cart.enu.u << std::endl;
 
     // Note the minus operator at the northing: The reason is OMNeT++'s coordinate system. The origin is in the upper left corner,
     // the x-axis goes from west to east in the positiv direction and the y-axis goes from north to south in the positiv direction.
@@ -237,16 +312,10 @@ inet::Coord SGP4Mobility::calculateSatellitePosition(simtime_t simulationTime, b
     // Further, the position of the SOP is added such that the satellite position is relative to OMNeT++'s origin.
     auto sop_omnet_coord = sop->get_sop_omnet_coord();
     inet::Coord satellitePosition(topo_cart.enu.e + sop_omnet_coord.x, -topo_cart.enu.n + sop_omnet_coord.y, topo_cart.enu.u + sop_omnet_coord.z);
+    returnValues.omnetppCoord = satellitePosition;
     EV_TRACE << "SGP4Mobility satellite position at simulation time " << simulationTime << ": " << satellitePosition << std::endl;
 
-    // statistics
-    if (recordStatistics) {
-        vehicleStatistics->recordWGS84Coord(sat_pos_wgs84);
-        vehicleStatistics->recordWGS84CartCoord(geo_cart);
-        vehicleStatistics->recordSopRelativeCoord(veins::Coord(topo_cart.enu.e, -topo_cart.enu.n, topo_cart.enu.u));
-        vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
-    }
-    return satellitePosition;
+    return returnValues;
 }
 
 void SGP4Mobility::handleSelfMessage(cMessage* message)

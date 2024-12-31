@@ -28,6 +28,7 @@
 #include <chrono>
 
 #include <proj.h>
+#include <vector>
 
 #include "inet/mobility/base/MovingMobilityBase.h"
 #include "inet/common/geometry/common/Coord.h"
@@ -59,6 +60,28 @@ struct date_time_t {
     double sec;
 };
 
+struct precalculationInterval_t {
+    simtime_t start = SimTime::ZERO; // simulation time of the start of the interval
+    simtime_t end = SimTime::ZERO; // simulation time of the end of the interval
+    bool isStartDummy = false; // is true if this time point is out of the simulation time and only used to check if the satellite is rising or falling at SimTime == 0
+    bool isEndDummy = false; // is true if the time point is out of the simulation time and only used to check if the satellite is rising or fallting at SimTime == <SimTimeLimit>
+    bool isRising = false; // is true if the satellite is rising between <start> and <end>
+    bool isFalling = false; // is true if the satellite is falling between <start> and <end>
+    bool risesAboveHorizon = false; // is true of the satellite rises above the horizon in this interval
+    bool setsBelowHorizon = false; // is true of the satellite sets below the horizon in this interval
+    bool canContainMaxima = false; // is true if one of the neighboring interval isRising and this interval isFalling or vice versa
+};
+
+struct calculatedSatellitePositions_t {
+    simtime_t simulationTime;
+    inet::Coord teme;
+    inet::Coord itrf2008;   // values are in meters
+    WGS84Coord wgs84;
+    PJ_COORD wgs84CartesianGeocentric; // WGS84 coordinate in Cartesian representation
+    PJ_COORD wgs84CartesianTopocentric; // WGS84 coordinate in Cartesian representation relative to SOP
+    inet::Coord omnetppCoord; // satellite position in OMNeT++'s coordinate system
+};
+
 public:
     SGP4Mobility()
         : MovingMobilityBase()
@@ -72,6 +95,8 @@ public:
     void preInitialize(TLE pTle, std::string pWall_clock_sim_start_time_utc);
 
     void initialize(int) override;
+
+    void setUpPrecalculationIntervals();
 
     void setInitialPosition() override;
 
@@ -98,9 +123,16 @@ public:
     virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
 
     void updateSatellitePosition();
-    inet::Coord calculateSatellitePosition(simtime_t simulationTime, bool recordStatistics);
+    calculatedSatellitePositions_t calculateSatellitePosition(simtime_t simulationTime);
 
 protected:
+    // ned parameters
+    bool updatePositionOnlyAboveHorizon;
+    simtime_t precalculationInterval_s;
+
+    // precalculation data structures
+    std::vector<precalculationInterval_t> precalculationIntervals;
+
     bool isPreInitialized;
     // proj context
     PJ_CONTEXT* pj_ctx;

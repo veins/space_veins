@@ -31,4 +31,6 @@ simple SGP4Mobility extends MovingMobilityBase
         @class(space_veins::SGP4Mobility);
         @display("i=block/cogwheel");
         @signal[mobilityStateChanged](type=inet::MobilityBase);
+        bool updatePositionOnlyAboveHorizon = default(false); // update satellite position only when it is above the horizon of the SOP
+        double precalculationInterval_s = default(600s) @unit(s);    // calculate satellite positions every <precalculationInterval_s> seconds for testing if the satellite is above the horizon
 }
