@@ -23,8 +23,10 @@
 
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4Mobility.h"
 #include "inet/common/Units.h"
+#include "inet/mobility/base/MovingMobilityBase.h"
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4.h"
 #include "space_veins/modules/mobility/SGP4Mobility/TEME2ITRF.h"
+#include <algorithm>
 #include <cmath>
 #include <iterator>
 #include <proj.h>
@@ -68,6 +70,8 @@ void SGP4Mobility::initialize(int stage)
         WATCH(tle.tle_line1);
         WATCH(tle.tle_line2);
         WATCH(wall_clock_sim_start_time_utc);
+        WATCH(calculatedPositionUpdates);
+        WATCH(processedEvents);
 
         // parse ned parameters
         updatePositionOnlyAboveHorizon = par("updatePositionOnlyAboveHorizon").boolValue();
@@ -353,6 +357,8 @@ void SGP4Mobility::calculateBordersOfRelevantIntervals() {
             it = nxt;
         }
     }
+    // sort relevant intervals in ascending order according to the start simulation time of every relevant period
+    std::sort(bordersOfRelevantIntervals.begin(), bordersOfRelevantIntervals.end(), isSmallerStartBorder);
     // print all borders for debugging
     EV_DEBUG << bordersOfRelevantIntervalsToString();
 }
@@ -371,6 +377,7 @@ void SGP4Mobility::updateSatellitePosition() {
     calculatedSatellitePositions_t satellitePosition = calculateSatellitePosition(simTime());
     lastPosition = satellitePosition.omnetppCoord;
     // statistics
+    calculatedPositionUpdates++;
     vehicleStatistics->recordWGS84Coord(satellitePosition.wgs84);
     vehicleStatistics->recordWGS84CartCoord(satellitePosition.wgs84CartesianGeocentric);
     vehicleStatistics->recordSopRelativeCoord(veins::Coord(satellitePosition.omnetppCoordRelativeToSOP.x, satellitePosition.omnetppCoordRelativeToSOP.y, satellitePosition.omnetppCoordRelativeToSOP.z));
@@ -527,9 +534,46 @@ std::string SGP4Mobility::dateTimeTToString(date_time_t t) {
     return ss.str();
 }
 
+bool SGP4Mobility::isSmallerStartBorder(std::pair<border_t, border_t> i, std::pair<border_t, border_t> j) {
+    return i.first.simulationTime < j.first.simulationTime ? true : false;
+}
+
 void SGP4Mobility::handleSelfMessage(cMessage* message)
 {
-    MovingMobilityBase::handleSelfMessage(message);
+    if (!updatePositionOnlyAboveHorizon) {
+        // we do NOT only update the position when the satellite is above the horizon
+        // we update its position according to updateInterval
+        MovingMobilityBase::handleSelfMessage(message);
+    } else {
+        // we ONLY update the position in the precalculated relevant periods, except for the first update
+        // we update the position for all satellites at the beginning such that their position is not (0, 0, 0) until the first relevant period begins
+        if (!firstPositionUpdateDone) {
+            inet::MovingMobilityBase::handleSelfMessage(message);
+            firstPositionUpdateDone = true;
+        } else {
+            // first position update is done, now we only update the position if the simulation time is in the range of a relevant period
+            simtime_t now = simTime();
+            if (!bordersOfRelevantIntervals.empty()) {
+                if (now > bordersOfRelevantIntervals.front().second.simulationTime) {
+                    // the simulation time is past the leading relevant period
+                    // delete this period in bordersOfRelevantIntervals
+                    bordersOfRelevantIntervals.erase(bordersOfRelevantIntervals.begin());
+                    if (!bordersOfRelevantIntervals.empty()) {
+                        // schedule next update to the start simulation time of the new leading relevant period
+                        cancelEvent(moveTimer);
+                        scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
+                        // TODO: maybe park the satellite at (DOUBLE_MAX, DOUBLE_MAX, DOUBLE_MAX)?
+                        // otherwise all satellites will be crowded around the horizon
+                    }
+                }
+                if (now >= bordersOfRelevantIntervals.front().first.simulationTime && now <= bordersOfRelevantIntervals.front().second.simulationTime) {
+                    // current simulation time is inside a relevant period -> update its position
+                    inet::MovingMobilityBase::handleSelfMessage(message);
+                }
+            }
+        }
+    }
+    processedEvents++;
 }
 
 void SGP4Mobility::move()

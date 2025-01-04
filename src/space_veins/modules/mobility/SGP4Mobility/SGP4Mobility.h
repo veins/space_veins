@@ -152,6 +152,7 @@ public:
     std::string vectorOfPrecalculationIntervalsToString(std::vector<precalculationInterval_t> vec);
     std::string bordersOfRelevantIntervalsToString();
     std::string dateTimeTToString(date_time_t t);
+    static bool isSmallerStartBorder(std::pair<border_t, border_t> i, std::pair<border_t, border_t> j);
 
 protected:
     // ned parameters
@@ -165,6 +166,7 @@ protected:
     std::vector<std::pair<border_t, border_t>> bordersOfRelevantIntervals;
 
     bool isPreInitialized;
+    bool firstPositionUpdateDone = false;
     // proj context
     PJ_CONTEXT* pj_ctx;
     PJ* itrf2008_to_wgs84_projection;
@@ -198,6 +200,8 @@ protected:
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
+    int calculatedPositionUpdates = 0;
+    int processedEvents = 0;
 
 class SPACE_VEINS_API SGP4MobilityAccess {
 public:
