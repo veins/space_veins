@@ -28,8 +28,10 @@
 #include <chrono>
 
 #include <proj.h>
+#include <utility>
 #include <vector>
 
+#include "inet/common/Units.h"
 #include "inet/mobility/base/MovingMobilityBase.h"
 #include "inet/common/geometry/common/Coord.h"
 
@@ -60,26 +62,40 @@ struct date_time_t {
     double sec;
 };
 
+struct calculatedSatellitePositions_t {
+    simtime_t simulationTime = SIMTIME_MAX;
+    date_time_t wallClockTimeUtc = {-1, -1, -1, -1, -1, -1.0};
+    inet::Coord teme = inet::Coord::NIL;
+    inet::Coord itrf2008 = inet::Coord::NIL;   // values are in meters
+    WGS84Coord wgs84 = WGS84Coord(-1, -1, -1);
+    PJ_COORD wgs84CartesianGeocentric = {-1, -1, -1, -1}; // WGS84 coordinate in Cartesian representation
+    PJ_COORD wgs84CartesianTopocentric = {-1, -1, -1, -1}; // WGS84 coordinate in Cartesian representation relative to SOP
+    inet::Coord omnetppCoordRelativeToSOP = inet::Coord::NIL; // WGS84 coordinate in Cartesian representation relative to SOP in OMNeT++ coordinate system -- y-axis is positiv going south
+    inet::Coord omnetppCoord = inet::Coord::NIL; // satellite position in OMNeT++'s coordinate system
+};
+
 struct precalculationInterval_t {
-    simtime_t start = SimTime::ZERO; // simulation time of the start of the interval
-    simtime_t end = SimTime::ZERO; // simulation time of the end of the interval
+    simtime_t start = SIMTIME_MAX; // simulation time of the start of the interval
+    simtime_t end = SIMTIME_MAX; // simulation time of the end of the interval
     bool isStartDummy = false; // is true if this time point is out of the simulation time and only used to check if the satellite is rising or falling at SimTime == 0
     bool isEndDummy = false; // is true if the time point is out of the simulation time and only used to check if the satellite is rising or fallting at SimTime == <SimTimeLimit>
+    calculatedSatellitePositions_t startPosition;
+    calculatedSatellitePositions_t endPosition;
+    inet::deg startElevationAngleToSOP = inet::deg(NaN);
+    inet::deg endElevationAngleToSOP = inet::deg(NaN);
     bool isRising = false; // is true if the satellite is rising between <start> and <end>
     bool isFalling = false; // is true if the satellite is falling between <start> and <end>
     bool risesAboveHorizon = false; // is true of the satellite rises above the horizon in this interval
     bool setsBelowHorizon = false; // is true of the satellite sets below the horizon in this interval
+    bool isPartlyAboveHorizon = false; // is true if either startElevationAngleToSOP or endElevationAngleToSOP is greater than 0
+    bool isCompletelyAboveHorizon = false; // is true if both startElevationAngleToSOP and endElevationAngleToSOP is greater than 0
+    bool relevantForSatellitePositionUpdates = false; // is true if this interval is relevant for precise position updates after the initialization phase
     bool canContainMaxima = false; // is true if one of the neighboring interval isRising and this interval isFalling or vice versa
 };
 
-struct calculatedSatellitePositions_t {
+struct border_t {
     simtime_t simulationTime;
-    inet::Coord teme;
-    inet::Coord itrf2008;   // values are in meters
-    WGS84Coord wgs84;
-    PJ_COORD wgs84CartesianGeocentric; // WGS84 coordinate in Cartesian representation
-    PJ_COORD wgs84CartesianTopocentric; // WGS84 coordinate in Cartesian representation relative to SOP
-    inet::Coord omnetppCoord; // satellite position in OMNeT++'s coordinate system
+    date_time_t utcTime;
 };
 
 public:
@@ -97,6 +113,12 @@ public:
     void initialize(int) override;
 
     void setUpPrecalculationIntervals();
+
+    void calculateIntervalPositions();
+
+    void identifyRelevantIntervals();
+
+    void calculateBordersOfRelevantIntervals();
 
     void setInitialPosition() override;
 
@@ -124,6 +146,12 @@ public:
 
     void updateSatellitePosition();
     calculatedSatellitePositions_t calculateSatellitePosition(simtime_t simulationTime);
+    inet::deg calculateElevationAngleRelativeToSop(calculatedSatellitePositions_t pos);
+    std::string satellitePositionsToString(calculatedSatellitePositions_t pos);
+    std::string precalculationIntervalToString(precalculationInterval_t interval);
+    std::string vectorOfPrecalculationIntervalsToString(std::vector<precalculationInterval_t> vec);
+    std::string bordersOfRelevantIntervalsToString();
+    std::string dateTimeTToString(date_time_t t);
 
 protected:
     // ned parameters
@@ -132,6 +160,9 @@ protected:
 
     // precalculation data structures
     std::vector<precalculationInterval_t> precalculationIntervals;
+    std::vector<precalculationInterval_t> relevantPrecalculationIntervals;
+    std::vector<int> indicesOfRelevantIntervals;
+    std::vector<std::pair<border_t, border_t>> bordersOfRelevantIntervals;
 
     bool isPreInitialized;
     // proj context
