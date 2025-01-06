@@ -65,3 +65,6 @@ RUN ./install-misc.sh && rm ./install-misc.sh
 COPY docker-env.sh .
 COPY install-docker-env.sh .
 RUN ./install-docker-env.sh && rm ./install-docker-env.sh
+
+COPY install-pythonDeps.sh .
+RUN ./install-pythonDeps.sh && rm ./install-pythonDeps.sh
