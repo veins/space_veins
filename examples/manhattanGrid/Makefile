@@ -10,15 +10,21 @@
 # build plots
 
 space_veins_binaries := ../../src/libspace_veins.so
+mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
 experimentId := $(experimentTime)_$(experimentCommit)
 configs := Iridium86Active20240304NullIslandEnableUpdatePositionOnlyAboveHorizon Iridium86Active20240304NullIslandDisableUpdatePositionOnlyAboveHorizon 
+runmakerJobs := 2
+runmakerLogLines := 200
 
 all: ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
 
-clean:
-	rm *_runs.log *_runs.txt
+cleanAll:
+	rm *_runs.log *_runs.txt runAll collectScalars resultCollection
+
+cleanResultCollection:
+	rm -rf csv collectScalars resultCollection
 
 shell:
 	cd ../../singularity && ./singularity-space_veins.sh shell
@@ -33,11 +39,56 @@ $(space_veins_binaries): ../../Makefile ../../singularity/singularity-space_vein
 $(experimentId)_runs.log:
 	@touch $@
 
-$(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsFile.pl
+$(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
 	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid -- perl $< $(configs) > ../examples/manhattanGrid/$@
 
-test:
-	@echo $(experimentId)
+gnuTimeResults.csv:
+	touch $@
+	echo "command,user,system,wallClock" > $@
 
-experiment: ../../singularity/singularity-space_veins.sif $(space_veins_binaries) $(experimentId)_runs.log $(experimentId)_runs.txt
-	@echo Run experiment: $(experimentId)
+runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt gnuTimeResults.csv
+	parallel-ssh -i -h simMachines.txt "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
+	mkdir -p csv
+	mv gnuTimeResults.csv csv/
+	touch $@
+
+csv/packetSentCount.csv: runAll
+	mkdir -p csv
+	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.node\[0\]\.app\[(?<module>[0-9]+)\]' -F packetSent:count=packetSentCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+
+csv/packetReceivedCount.csv: runAll
+	mkdir -p csv
+	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F packetReceived:count=packetReceivedCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+
+csv/processedLeoSatelliteMobilityEventsCount.csv: runAll
+	mkdir -p csv
+	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.mobility' -F processedEvents:count=processedEventsCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+
+csv/calculatedLeoSatellitePositionUpdatesCount.csv: runAll
+	mkdir -p csv
+	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.mobility' -F calculatedPositionUpdates:count=calculatedPositionUpdatesCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+
+collectScalars: csv/packetSentCount.csv csv/packetReceivedCount.csv csv/processedLeoSatelliteMobilityEventsCount.csv csv/calculatedLeoSatellitePositionUpdatesCount.csv
+	touch $@
+
+csv/endToEndDelay.csv: runAll
+	mkdir -p csv
+	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F endToEndDelay:vector=endToEndDelay -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.vec > $@
+
+csv/satOmnetppPosition.csv: runAll
+	mkdir -p csv
+	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.vehicleStatistics' --merge-by mt -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ -A repetition results/*.vec > $@
+
+collectVectors: csv/endToEndDelay.csv csv/satOmnetppPosition.csv
+	touch $@
+
+resultCollection: collectScalars collectVectors
+	touch $@
+
+archive: resultCollection
+	mkdir -p archive/$(experimentId)
+	mv $(experimentId)_runs.log archive/$(experimentId)
+	mv $(experimentId)_runs.txt archive/$(experimentId)
+	mv results archive/$(experimentId)
+	mv csv archive/$(experimentId)
+	rm runAll resultCollection collectScalars collectVectors
