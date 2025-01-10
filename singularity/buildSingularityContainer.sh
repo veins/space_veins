@@ -29,4 +29,4 @@ sed -i 's/From: \.\.\/\.devcontainer\/space_veins-[0-9]*\.[0-9]*-[a-zA-Z0-9]*.ta
 sed -i "s/    Version [0-9]*\.[0-9]*-[a-zA-Z0-9]*/    Version ${SPACE_VEINS_ID}/g" singularity-space_veins.def
 
 # build singularity container
-singularity build --fakeroot singularity-space_veins.sif singularity-space_veins.def
+singularity build --force --fakeroot singularity-space_veins.sif singularity-space_veins.def

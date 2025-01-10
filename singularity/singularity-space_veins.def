@@ -23,11 +23,11 @@
 #
 
 bootstrap: docker-archive
-From: ../.devcontainer/space_veins-0.3-0546b9b.tar
+From: ../.devcontainer/space_veins-0.3-2be4d76e.tar
 
 %labels
     Author sommer@cms-labs.org research@m-franke.net
-    Version 0.3-0546b9b
+    Version 0.3-2be4d76e
 
 %help
     Singularity container for quickly building and running space_veins simulations anywhere.
