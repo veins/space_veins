@@ -33,4 +33,7 @@ simple SGP4Mobility extends MovingMobilityBase
         @signal[mobilityStateChanged](type=inet::MobilityBase);
         bool updatePositionOnlyAboveHorizon = default(false); // update satellite position only when it is above the horizon of the SOP
         double precalculationInterval_s = default(180s) @unit(s);    // calculate satellite positions every <precalculationInterval_s> seconds for testing if the satellite is above the horizon
+        @statistic[calculatedPositionUpdates](source=mobilityStateChanged; record=count);
+        @signal[space_veins_sgp4mobility_processedEvent](type=long);
+        @statistic[processedEvents](source=space_veins_sgp4mobility_processedEvent; record=count);
 }

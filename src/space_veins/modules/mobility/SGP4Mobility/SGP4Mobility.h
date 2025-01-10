@@ -198,6 +198,9 @@ protected:
     // Difference Tle epoch current wall clock time in minutes
     double diffTleEpochWctMin;                  // difference between the TLE's epoch and the wall clock start time in minutes
 
+    /* Signals */
+    static const simsignal_t processedEvent;
+
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
     int calculatedPositionUpdates = 0;

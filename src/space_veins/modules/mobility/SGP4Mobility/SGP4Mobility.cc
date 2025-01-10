@@ -37,6 +37,8 @@ using namespace space_veins;
 
 Define_Module(space_veins::SGP4Mobility);
 
+const simsignal_t SGP4Mobility::processedEvent = registerSignal("space_veins_sgp4mobility_processedEvent");
+
 void SGP4Mobility::setInitialPosition()
 {
     EV_DEBUG << "SGP4Mobility setInitialPosition()" << std::endl;
@@ -342,6 +344,8 @@ void SGP4Mobility::calculateBordersOfRelevantIntervals() {
         if (nxt == relevantPrecalculationIntervals.end()) {
             border_t end = {it->end, it->endPosition.wallClockTimeUtc};
             borders.second = end;
+            // set it to relevantPrecalculationIntervals.end() to finish the while loop
+            it = relevantPrecalculationIntervals.end();
         } else {
             // if tmp->end == nxt->start both intervals are consecutive, otherwise a new period of relevant intervals begins
             while (nxt != relevantPrecalculationIntervals.end() && tmp->end == nxt->start) {
@@ -570,9 +574,15 @@ void SGP4Mobility::handleSelfMessage(cMessage* message)
                     // current simulation time is inside a relevant period -> update its position
                     inet::MovingMobilityBase::handleSelfMessage(message);
                 }
+                if (now < bordersOfRelevantIntervals.front().first.simulationTime) {
+                    // current simulation time is before the next leading relevant period -> schedule next event to the start of this period
+                    cancelEvent(moveTimer);
+                    scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
+                }
             }
         }
     }
+    emit(processedEvent, 1);
     processedEvents++;
 }
 
