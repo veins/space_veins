@@ -14,7 +14,7 @@ mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
 experimentId := $(experimentTime)_$(experimentCommit)
-configs := Iridium86Active20240304NullIslandEnableUpdatePositionOnlyAboveHorizon Iridium86Active20240304NullIslandDisableUpdatePositionOnlyAboveHorizon 
+configs := $(validationConfigs)
 runmakerJobs := 2
 runmakerLogLines := 200
 
@@ -75,9 +75,42 @@ csv/endToEndDelay.csv: runAll
 	mkdir -p csv
 	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F endToEndDelay:vector=endToEndDelay -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.vec > $@
 
-csv/satOmnetppPosition.csv: runAll
+scenarios := Iridium86Active20240304NullIsland
+experiments := EnableUpdatePositionOnlyAboveHorizon DisableUpdatePositionOnlyAboveHorizon
+# combinational expansion of scenarios and experiments
+validationConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$E))
+validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
+validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
+validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
+vectorFiles := $(wildcard results/*.vec)
+
+# used secondary expansion to use the stem $* in a wildcard function
+vectorFilesForSecondExpansion := $$(wildcard results/$$**.vec)
+.SECONDEXPANSION:
+$(validationFiles): csv/%SatOmnetppPosition.csv : $(vectorFilesForSecondExpansion)
+	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.vehicleStatistics' --merge-by mt -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ -A repetition results/*.vec > $@
+	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.vehicleStatistics' --merge-by mt -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ -A repetition $^ > $@
+
+# https://stackoverflow.com/q/18204904
+$(validationFilesNoEventNumbers): csv/%NoEventNumbers.csv: csv/%.csv
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	@echo "Delete column event as these values will differ since there are less events in EnableUpdatePositionOnlyAboveHorizon"
+	sed 's/[^\t]*\t//' $^ > $@
+	# @echo "Delete config"
+	# sed 's/\t$(patsubst %SatOmnetppPosition, %,$*)//' $^ > $@
+	sort -o $@ $@
+
+$(validationOutputFiles): validation/%Validation.txt: $(validationFilesNoEventNumbers)
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	mkdir -p validation
+	diff --unchanged-line-format="" --old-line-format="" $(sort $(filter csv/$*%, $^)) > $@
+
+validation.csv: $(validationOutputFiles)
+	@echo "target: $@\nprereq: $^\nstem: $*"
+
+debugVariables:
+	$(info vectorFiles is $(vectorFiles))
 
 collectVectors: csv/endToEndDelay.csv csv/satOmnetppPosition.csv
 	touch $@
