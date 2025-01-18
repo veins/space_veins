@@ -28,6 +28,8 @@
 use List::Util qw(shuffle);
 
 my $command = "/usr/bin/time --append -o gnuTimeResults.csv --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
+my $commandBegin = "/usr/bin/time -o GnuTimeResults_";
+my $commandEnd = ".csv --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
 
 my @configs = `./run -a`;
 my @runs = ();
@@ -40,7 +42,7 @@ foreach (@configs) {
 				# iterate over all configs specified as commandline arguments
 				if ($1 eq $ARGV[$j]) {
 					# check if configs match
-					push(@runs,". $command $1 -r $i\n");
+					push(@runs,". $commandBegin$1_$i$commandEnd $1 -r $i\n");
 				}
 			}
 		}

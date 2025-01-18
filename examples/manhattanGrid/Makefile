@@ -16,17 +16,39 @@ experimentCommit := $(shell git rev-parse --short HEAD)
 experimentId := $(experimentTime)_$(experimentCommit)
 scenarios := Iridium86Active20240304NullIsland
 experiments := EnableUpdatePositionOnlyAboveHorizon DisableUpdatePositionOnlyAboveHorizon
+runTimerPerformanceConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$ERunTimePerformance))
+validationConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$EValidation))
+allConfigs := $(validationConfigs) $(runTimerPerformanceConfigs)
 # combinational expansion of scenarios and experiments
-validationConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$E))
 validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
 validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
 validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
 vectorFiles := $(wildcard results/*.vec)
-
-configs := $(validationConfigs)
-runmakerJobs := 2
+runmakerJobs := 3
 runmakerLogLines := 200
 simMachines := nsm-sim03 nsm-sim04
+
+debugVariables := space_veins_binaries \
+					mkfile_path \
+					experimentTime \
+					experimentCommit \
+					experimentId \
+					scenarios \
+					experiments \
+					runTimerPerformanceConfigs \
+					validationConfigs \
+					allConfigs \
+					validationFiles \
+					validationFilesNoEventNumbers \
+					validationOutputFiles \
+					vectorFiles \
+					runmakerJobs \
+					runmakerLogLines \
+					simMachines \
+
+.SECONDEXPANSION:
+debugVariables:
+	$(foreach V, $(debugVariables), $(info $V: $($V)))
 
 all: ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
 
@@ -50,11 +72,9 @@ $(experimentId)_runs.log:
 	@touch $@
 
 $(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
-	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid -- perl $< $(configs) > ../examples/manhattanGrid/$@
+	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid -- perl $< $(allConfigs) > ../examples/manhattanGrid/$@
 
-gnuTimeResults.csv:
-	touch $@
-	echo "command,user,system,wallClock" > $@
+runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 
 simMachines.txt:
 	touch $@
@@ -63,10 +83,12 @@ simMachines.txt:
 	done
 
 # sleep 5 seconds after finishing all runs to wait for files written to disk
-runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt gnuTimeResults.csv
+# write results of GNU time in a dedicated file for every config to avoid race conditions
+runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt
 	parallel-ssh -i -h simMachines.txt "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
-	mkdir -p csv
-	mv gnuTimeResults.csv csv/
+	sleep 5
+	mkdir -p csv/gnuTimeResults
+	mv GnuTimeResults* csv/gnuTimeResults
 	sleep 5
 	touch $@
 
@@ -93,13 +115,10 @@ csv/endToEndDelay.csv: runAll
 	mkdir -p csv
 	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F endToEndDelay:vector=endToEndDelay -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.vec > $@
 
-# used secondary expansion to use the stem $* in a wildcard function
-vectorFilesForSecondExpansion := $$(wildcard results/$$**.vec) runAll
-.SECONDEXPANSION:
-$(validationFiles): csv/%SatOmnetppPosition.csv : $(vectorFilesForSecondExpansion)
+$(validationFiles): csv/%SatOmnetppPosition.csv : runAll
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.vehicleStatistics' --merge-by mt -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ -A repetition $(filter-out runAll,$^) > $@
+	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.vehicleStatistics' --merge-by mt -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ -A repetition results/*.vec > $@
 
 $(validationFilesNoEventNumbers): csv/%NoEventNumbers.csv: csv/%.csv
 	@echo "target: $@\nprereq: $^\nstem: $*"
@@ -130,9 +149,6 @@ validation.csv: $(validationOutputFiles)
 			echo "$${cmd},0" >> $@ ; \
 		fi \
 	done
-
-debugVariables:
-	$(info vectorFiles is $(vectorFiles))
 
 collectVectors: csv/endToEndDelay.csv
 	touch $@
