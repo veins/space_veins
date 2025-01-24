@@ -33,7 +33,14 @@ simple SGP4Mobility extends MovingMobilityBase
         @signal[mobilityStateChanged](type=inet::MobilityBase);
         bool updatePositionOnlyAboveHorizon = default(false); // update satellite position only when it is above the horizon of the SOP
         double precalculationInterval_s = default(180s) @unit(s);    // calculate satellite positions every <precalculationInterval_s> seconds for testing if the satellite is above the horizon
+        int getCurrentPositionBehavior = default(0); // Changes the behavior of getCurrentPosition(): 0: getCurrentPosition() returns the last calculated position. It does not recalculate it according to the current simulation time. It does not consider the simulation time. If the last update happened at t_0=5.0s and the updateInterval is 1.0s and getCurrentPosition() is called at t_1=5.5s, the position at t_0 is returned.
+        //                                                                                            1: if lastPosition is outdated (lastUpdate != simTime()) the satellite's position is calculated according to simTime() using the SGP4 model. Otherwise lastPosition is returned.
+        //                                                                                            2: if lastPosition is outdated (lastUpdate != simTime()) the satellite's position is calculated according to simTime() using linear interpolation. Otherwise lastPosition is returned.
         @statistic[calculatedPositionUpdates](source=mobilityStateChanged; record=count);
-        @signal[space_veins_sgp4mobility_processedEvent](type=long);
-        @statistic[processedEvents](source=space_veins_sgp4mobility_processedEvent; record=count);
+        @signal[space_veins_sgp4mobility_processedEventSignal](type=long);
+        @signal[space_veins_sgp4mobility_periodicUpdateSignal](type=long);
+        @signal[space_veins_sgp4mobility_getCurrentPositionUpdateSignal](type=long);
+        @statistic[processedEvents](source=space_veins_sgp4mobility_processedEventSignal; record=count, vector);
+        @statistic[periodicUpdates](source=space_veins_sgp4mobility_periodicUpdateSignal; record=count, vector);
+        @statistic[getCurrentPositionUpdates](source=space_veins_sgp4mobility_getCurrentPositionUpdateSignal; record=count, vector);
 }

@@ -37,19 +37,23 @@ using namespace space_veins;
 
 Define_Module(space_veins::SGP4Mobility);
 
-const simsignal_t SGP4Mobility::processedEvent = registerSignal("space_veins_sgp4mobility_processedEvent");
+const simsignal_t SGP4Mobility::processedEventSignal = registerSignal("space_veins_sgp4mobility_processedEventSignal");
+const simsignal_t SGP4Mobility::periodicUpdateSignal = registerSignal("space_veins_sgp4mobility_periodicUpdateSignal");
+const simsignal_t SGP4Mobility::getCurrentPositionUpdateSignal = registerSignal("space_veins_sgp4mobility_getCurrentPositionUpdateSignal");
 
 void SGP4Mobility::setInitialPosition()
 {
     EV_DEBUG << "SGP4Mobility setInitialPosition()" << std::endl;
-    // not possible at the moment because of dependencies in the initialize phase
-    //updateSatellitePosition();
+    nextPeriodicPositionUpdate();
+    firstPeriodicPositionUpdateDone = true;
+    updateMgmtAndStatistics();
 }
 
 void SGP4Mobility::initializePosition()
 {
-    EV_DEBUG << "SGP4Mobility initialPosition()" << std::endl;
-    MovingMobilityBase::initializePosition();
+    EV_DEBUG << "SGP4Mobility initializePosition()" << std::endl;
+    setInitialPosition();
+    scheduleUpdate();
 }
 
 void SGP4Mobility::preInitialize(TLE pTle, std::string pWall_clock_sim_start_time_utc)
@@ -63,8 +67,8 @@ void SGP4Mobility::preInitialize(TLE pTle, std::string pWall_clock_sim_start_tim
 void SGP4Mobility::initialize(int stage)
 {
     EV_DEBUG << "SGP4Mobility stage: " << stage << std::endl;
-    MovingMobilityBase::initialize(stage);
-    if (stage == 0) {
+    if (stage == inet::INITSTAGE_LOCAL) {
+        MovingMobilityBase::initialize(stage);
         EV_DEBUG << "Initializing SGP4Mobility module." << std::endl;
         EV_DEBUG << "isPreInitialized: " << isPreInitialized << std::endl;
         ASSERT(isPreInitialized);
@@ -74,6 +78,13 @@ void SGP4Mobility::initialize(int stage)
         WATCH(wall_clock_sim_start_time_utc);
         WATCH(calculatedPositionUpdates);
         WATCH(processedEvents);
+        WATCH(numberOfPeriodicPositionUpdates);
+        WATCH(numberOfGetCurrentPositionTriggeredPositionUpdates);
+        WATCH(getCurrentPositionBehavior);
+        WATCH(nextChange);
+        WATCH(lastUpdate);
+        WATCH(lastPeriodicUpdate);
+        WATCH(linearInterpolationVector);
 
         // parse ned parameters
         updatePositionOnlyAboveHorizon = par("updatePositionOnlyAboveHorizon").boolValue();
@@ -193,6 +204,9 @@ void SGP4Mobility::initialize(int stage)
         // Statistics
         vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
 
+        // initialize position
+        initializePosition();
+
         // updatePositionOnlyAboveHorizon
         if (updatePositionOnlyAboveHorizon) {
             // precalculate time periods in which the satellite is above the horizon of the SOP
@@ -260,11 +274,11 @@ void SGP4Mobility::calculateIntervalPositions() {
     EV_TRACE << "setPrecalculationIntervalRisingOrFallingFlags: zeroDegree: " << zeroDegree << std::endl;
     for (auto it = precalculationIntervals.begin(); it != precalculationIntervals.end(); ++it) {
         // calculate start position
-        it->startPosition = calculateSatellitePosition(it->start);
+        it->startPosition = calculateSgp4SatellitePosition(it->start);
         // calculate elevation angle relative to the SOP for the start position
         it->startElevationAngleToSOP = calculateElevationAngleRelativeToSop(it->startPosition);
         // calculate end position
-        it->endPosition = calculateSatellitePosition(it->end);
+        it->endPosition = calculateSgp4SatellitePosition(it->end);
         // calculate elevation angle relative to the SOP for the end position
         it->endElevationAngleToSOP = calculateElevationAngleRelativeToSop(it->endPosition);
         // check if satellite is rising
@@ -367,6 +381,25 @@ void SGP4Mobility::calculateBordersOfRelevantIntervals() {
     EV_DEBUG << bordersOfRelevantIntervalsToString();
 }
 
+bool SGP4Mobility::isRelevantInterval(simtime_t t) {
+    if (!updatePositionOnlyAboveHorizon) {
+        return true;    // position updates are calculated according to updateInterval, calculating position updates only near the horizon is disabled.
+    }
+    if (bordersOfRelevantIntervals.empty()) {
+        return false;   // there are no relevant intervals anymore, return false
+    } else {
+        if (t == SimTime::ZERO) {
+            return true;    // the first/initial position is always calculated, return true
+        }
+        if (t >= bordersOfRelevantIntervals.front().first.simulationTime && t <= bordersOfRelevantIntervals.front().second.simulationTime) {
+            // t is inside a relevant period
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
 std::string SGP4Mobility::bordersOfRelevantIntervalsToString() {
     std::stringstream ss;
     ss << "borders of relevant intervals: (simulation start time - simulation end time) | (UTC start time - UTC end time)" << std::endl;
@@ -376,26 +409,189 @@ std::string SGP4Mobility::bordersOfRelevantIntervalsToString() {
     return ss.str();
 }
 
-void SGP4Mobility::updateSatellitePosition() {
-    // calculate current satellite position and record statistics
-    calculatedSatellitePositions_t satellitePosition = calculateSatellitePosition(simTime());
-    lastPosition = satellitePosition.omnetppCoord;
-    // statistics
-    calculatedPositionUpdates++;
-    vehicleStatistics->recordWGS84Coord(satellitePosition.wgs84);
-    vehicleStatistics->recordWGS84CartCoord(satellitePosition.wgs84CartesianGeocentric);
-    vehicleStatistics->recordSopRelativeCoord(veins::Coord(satellitePosition.omnetppCoordRelativeToSOP.x, satellitePosition.omnetppCoordRelativeToSOP.y, satellitePosition.omnetppCoordRelativeToSOP.z));
-    vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
-    // debug print
-    EV_DEBUG << satellitePositionsToString(satellitePosition);
+bool SGP4Mobility::isSmallerStartBorder(std::pair<border_t, border_t> i, std::pair<border_t, border_t> j) {
+    return i.first.simulationTime < j.first.simulationTime ? true : false;
 }
 
-SGP4Mobility::calculatedSatellitePositions_t SGP4Mobility::calculateSatellitePosition(simtime_t simulationTime)
+void SGP4Mobility::nextSgp4PositionUpdate() {
+    simtime_t now = simTime();
+    // if linear interpolation is enabled (getCurrentPositionBehavior == 2 is true) for getCurrentPosition() then we must calculate a linear interpolation reference position, too.
+    // Also, the outdated linear interpolation reference is the new current position
+    if (getCurrentPositionBehavior == 2) {
+        // linear interpolation enabled --> update reference and vector
+        // calculate the satellite position at simTime() + updateInterval as linear interpolation reference
+        // the new nextSgp4Position is equal to current linearInterpolationReference
+        if (firstPeriodicPositionUpdateDone) {
+            lastCalculatedSgp4SatellitePosition = linearInterpolationReference;
+        } else {
+            lastCalculatedSgp4SatellitePosition = calculateSgp4SatellitePosition(now);
+        }
+        // calculate the next linear interpolation reference at simTime() + updateInterval
+        linearInterpolationReference = calculateSgp4SatellitePosition(now + updateInterval);
+        // update the vector pointing from lastCalculatedSgp4SatellitePosition to linearInterpolationReference
+        linearInterpolationVector = (linearInterpolationReference.omnetppCoord - lastCalculatedSgp4SatellitePosition.omnetppCoord).normalize();
+    } else {
+        // linear interpolation is disabled -> just calculate the next sgp4 based position
+        lastCalculatedSgp4SatellitePosition = calculateSgp4SatellitePosition(now);
+    }
+    lastPosition = lastCalculatedSgp4SatellitePosition.omnetppCoord;
+    // statistics
+    vehicleStatistics->recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
+    vehicleStatistics->recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
+    vehicleStatistics->recordSopRelativeCoord(veins::Coord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP.x,
+                                                        lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP.y,
+                                                        lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP.z));
+    // debug print
+    EV_DEBUG << sgp4SatellitePositionToString(lastCalculatedSgp4SatellitePosition);
+}
+
+bool SGP4Mobility::nextPeriodicPositionUpdate() {
+    nextSgp4PositionUpdate();
+    lastPeriodicUpdate = simTime();
+    numberOfPeriodicPositionUpdates++;
+    return true;
+}
+
+inet::Coord SGP4Mobility::linearInterpolation() {
+    return lastPosition + linearInterpolationVector * (simTime() - lastUpdate).dbl();
+}
+
+void SGP4Mobility::nextLinearInterpolationPositionUpdate() {
+    lastPosition = linearInterpolation();
+}
+
+bool SGP4Mobility::nextGetCurrentPositionUpdate() {
+    if (getCurrentPositionBehavior == 0) {
+        // 0: getCurrentPosition() returns the last calculated position. It does not recalculate it according to the current simulation time. It does not consider the simulation time. If the last update happened at t_0=5.0s and the updateInterval is 1.0s and getCurrentPosition() is called at t_1=5.5s, the position at t_0 is returned.
+        // only position updates according to updateInterval are calculated
+        // return false as the position is not updated
+        return false;
+    } else if (getCurrentPositionBehavior == 1) {
+        // 1: if lastPosition is outdated (lastUpdate != simTime()) the satellite's position is calculated according to simTime() using the SGP4 model. Otherwise lastPosition is returned.
+        // position updates according to updateInterval are calculated (every updateInterval seconds) using the SGP4 model.
+        // if getCurrentPosition() is called during a different time. The current position is updated using the SGP4 model. The schedule of the next regular update is not affected.
+        nextSgp4PositionUpdate();
+        numberOfGetCurrentPositionTriggeredPositionUpdates++;
+        // return true as the position is updated
+        return true;
+    } else if (getCurrentPositionBehavior == 2) {
+        // 2: if lastPosition is outdated (lastUpdate != simTime()) the satellite's position is calculated according to simTime() using linear interpolation. Otherwise lastPosition is returned.
+        // position updates according to updateInterval are calculated (every updateInterval seconds) using the SGP4 model.
+        // if getCurrentPosition() is called during a different time. The current position is updated using linear interpolation. The schedule of the next regular update is not affected.
+        nextLinearInterpolationPositionUpdate();
+        numberOfGetCurrentPositionTriggeredPositionUpdates++;
+        // return true as the position is updated
+        return true;
+    } else {
+        // unknown behavior fall back to 0
+        EV_WARN << "Unknown getCurrentPosition() behavior. Falling back to mode 0. (see SGP4Mobility.ned)" << std::endl;
+        // return false as the position is not updated
+        return false;
+    }
+}
+
+bool SGP4Mobility::updateSatellitePosition() {
+    // check if satellite position needs to be updated because of a periodic update
+    // or because getCurrentPosition() was called
+    // returns true if the position was actually updated or false if it was not.
+    simtime_t now = simTime();
+    bool updated = false;
+    if (now - updateInterval == lastPeriodicUpdate) {
+        // it is time for the next periodic position update
+        updated = nextPeriodicPositionUpdate();
+        if (updated) emit(periodicUpdateSignal, 1);
+    } else {
+        // the current simulation time requires no periodic position update --> getCurrentPosition() was called
+        updated = nextGetCurrentPositionUpdate();
+        if (updated) emit(getCurrentPositionUpdateSignal, 1);
+    }
+    return updated;
+}
+
+void SGP4Mobility::updateMgmtAndStatistics() {
+    EV_TRACE << "SGP4Mobility::updateMgmtAndStatistics" << std::endl;
+    // Update management data
+    lastUpdate = simTime();
+    refreshDisplay();
+    emitMobilityStateChangedSignal();
+    // statistics
+    calculatedPositionUpdates++;
+    vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
+}
+
+void SGP4Mobility::move()
 {
-    calculatedSatellitePositions_t returnValues;
+    EV_TRACE << "SGP4Mobility::move() called" << std::endl;
+    bool positionUpdated = updateSatellitePosition();
+    // check if position is updated
+    if (positionUpdated) {
+        // position is actually updated; a new position was calculated
+        updateMgmtAndStatistics();
+        EV_DEBUG << "SGP4Mobility moved SimTime: " << simTime() << std::endl;
+    }
+}
+
+void SGP4Mobility::moveAndUpdate()
+{
+    EV_TRACE << "SGP4Mobility::moveAndUpdate() called" << std::endl;
+    simtime_t now = simTime();
+    // check if lastPosition is outdated
+    if (lastUpdate != now) {
+        // only update the position if it is outdated
+        move();
+        // orient();
+    }
+}
+
+void SGP4Mobility::scheduleRelevantUpdate()
+{
+    // calculate time of next periodic update
+    simtime_t nextPeriodicUpdate = simTime() + updateInterval;
+    if (!bordersOfRelevantIntervals.empty()) {
+        if (nextPeriodicUpdate > bordersOfRelevantIntervals.front().second.simulationTime) {
+            // the next periodic update is past the leading relevant period
+            // delete this period in bordersOfRelevantIntervals
+            bordersOfRelevantIntervals.erase(bordersOfRelevantIntervals.begin());
+            if (!bordersOfRelevantIntervals.empty()) {
+                // schedule next update to the start simulation time of the new leading relevant period
+                cancelEvent(moveTimer);
+                scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
+                // TODO: maybe park the satellite at (DOUBLE_MAX, DOUBLE_MAX, DOUBLE_MAX)?
+                // otherwise all satellites will be crowded around the horizon
+            }
+        }
+        if (nextPeriodicUpdate >= bordersOfRelevantIntervals.front().first.simulationTime && nextPeriodicUpdate <= bordersOfRelevantIntervals.front().second.simulationTime) {
+            // next periodic update is inside a relevant period -> update its position
+            inet::MovingMobilityBase::scheduleUpdate();
+        }
+        if (nextPeriodicUpdate < bordersOfRelevantIntervals.front().first.simulationTime) {
+            // next periodic update is before the next leading relevant period -> schedule next event to the start of this period
+            cancelEvent(moveTimer);
+            scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
+        }
+    }
+}
+
+void SGP4Mobility::scheduleUpdate()
+{
+    EV_TRACE << "SGP4Mobility::scheduleUpdate() called" << std::endl;
+    if (!updatePositionOnlyAboveHorizon) {
+        // we do NOT only update the position when the satellite is above the horizon
+        // we update its position according to updateInterval
+        MovingMobilityBase::scheduleUpdate();
+    } else {
+        // we ONLY update the position in the precalculated relevant periods, except for the first update
+        // we update the position for all satellites at the beginning such that their position is not (0, 0, 0) until the first relevant period begins
+        scheduleRelevantUpdate();
+    }
+}
+
+SGP4Mobility::calculatedSgp4SatellitePositions_t SGP4Mobility::calculateSgp4SatellitePosition(simtime_t simulationTime)
+{
+    calculatedSgp4SatellitePositions_t returnValues;
     returnValues.simulationTime = simulationTime;
     EV_TRACE << "------- begin trace log caculateSatellitePosition -------" << std::endl;
-    EV_TRACE << "calculateSatellitePosition for simulationTime: " << simulationTime << std::endl;
+    EV_TRACE << "calculateSgp4SatellitePosition for simulationTime: " << simulationTime << std::endl;
     // add simulationTime to diffTleEpochWctMin to calculate the satellite position according to the current simulation time
     EV_TRACE << "simulationTime in minutes: " << simulationTime.dbl() / 60 << " min" << std::endl;
     double t = diffTleEpochWctMin + simulationTime.dbl() / 60;
@@ -414,6 +610,9 @@ SGP4Mobility::calculatedSatellitePositions_t SGP4Mobility::calculateSatellitePos
     std::vector<double> v_TEME(v_array, v_array + n);
     EV_TRACE << "TEME x: " << r_TEME[0] << ", y: " << r_TEME[1] << ", z: " << r_TEME[2] << std::endl;
     returnValues.teme = inet::Coord(r_TEME[0], r_TEME[1], r_TEME[2]);
+    EV_TRACE << "TEME speed x: " << v_TEME[0] << ", y: " << v_TEME[1] << ", z: " << v_TEME[2] << std::endl;
+    returnValues.sgp4SpeedMeterPerSecond = std::sqrt(std::pow(v_TEME[0], 2) + std::pow(v_TEME[1], 2) + std::pow(v_TEME[2], 2));
+    EV_TRACE << "TEME speed scalar values: " << returnValues.sgp4SpeedMeterPerSecond << "m/s" << std::endl;
 
     // Calculate the current wall clock time as julian date for TEME to ITRF conversion
     // ignore leap seconds for now
@@ -473,7 +672,7 @@ SGP4Mobility::calculatedSatellitePositions_t SGP4Mobility::calculateSatellitePos
     return returnValues;
 }
 
-inet::deg SGP4Mobility::calculateElevationAngleRelativeToSop(calculatedSatellitePositions_t pos) {
+inet::deg SGP4Mobility::calculateElevationAngleRelativeToSop(calculatedSgp4SatellitePositions_t pos) {
     inet::Coord vecSopToSatellite;    // a vector pointing from SOP to a satellite position
     // get mobility module of the SOP
     auto sopMobility = static_cast<inet::StationaryMobility*>(sop->getSubmodule("mobility"));
@@ -486,7 +685,7 @@ inet::deg SGP4Mobility::calculateElevationAngleRelativeToSop(calculatedSatellite
     return elevationAngle;
 }
 
-std::string SGP4Mobility::satellitePositionsToString(calculatedSatellitePositions_t pos) {
+std::string SGP4Mobility::sgp4SatellitePositionToString(calculatedSgp4SatellitePositions_t pos) {
     std::stringstream ss;
     ss << "Satellite name:              " << tle.satellite_name << std::endl;
     ss << "simulation time:             " << pos.simulationTime << std::endl;
@@ -498,6 +697,7 @@ std::string SGP4Mobility::satellitePositionsToString(calculatedSatellitePosition
     ss << "WGS84 Cartesian Topocentric: (e: " << pos.wgs84CartesianTopocentric.enu.e << ", n: " << pos.wgs84CartesianTopocentric.enu.n << ", u: " << pos.wgs84CartesianTopocentric.enu.u << ")" << std::endl;
     ss << "omnetCoordRelativeToSOP:     " << pos.omnetppCoordRelativeToSOP << std::endl;
     ss << "omnetCoord:                  " << pos.omnetppCoord << std::endl;
+    ss << "sgp4SpeedMeterPerSecond:     " << pos.sgp4SpeedMeterPerSecond << " m/s" << std::endl;
     return ss.str();
 }
 
@@ -506,10 +706,10 @@ std::string SGP4Mobility::precalculationIntervalToString(precalculationInterval_
     ss << "Satellite name:                               " << tle.satellite_name << std::endl;
     ss << "interval start time:                          " << interval.start << std::endl;
     ss << "interval isStartDummy:                        " << interval.isStartDummy << std::endl;
-    ss << "interval start position:                      " << std::endl << satellitePositionsToString(interval.startPosition);
+    ss << "interval start position:                      " << std::endl << sgp4SatellitePositionToString(interval.startPosition);
     ss << "interval end time:                            " << interval.end << std::endl;
     ss << "interval isEndDummy:                          " << interval.isEndDummy << std::endl;
-    ss << "interval end position:                        " << std::endl << satellitePositionsToString(interval.endPosition);
+    ss << "interval end position:                        " << std::endl << sgp4SatellitePositionToString(interval.endPosition);
     ss << "interval startElevationAngleToSOP:            " << interval.startElevationAngleToSOP << std::endl;
     ss << "interval endElevationAngleToSOP:              " << interval.endElevationAngleToSOP << std::endl;
     ss << "interval isRising:                            " << interval.isRising << std::endl;
@@ -538,64 +738,24 @@ std::string SGP4Mobility::dateTimeTToString(date_time_t t) {
     return ss.str();
 }
 
-bool SGP4Mobility::isSmallerStartBorder(std::pair<border_t, border_t> i, std::pair<border_t, border_t> j) {
-    return i.first.simulationTime < j.first.simulationTime ? true : false;
+inet::Coord SGP4Mobility::getCurrentPosition() {
+    if (isRelevantInterval(simTime())) {
+        return MovingMobilityBase::getCurrentPosition();
+    } else {
+        // the position of the current time is not calculated as the satellite is not near the horizon.
+        // Thus, if some module asks for the current position, this module returns an invalid position.
+        return inet::Coord(std::numeric_limits<double>::signaling_NaN(),
+                           std::numeric_limits<double>::signaling_NaN(),
+                           std::numeric_limits<double>::signaling_NaN());
+    }
 }
 
 void SGP4Mobility::handleSelfMessage(cMessage* message)
 {
-    if (!updatePositionOnlyAboveHorizon) {
-        // we do NOT only update the position when the satellite is above the horizon
-        // we update its position according to updateInterval
-        MovingMobilityBase::handleSelfMessage(message);
-    } else {
-        // we ONLY update the position in the precalculated relevant periods, except for the first update
-        // we update the position for all satellites at the beginning such that their position is not (0, 0, 0) until the first relevant period begins
-        if (!firstPositionUpdateDone) {
-            inet::MovingMobilityBase::handleSelfMessage(message);
-            firstPositionUpdateDone = true;
-        } else {
-            // first position update is done, now we only update the position if the simulation time is in the range of a relevant period
-            simtime_t now = simTime();
-            if (!bordersOfRelevantIntervals.empty()) {
-                if (now > bordersOfRelevantIntervals.front().second.simulationTime) {
-                    // the simulation time is past the leading relevant period
-                    // delete this period in bordersOfRelevantIntervals
-                    bordersOfRelevantIntervals.erase(bordersOfRelevantIntervals.begin());
-                    if (!bordersOfRelevantIntervals.empty()) {
-                        // schedule next update to the start simulation time of the new leading relevant period
-                        cancelEvent(moveTimer);
-                        scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
-                        // TODO: maybe park the satellite at (DOUBLE_MAX, DOUBLE_MAX, DOUBLE_MAX)?
-                        // otherwise all satellites will be crowded around the horizon
-                    }
-                }
-                if (now >= bordersOfRelevantIntervals.front().first.simulationTime && now <= bordersOfRelevantIntervals.front().second.simulationTime) {
-                    // current simulation time is inside a relevant period -> update its position
-                    inet::MovingMobilityBase::handleSelfMessage(message);
-                }
-                if (now < bordersOfRelevantIntervals.front().first.simulationTime) {
-                    // current simulation time is before the next leading relevant period -> schedule next event to the start of this period
-                    cancelEvent(moveTimer);
-                    scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
-                }
-            }
-        }
-    }
-    emit(processedEvent, 1);
+    SGP4Mobility::moveAndUpdate();
+    SGP4Mobility::scheduleUpdate();
+    emit(processedEventSignal, 1);
     processedEvents++;
-}
-
-void SGP4Mobility::move()
-{
-    updateSatellitePosition();
-    lastVelocity = inet::Coord();                       // TODO: Consider the speed returned by the SGP4 model
-    //lastOrientation = inet::Quaternion(0, 0, 0, 0);     // TODO: Currently there are no values for the direction of the satellite
-    lastUpdate = simTime();
-    nextChange = simTime() + updateInterval;
-
-    EV_DEBUG << "SGP4Mobility moved SimTime: " << simTime() << std::endl;
-    updateDisplayStringFromMobilityState();
 }
 
 void SGP4Mobility::finish()

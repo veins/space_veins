@@ -34,6 +34,7 @@
 #include "inet/common/Units.h"
 #include "inet/mobility/base/MovingMobilityBase.h"
 #include "inet/common/geometry/common/Coord.h"
+#include "inet/physicallayer/common/packetlevel/MediumLimitCache.h"
 
 #include "space_veins/space_veins.h"
 #include "space_veins/modules/utility/WGS84Coord.h"
@@ -62,7 +63,7 @@ struct date_time_t {
     double sec;
 };
 
-struct calculatedSatellitePositions_t {
+struct calculatedSgp4SatellitePositions_t {
     simtime_t simulationTime = SIMTIME_MAX;
     date_time_t wallClockTimeUtc = {-1, -1, -1, -1, -1, -1.0};
     inet::Coord teme = inet::Coord::NIL;
@@ -72,6 +73,7 @@ struct calculatedSatellitePositions_t {
     PJ_COORD wgs84CartesianTopocentric = {-1, -1, -1, -1}; // WGS84 coordinate in Cartesian representation relative to SOP
     inet::Coord omnetppCoordRelativeToSOP = inet::Coord::NIL; // WGS84 coordinate in Cartesian representation relative to SOP in OMNeT++ coordinate system -- y-axis is positiv going south
     inet::Coord omnetppCoord = inet::Coord::NIL; // satellite position in OMNeT++'s coordinate system
+    double sgp4SpeedMeterPerSecond = -1; // scalar speed of the satellite calculated by SGP4 in meter per second
 };
 
 struct precalculationInterval_t {
@@ -79,8 +81,8 @@ struct precalculationInterval_t {
     simtime_t end = SIMTIME_MAX; // simulation time of the end of the interval
     bool isStartDummy = false; // is true if this time point is out of the simulation time and only used to check if the satellite is rising or falling at SimTime == 0
     bool isEndDummy = false; // is true if the time point is out of the simulation time and only used to check if the satellite is rising or fallting at SimTime == <SimTimeLimit>
-    calculatedSatellitePositions_t startPosition;
-    calculatedSatellitePositions_t endPosition;
+    calculatedSgp4SatellitePositions_t startPosition;
+    calculatedSgp4SatellitePositions_t endPosition;
     inet::deg startElevationAngleToSOP = inet::deg(NaN);
     inet::deg endElevationAngleToSOP = inet::deg(NaN);
     bool isRising = false; // is true if the satellite is rising between <start> and <end>
@@ -104,60 +106,66 @@ public:
         , isPreInitialized(false)
     {
     }
+
     ~SGP4Mobility() override
     {
     }
 
     void preInitialize(TLE pTle, std::string pWall_clock_sim_start_time_utc);
 
-    void initialize(int) override;
-
-    void setUpPrecalculationIntervals();
-
-    void calculateIntervalPositions();
-
-    void identifyRelevantIntervals();
-
-    void calculateBordersOfRelevantIntervals();
-
-    void setInitialPosition() override;
-
-    void initializePosition() override;
-
-    int numInitStages() const override
-    {
-        return std::max(cSimpleModule::numInitStages(), 5);
-    }
-
-    void set_TLE(const TLE tle);
-
-    TLE get_TLE() const;
-
-    void finish() override;
-
-    virtual void handleSelfMessage(cMessage* message) override;
-
-    virtual void move() override;
-
-    virtual inet::Coord getCurrentPosition() override { return lastPosition; }
-    virtual inet::Coord getCurrentVelocity() override { return inet::Coord::ZERO; }
+    virtual inet::Coord getCurrentPosition() override;
+    virtual inet::Coord getCurrentVelocity() override { return inet::Coord::ZERO; } // Throw error as it is not implemented yet
     virtual inet::Quaternion getCurrentAngularPosition() override { return inet::Quaternion::IDENTITY; }
     virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
 
-    void updateSatellitePosition();
-    calculatedSatellitePositions_t calculateSatellitePosition(simtime_t simulationTime);
-    inet::deg calculateElevationAngleRelativeToSop(calculatedSatellitePositions_t pos);
-    std::string satellitePositionsToString(calculatedSatellitePositions_t pos);
+protected:
+    // methods
+
+    void initialize(int) override;
+    int numInitStages() const override { return std::max(cSimpleModule::numInitStages(), 5); }
+    TLE get_TLE() const;
+    void finish() override;
+    void set_TLE(const TLE tle);
+    virtual void handleSelfMessage(cMessage* message) override;
+    virtual void move() override;
+    void moveAndUpdate();
+    void scheduleUpdate();
+    void scheduleRelevantUpdate();  // schedule next event according to the precalculation results
+    void setUpPrecalculationIntervals();
+    void calculateIntervalPositions();
+    void identifyRelevantIntervals();
+    void calculateBordersOfRelevantIntervals();
+    void setInitialPosition() override;
+    void initializePosition() override;
+    inet::Coord linearInterpolation();
+    void nextLinearInterpolationPositionUpdate();
+    void updateMgmtAndStatistics();
+    bool updateSatellitePosition();
+    bool nextPeriodicPositionUpdate();
+    bool nextGetCurrentPositionUpdate();
+    void nextSgp4PositionUpdate();
+    calculatedSgp4SatellitePositions_t calculateSgp4SatellitePosition(simtime_t simulationTime);
+    inet::deg calculateElevationAngleRelativeToSop(calculatedSgp4SatellitePositions_t pos);
+    std::string sgp4SatellitePositionToString(calculatedSgp4SatellitePositions_t pos);
     std::string precalculationIntervalToString(precalculationInterval_t interval);
     std::string vectorOfPrecalculationIntervalsToString(std::vector<precalculationInterval_t> vec);
     std::string bordersOfRelevantIntervalsToString();
+    bool isRelevantInterval(simtime_t t);   // returns true if t is inside a relevant interval, false if not
     std::string dateTimeTToString(date_time_t t);
     static bool isSmallerStartBorder(std::pair<border_t, border_t> i, std::pair<border_t, border_t> j);
 
-protected:
     // ned parameters
     bool updatePositionOnlyAboveHorizon;
     simtime_t precalculationInterval_s;
+    int getCurrentPositionBehavior;
+
+    // base
+    calculatedSgp4SatellitePositions_t lastCalculatedSgp4SatellitePosition;
+    simtime_t lastPeriodicUpdate; // the last time the satellite position was updated because of a periodic update according to updateInterval.
+
+    // linear interpolation mode for getCurrentPosition()
+    calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear
+    inet::Coord linearInterpolationVector = inet::Coord::NIL; // direction used for linear interpolation, vector is normalized sucht that it can be multiplied with a velocity
 
     // precalculation data structures
     std::vector<precalculationInterval_t> precalculationIntervals;
@@ -166,7 +174,7 @@ protected:
     std::vector<std::pair<border_t, border_t>> bordersOfRelevantIntervals;
 
     bool isPreInitialized;
-    bool firstPositionUpdateDone = false;
+    bool firstPeriodicPositionUpdateDone = false;
     // proj context
     PJ_CONTEXT* pj_ctx;
     PJ* itrf2008_to_wgs84_projection;
@@ -199,11 +207,16 @@ protected:
     double diffTleEpochWctMin;                  // difference between the TLE's epoch and the wall clock start time in minutes
 
     /* Signals */
-    static const simsignal_t processedEvent;
+    static const simsignal_t processedEventSignal;
+    static const simsignal_t periodicUpdateSignal;
+    static const simsignal_t getCurrentPositionUpdateSignal;
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
+    // MediumLimitCache satelliteRadioMediumLimitCache;
     int calculatedPositionUpdates = 0;
+    int numberOfPeriodicPositionUpdates = 0; // position updates triggered by this module's self message according to updateInterval
+    int numberOfGetCurrentPositionTriggeredPositionUpdates = 0; // position updates triggered by a different module calling GetCurrentPosition at a simulation time in which no regular position update happened.
     int processedEvents = 0;
 
 class SPACE_VEINS_API SGP4MobilityAccess {
