@@ -220,6 +220,9 @@ protected:
     int calculatedPositionUpdates = 0;
     int numberOfPeriodicPositionUpdates = 0; // position updates triggered by this module's self message according to updateInterval
     int numberOfGetCurrentPositionTriggeredPositionUpdates = 0; // position updates triggered by a different module calling GetCurrentPosition at a simulation time in which no regular position update happened.
+    int numberOfGetCurrentPositionTriggeredPositionUpdateCalls = 0; // number of times getCurrentPosition() is called
+    int numberOfSGP4Updates = 0;
+    int numberOfLinearInterpolationUpdates = 0;
     int processedEvents = 0;
 
 class SPACE_VEINS_API SGP4MobilityAccess {

@@ -80,17 +80,21 @@ void SGP4Mobility::initialize(int stage)
         WATCH(processedEvents);
         WATCH(numberOfPeriodicPositionUpdates);
         WATCH(numberOfGetCurrentPositionTriggeredPositionUpdates);
+        WATCH(numberOfGetCurrentPositionTriggeredPositionUpdateCalls);
+        WATCH(numberOfSGP4Updates);
+        WATCH(numberOfLinearInterpolationUpdates);
         WATCH(getCurrentPositionBehavior);
         WATCH(nextChange);
         WATCH(lastUpdate);
         WATCH(lastPeriodicUpdate);
         WATCH(linearInterpolationVector);
+        WATCH(updatePositionOnlyAboveHorizon);
+        WATCH(precalculationInterval_s);
 
         // parse ned parameters
         updatePositionOnlyAboveHorizon = par("updatePositionOnlyAboveHorizon").boolValue();
-        WATCH(updatePositionOnlyAboveHorizon);
         precalculationInterval_s = par("precalculationInterval_s");
-        WATCH(precalculationInterval_s);
+        getCurrentPositionBehavior = par("getCurrentPositionBehavior");
 
         // create projection context
         pj_ctx = proj_context_create();
@@ -437,6 +441,7 @@ void SGP4Mobility::nextSgp4PositionUpdate() {
     }
     lastPosition = lastCalculatedSgp4SatellitePosition.omnetppCoord;
     // statistics
+    numberOfSGP4Updates++;
     vehicleStatistics->recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     vehicleStatistics->recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
     vehicleStatistics->recordSopRelativeCoord(veins::Coord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP.x,
@@ -462,6 +467,7 @@ inet::Coord SGP4Mobility::linearInterpolation() {
 void SGP4Mobility::nextLinearInterpolationPositionUpdate() {
     EV_TRACE << "SGP4Mobility::nextLinearInterpolationPositionUpdate() called" << std::endl;
     lastPosition = linearInterpolation();
+    numberOfLinearInterpolationUpdates++;
 }
 
 bool SGP4Mobility::nextGetCurrentPositionUpdate() {
@@ -753,6 +759,7 @@ std::string SGP4Mobility::dateTimeTToString(date_time_t t) {
 
 inet::Coord SGP4Mobility::getCurrentPosition() {
     updateType = getCurrentPositionUpdate;
+    numberOfGetCurrentPositionTriggeredPositionUpdateCalls++;
     if (isRelevantInterval(simTime())) {
         SGP4Mobility::moveAndUpdate();
         return lastPosition;
