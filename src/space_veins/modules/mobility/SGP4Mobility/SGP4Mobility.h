@@ -54,6 +54,8 @@ namespace space_veins {
 
 class SPACE_VEINS_API SGP4Mobility : public inet::MovingMobilityBase {
 
+enum updateType_t{ periodicUpdate, getCurrentPositionUpdate, undefined};
+
 struct date_time_t {
     int year;
     int mon;
@@ -162,6 +164,7 @@ protected:
     // base
     calculatedSgp4SatellitePositions_t lastCalculatedSgp4SatellitePosition;
     simtime_t lastPeriodicUpdate; // the last time the satellite position was updated because of a periodic update according to updateInterval.
+    updateType_t updateType = undefined;
 
     // linear interpolation mode for getCurrentPosition()
     calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear
