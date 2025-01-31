@@ -54,7 +54,23 @@ namespace space_veins {
 
 class SPACE_VEINS_API SGP4Mobility : public inet::MovingMobilityBase {
 
-enum updateType_t{ periodicUpdate, getCurrentPositionUpdate, undefined};
+enum updateType_t {
+    undefined = -1,
+    periodicUpdate,
+    getCurrentPositionUpdate
+    };
+
+enum updateMethod_t {
+    usingSgp4Calculation,
+    usingLinearInterferenceReference
+    };
+
+enum getCurrentPositionType_t {
+    returnLastPosition = 0,
+    returnSgp4Position,
+    returnLinearInterpolationPosition,
+    returnNearestPeriodicPosition
+    };
 
 struct date_time_t {
     int year;
@@ -63,6 +79,16 @@ struct date_time_t {
     int hour;
     int min;
     double sec;
+
+    bool operator==(const date_time_t& t) const
+    {
+        return (this->year == t.year &&
+                this->mon == t.mon &&
+                this->day == t.day &&
+                this->hour == t.hour &&
+                this->min == t.min &&
+                this->sec == t.sec);
+    }
 };
 
 struct calculatedSgp4SatellitePositions_t {
@@ -76,6 +102,20 @@ struct calculatedSgp4SatellitePositions_t {
     inet::Coord omnetppCoordRelativeToSOP = inet::Coord::NIL; // WGS84 coordinate in Cartesian representation relative to SOP in OMNeT++ coordinate system -- y-axis is positiv going south
     inet::Coord omnetppCoord = inet::Coord::NIL; // satellite position in OMNeT++'s coordinate system
     double sgp4SpeedMeterPerSecond = -1; // scalar speed of the satellite calculated by SGP4 in meter per second
+
+    bool operator==(const calculatedSgp4SatellitePositions_t& p) const
+    {
+        return (this->simulationTime == p.simulationTime &&
+                this->wallClockTimeUtc == p.wallClockTimeUtc &&
+                this->teme == p.teme &&
+                this->itrf2008 == p.itrf2008 &&
+                this->wgs84 == p.wgs84 &&
+                // this->wgs84CartesianGeocentric == p.wgs84CartesianGeocentric && disabled because PJ_COORD does not support operator==
+                // this->wgs84CartesianTopocentric == p.wgs84CartesianTopocentric &&
+                this->omnetppCoordRelativeToSOP == p.omnetppCoordRelativeToSOP &&
+                this->omnetppCoord == p.omnetppCoord &&
+                this->sgp4SpeedMeterPerSecond == p.sgp4SpeedMeterPerSecond);
+    }
 };
 
 struct precalculationInterval_t {
@@ -139,13 +179,15 @@ protected:
     void calculateBordersOfRelevantIntervals();
     void setInitialPosition() override;
     void initializePosition() override;
-    inet::Coord linearInterpolation();
+    inet::Coord linearInterpolation(simtime_t t);
     void nextLinearInterpolationPositionUpdate();
     void updateMgmtAndStatistics();
     bool updateSatellitePosition();
+    void updateLastPosition(updateMethod_t method);
     bool nextPeriodicPositionUpdate();
     bool nextGetCurrentPositionUpdate();
-    void nextSgp4PositionUpdate();
+    void collectSgp4BasedStatistics();
+    bool nextNearestPeriodicPositionUpdate();
     calculatedSgp4SatellitePositions_t calculateSgp4SatellitePosition(simtime_t simulationTime);
     inet::deg calculateElevationAngleRelativeToSop(calculatedSgp4SatellitePositions_t pos);
     std::string sgp4SatellitePositionToString(calculatedSgp4SatellitePositions_t pos);
@@ -159,7 +201,7 @@ protected:
     // ned parameters
     bool updatePositionOnlyAboveHorizon;
     simtime_t precalculationInterval_s;
-    int getCurrentPositionBehavior;
+    getCurrentPositionType_t getCurrentPositionBehavior;
 
     // base
     calculatedSgp4SatellitePositions_t lastCalculatedSgp4SatellitePosition;
