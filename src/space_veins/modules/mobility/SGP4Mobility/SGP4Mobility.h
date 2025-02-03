@@ -49,6 +49,7 @@
 #include "veins/base/utils/Heading.h"
 #include "veins/base/utils/Coord.h"
 #include "veins/base/utils/FWMath.h"
+#include "veins/modules/world/traci/trafficLight/TraCITrafficLightProgram.h"
 
 namespace space_veins {
 
@@ -61,8 +62,9 @@ enum updateType_t {
     };
 
 enum updateMethod_t {
-    usingSgp4Calculation,
-    usingLinearInterferenceReference
+    usingSgp4Computation = 0,
+    usingLinearInterpolation,
+    usingLinearInterpolationReference,
     };
 
 enum getCurrentPositionType_t {
@@ -181,12 +183,10 @@ protected:
     void initializePosition() override;
     inet::Coord linearInterpolation(simtime_t t);
     void nextLinearInterpolationPositionUpdate();
-    void updateMgmtAndStatistics();
     bool updateSatellitePosition();
     void updateLastPosition(updateMethod_t method);
     bool nextPeriodicPositionUpdate();
     bool nextGetCurrentPositionUpdate();
-    void collectSgp4BasedStatistics();
     bool nextNearestPeriodicPositionUpdate();
     calculatedSgp4SatellitePositions_t calculateSgp4SatellitePosition(simtime_t simulationTime);
     inet::deg calculateElevationAngleRelativeToSop(calculatedSgp4SatellitePositions_t pos);
@@ -206,7 +206,10 @@ protected:
     // base
     calculatedSgp4SatellitePositions_t lastCalculatedSgp4SatellitePosition;
     simtime_t lastPeriodicUpdate; // the last time the satellite position was updated because of a periodic update according to updateInterval.
-    updateType_t updateType = undefined;
+    simtime_t lastGetCurrentPositionUpdate; // the last time the satellite position was updated because of a getCurrentPosition() update.
+    updateType_t updateType = undefined; // stores the last used update type: either periodic or getCurrentPosition
+    bool isAboveHorizon = false;
+    simtime_t lastRisingAboveHorizon;
 
     // linear interpolation mode for getCurrentPosition()
     calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear
@@ -255,17 +258,18 @@ protected:
     static const simsignal_t processedEventSignal;
     static const simsignal_t periodicUpdateSignal;
     static const simsignal_t getCurrentPositionUpdateSignal;
+    static const simsignal_t satelliteRisesAboveHorizonSignal;
+    static const simsignal_t satelliteSetsBelowHorizonSignal;
+    static const simsignal_t periodAboveHorizonSignal;
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
-    // MediumLimitCache satelliteRadioMediumLimitCache;
-    int calculatedPositionUpdates = 0;
+    int numberOfPositionUpdates = 0;
     int numberOfPeriodicPositionUpdates = 0; // position updates triggered by this module's self message according to updateInterval
-    int numberOfGetCurrentPositionTriggeredPositionUpdates = 0; // position updates triggered by a different module calling GetCurrentPosition at a simulation time in which no regular position update happened.
-    int numberOfGetCurrentPositionTriggeredPositionUpdateCalls = 0; // number of times getCurrentPosition() is called
-    int numberOfSGP4Updates = 0;
-    int numberOfLinearInterpolationUpdates = 0;
+    int numberOfGetCurrentPositionUpdates = 0; // position updates triggered by a different module calling GetCurrentPosition at a simulation time in which no regular position update happened.
+    int numberOfGetCurrentPositionUpdateCalls = 0; // number of times getCurrentPosition() is called
     int processedEvents = 0;
+    int numberOfSGP4Computations = 0;
 
 class SPACE_VEINS_API SGP4MobilityAccess {
 public:

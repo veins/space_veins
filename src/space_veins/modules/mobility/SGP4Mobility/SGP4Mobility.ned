@@ -37,11 +37,18 @@ simple SGP4Mobility extends MovingMobilityBase
         //                                                                                            1: if lastPosition is outdated (lastUpdate != simTime()) the satellite's position is calculated according to simTime() using the SGP4 model. Otherwise lastPosition is returned.
         //                                                                                            2: if lastPosition is outdated (lastUpdate != simTime()) the satellite's position is calculated according to simTime() using linear interpolation. Otherwise lastPosition is returned.
         //                                                                                            3: if lastPosition is outdated (lastUpdate != simTime()) the returned satellite position is the nearest position calculated by a periodic update: if simTime() - lastPeriodicUpdate <= updateInterval/2 return satellite position at t = lastUpdate; if simTime() - lastPeriodicUpdate > updateInterval/2 return satellite position at t = lastPeriodicUpdate + updateInterval
-        @statistic[calculatedPositionUpdates](source=mobilityStateChanged; record=count);
+        @statistic[positionUpdates](source=mobilityStateChanged; record=count);
         @signal[space_veins_sgp4mobility_processedEventSignal](type=long);
         @signal[space_veins_sgp4mobility_periodicUpdateSignal](type=long);
         @signal[space_veins_sgp4mobility_getCurrentPositionUpdateSignal](type=long);
+        @signal[space_veins_sgp4mobility_satelliteRisesAboveHorizonSignal](type=simtime_t);
+        @signal[space_veins_sgp4mobility_satelliteSetsBelowHorizonSignal](type=simtime_t);
+        @signal[space_veins_sgp4mobility_periodAboveHorizonSignal](type=simtime_t);
         @statistic[processedEvents](source=space_veins_sgp4mobility_processedEventSignal; record=count, vector);
         @statistic[periodicUpdates](source=space_veins_sgp4mobility_periodicUpdateSignal; record=count, vector);
         @statistic[getCurrentPositionUpdates](source=space_veins_sgp4mobility_getCurrentPositionUpdateSignal; record=count, vector);
+        @statistic[horizonRises](source=space_veins_sgp4mobility_satelliteRisesAboveHorizonSignal; record=count, vector);
+        @statistic[horizonSets](source=space_veins_sgp4mobility_satelliteSetsBelowHorizonSignal; record=count, vector);
+        @statistic[periodsAboveHorizon](source=space_veins_sgp4mobility_periodAboveHorizonSignal; record=count, vector);
+        @statistic[totalTimeAboveHorizon](source=sum(space_veins_sgp4mobility_periodAboveHorizonSignal); record=last);
 }
