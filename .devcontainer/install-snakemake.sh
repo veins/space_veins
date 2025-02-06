@@ -23,10 +23,10 @@
 #
 
 # Install Snakemake
-# 1. install mambaforge
+# 1. install miniforge3
 apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --no-install-recommends wget
-wget "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-bash Mambaforge-$(uname)-$(uname -m).sh -b -p /opt/mambaforge
-export PATH=$PATH:/opt/mambaforge/bin
+wget "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh -b -p /opt/miniforge3
+export PATH=$PATH:/opt/miniforge3/bin
 # 2. install snakemake
 mamba install -n base  -c conda-forge -c bioconda snakemake
