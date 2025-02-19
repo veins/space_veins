@@ -52,7 +52,7 @@
 	// The IDE complains when the workspace directory is inside a project folder.
 	// By explicitly mounting it to a different location, the IDE does not complain anymore.
 	"mounts": [
-		"source=.container_opp_ide_workspace,target=/opt/omnetpp.workspace,type=bind,consistency=cached"
+		"source=${localWorkspaceFolder}/.container_opp_ide_workspace,target=/opt/omnetpp.workspace,type=bind,consistency=cached"
 	]
 	,
 
