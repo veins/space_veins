@@ -37,5 +37,5 @@ export PYTHONPATH=/opt/pip/usr/local/lib/python3.10/dist-packages:$PYTHONPATH
 export PATH=/usr/lib/ccache:$PATH
 export PATH=$PATH:/opt/omnetpp/bin
 export PATH=$PATH:/opt/sumo/bin
-export PATH=$PATH:/opt/mambaforge/bin
+export PATH=$PATH:/opt/miniforge3/bin
 export PATH=$PATH:/opt/vnc/
