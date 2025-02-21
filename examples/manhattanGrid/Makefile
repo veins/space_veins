@@ -13,38 +13,56 @@ space_veins_binaries := ../../src/libspace_veins.so
 mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
-experimentId := $(experimentTime)_$(experimentCommit)
-scenarios := Iridium86Active20240304NullIsland
+space := $(subst ,, )
+experimentCommitMessage := $(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=%B))))
+experimentId := $(experimentTime)_$(experimentCommit)_$(experimentCommitMessage)
+# scenarios := Iridium86Active20240304NullIsland
+getCurrentPositionBehavior := LastPosition Sgp4Position LinearInterpolationPosition NearestPeriodicPosition
 experiments := EnableUpdatePositionOnlyAboveHorizon DisableUpdatePositionOnlyAboveHorizon
-runTimerPerformanceConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$ERunTimePerformance))
-validationConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$EValidation))
-allConfigs := $(validationConfigs) $(runTimerPerformanceConfigs)
-# combinational expansion of scenarios and experiments
-validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
-validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
-validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
-vectorFiles := $(wildcard results/*.vec)
+# runTimerPerformanceConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$ERunTimePerformance))
+# validationConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$EValidation))
+# allConfigs := $(validationConfigs) $(runTimerPerformanceConfigs)
+# # combinational expansion of scenarios and experiments
+# validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
+# validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
+# validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
+# vectorFiles := $(wildcard results/*.vec)
+verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
+allConfigs := $(verificationConfigs)
+vectors := moveAndUpdateCalls moveAndUpdateLastUpdateNowCalls moveAndUpdateLastUpdateNotNowCalls
+vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 runmakerJobs := 3
 runmakerLogLines := 200
 simMachines := nsm-sim03 nsm-sim04
+ccFiles := $(shell find ../../src -name "*.cc")
+hFiles := $(shell find ../../src -name "*.h")
+vectorFiles := $(shell find results -name "*.vec")
 
 debugVariables := space_veins_binaries \
 					mkfile_path \
 					experimentTime \
 					experimentCommit \
+					experimentCommitMessage \
 					experimentId \
-					scenarios \
-					experiments \
-					runTimerPerformanceConfigs \
-					validationConfigs \
-					allConfigs \
-					validationFiles \
-					validationFilesNoEventNumbers \
-					validationOutputFiles \
-					vectorFiles \
+					verificationConfigs \
+					vectors \
+					vectorCsvFiles \
 					runmakerJobs \
 					runmakerLogLines \
 					simMachines \
+					ccFiles \
+					hFiles \
+					vectorFiles \
+
+# scenarios \
+# experiments \
+# runTimerPerformanceConfigs \
+# validationConfigs \
+# allConfigs \
+# validationFiles \
+# validationFilesNoEventNumbers \
+# validationOutputFiles \
+# vectorFiles \
 
 .SECONDEXPANSION:
 debugVariables:
@@ -64,8 +82,13 @@ shell:
 ../../singularity/singularity-space_veins.sif: ../../singularity/buildSingularityContainer.sh ../../singularity/singularity-space_veins.def
 	cd ../../singularity && bash buildSingularityContainer.sh
 
-$(space_veins_binaries): ../../Makefile ../../singularity/singularity-space_veins.sif
+../../src/Makefile: ../../Makefile ../../singularity/singularity-space_veins.sif
 	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make makefiles
+
+space_veins: ../../src/Makefile $(ccFiles) $(hFiles)
+	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make -j8 space_veins
+
+$(space_veins_binaries): ../../src/Makefile $(ccFiles) $(hFiles)
 	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make -j8 all
 
 $(experimentId)_runs.log:
@@ -84,84 +107,92 @@ simMachines.txt:
 
 # sleep 5 seconds after finishing all runs to wait for files written to disk
 # write results of GNU time in a dedicated file for every config to avoid race conditions
+# --timeout=0: no timeout
+# make results dir on own our because otherwise the radio medium communication log is not written
 runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt
-	parallel-ssh -i -h simMachines.txt "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
+	mkdir -p results
+	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
 	sleep 5
 	mkdir -p csv/gnuTimeResults
 	mv GnuTimeResults* csv/gnuTimeResults
 	sleep 5
 	touch $@
 
-csv/packetSentCount.csv: runAll
-	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.node\[0\]\.app\[(?<module>[0-9]+)\]' -F packetSent:count=packetSentCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+$(vectorCsvFiles): csv/vectors/%.csv : $(vectorFiles)
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	mkdir -p csv/vectors
+	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F $(word 2, $(subst -, ,$*)):vector=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.vec > $@
 
-csv/packetReceivedCount.csv: runAll
-	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F packetReceived:count=packetReceivedCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+# csv/packetSentCount.csv: runAll
+# 	mkdir -p csv
+# 	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.node\[0\]\.app\[(?<module>[0-9]+)\]' -F packetSent:count=packetSentCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
 
-csv/processedLeoSatelliteMobilityEventsCount.csv: runAll
-	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.mobility' -F processedEvents:count=processedEventsCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+# csv/packetReceivedCount.csv: runAll
+# 	mkdir -p csv
+# 	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F packetReceived:count=packetReceivedCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
 
-csv/calculatedLeoSatellitePositionUpdatesCount.csv: runAll
-	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.mobility' -F calculatedPositionUpdates:count=calculatedPositionUpdatesCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+# csv/processedLeoSatelliteMobilityEventsCount.csv: runAll
+# 	mkdir -p csv
+# 	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.mobility' -F processedEvents:count=processedEventsCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
 
-collectScalars: csv/packetSentCount.csv csv/packetReceivedCount.csv csv/processedLeoSatelliteMobilityEventsCount.csv csv/calculatedLeoSatellitePositionUpdatesCount.csv
+# csv/calculatedLeoSatellitePositionUpdatesCount.csv: runAll
+# 	mkdir -p csv
+# 	perl ../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.mobility' -F calculatedPositionUpdates:count=calculatedPositionUpdatesCount -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.sca > $@
+
+# collectScalars: csv/packetSentCount.csv csv/packetReceivedCount.csv csv/processedLeoSatelliteMobilityEventsCount.csv csv/calculatedLeoSatellitePositionUpdatesCount.csv
+# 	touch $@
+
+# csv/endToEndDelay.csv: runAll
+# 	mkdir -p csv
+# 	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F endToEndDelay:vector=endToEndDelay -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.vec > $@
+
+# $(validationFiles): csv/%SatOmnetppPosition.csv : runAll
+# 	@echo "target: $@\nprereq: $^\nstem: $*"
+# 	mkdir -p csv
+# 	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.vehicleStatistics' --merge-by mt -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ -A repetition results/*.vec > $@
+
+# $(validationFilesNoEventNumbers): csv/%NoEventNumbers.csv: csv/%.csv
+# 	@echo "target: $@\nprereq: $^\nstem: $*"
+# 	@echo "Delete column event as these values will differ since there are less events in EnableUpdatePositionOnlyAboveHorizon"
+# 	sed 's/[^\t]*\t//' $^ > $@
+# 	# @echo "Sort file for correct line by line comparison in diff"
+# 	sort -o $@ $@
+
+# # https://stackoverflow.com/q/18204904
+# # || true ignores return value from diff as it returns 1 if files differ in order to indicate the difference, no error
+# $(validationOutputFiles): validation/%Validation.txt: $(validationFilesNoEventNumbers)
+# 	@echo "target: $@\nprereq: $^\nstem: $*"
+# 	mkdir -p validation
+# 	diff --unchanged-line-format="" --old-line-format="" $(sort $(filter csv/$*%, $^)) > $@ || true
+# 	echo "diff --unchanged-line-format="" --old-line-format="" $(sort $(filter csv/$*%, $^)) > $@" > $@.cmd
+# 	#diff $(sort $(filter csv/$*%, $^)) > $@
+
+# # create a csv file summarizing the validation process. A "1" in the column success means that the validation is correct
+# validation.csv: $(validationOutputFiles)
+# 	@echo "target: $@\nprereq: $^\nstem: $*"
+# 	touch $@
+# 	echo "command,success" > $@
+# 	for f in $^ ; do \
+# 		cmd=$$(cat $${f}.cmd) ; \
+# 		if [ ! -s $$f ]; then \
+# 			echo "$${cmd},1" >> $@ ; \
+# 		else \
+# 			echo "$${cmd},0" >> $@ ; \
+# 		fi \
+# 	done
+
+# collectVectors: csv/endToEndDelay.csv
+# 	touch $@
+
+resultCollection: $(vectorCsvFiles)
 	touch $@
 
-csv/endToEndDelay.csv: runAll
-	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.app\[0\]' -F endToEndDelay:vector=endToEndDelay -A repetition -A configname -I simTimeLimit -I warmupPeriod results/*.vec > $@
-
-$(validationFiles): csv/%SatOmnetppPosition.csv : runAll
-	@echo "target: $@\nprereq: $^\nstem: $*"
-	mkdir -p csv
-	perl ../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.vehicleStatistics' --merge-by mt -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ -A repetition results/*.vec > $@
-
-$(validationFilesNoEventNumbers): csv/%NoEventNumbers.csv: csv/%.csv
-	@echo "target: $@\nprereq: $^\nstem: $*"
-	@echo "Delete column event as these values will differ since there are less events in EnableUpdatePositionOnlyAboveHorizon"
-	sed 's/[^\t]*\t//' $^ > $@
-	# @echo "Sort file for correct line by line comparison in diff"
-	sort -o $@ $@
-
-# https://stackoverflow.com/q/18204904
-# || true ignores return value from diff as it returns 1 if files differ in order to indicate the difference, no error
-$(validationOutputFiles): validation/%Validation.txt: $(validationFilesNoEventNumbers)
-	@echo "target: $@\nprereq: $^\nstem: $*"
-	mkdir -p validation
-	diff --unchanged-line-format="" --old-line-format="" $(sort $(filter csv/$*%, $^)) > $@ || true
-	echo "diff --unchanged-line-format="" --old-line-format="" $(sort $(filter csv/$*%, $^)) > $@" > $@.cmd
-	#diff $(sort $(filter csv/$*%, $^)) > $@
-
-# create a csv file summarizing the validation process. A "1" in the column success means that the validation is correct
-validation.csv: $(validationOutputFiles)
-	@echo "target: $@\nprereq: $^\nstem: $*"
-	touch $@
-	echo "command,success" > $@
-	for f in $^ ; do \
-		cmd=$$(cat $${f}.cmd) ; \
-		if [ ! -s $$f ]; then \
-			echo "$${cmd},1" >> $@ ; \
-		else \
-			echo "$${cmd},0" >> $@ ; \
-		fi \
-	done
-
-collectVectors: csv/endToEndDelay.csv
-	touch $@
-
-resultCollection: collectScalars collectVectors
-	touch $@
-
-experiment: validation.csv resultCollection
+experiment:
 	mkdir -p archive/$(experimentId)
+	$(MAKE) runAll
+	$(MAKE) resultCollection
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
 	mv csv archive/$(experimentId)
-	mv validation archive/$(experimentId)
-	mv validation.csv archive/$(experimentId)/validation
-	rm runAll resultCollection collectScalars collectVectors
+	rm runAll resultCollection
