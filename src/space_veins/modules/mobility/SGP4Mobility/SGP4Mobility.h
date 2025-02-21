@@ -257,7 +257,12 @@ protected:
     /* Signals */
     static const simsignal_t processedEventSignal;
     static const simsignal_t periodicUpdateSignal;
+    static const simsignal_t periodicUpdateCallSignal;
     static const simsignal_t getCurrentPositionUpdateSignal;
+    static const simsignal_t getCurrentPositionUpdateCallSignal;
+    static const simsignal_t moveAndUpdateCallSignal;
+    static const simsignal_t moveAndUpdateLastUpdateNowCallSignal;
+    static const simsignal_t moveAndUpdateLastUpdateNotNowCallSignal;
     static const simsignal_t satelliteRisesAboveHorizonSignal;
     static const simsignal_t satelliteSetsBelowHorizonSignal;
     static const simsignal_t periodAboveHorizonSignal;

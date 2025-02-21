@@ -39,7 +39,12 @@ Define_Module(space_veins::SGP4Mobility);
 
 const simsignal_t SGP4Mobility::processedEventSignal = registerSignal("space_veins_sgp4mobility_processedEventSignal");
 const simsignal_t SGP4Mobility::periodicUpdateSignal = registerSignal("space_veins_sgp4mobility_periodicUpdateSignal");
+const simsignal_t SGP4Mobility::periodicUpdateCallSignal = registerSignal("space_veins_sgp4mobility_periodicUpdateCallSignal");
 const simsignal_t SGP4Mobility::getCurrentPositionUpdateSignal = registerSignal("space_veins_sgp4mobility_getCurrentPositionUpdateSignal");
+const simsignal_t SGP4Mobility::getCurrentPositionUpdateCallSignal = registerSignal("space_veins_sgp4mobility_getCurrentPositionUpdateCallSignal");
+const simsignal_t SGP4Mobility::moveAndUpdateCallSignal = registerSignal("space_veins_sgp4mobility_moveAndUpdateCallSignal");
+const simsignal_t SGP4Mobility::moveAndUpdateLastUpdateNowCallSignal = registerSignal("space_veins_sgp4mobility_moveAndUpdateLastUpdateNowCallSignal");
+const simsignal_t SGP4Mobility::moveAndUpdateLastUpdateNotNowCallSignal = registerSignal("space_veins_sgp4mobility_moveAndUpdateLastUpdateNotNowCallSignal");
 const simsignal_t SGP4Mobility::satelliteRisesAboveHorizonSignal = registerSignal("space_veins_sgp4mobility_satelliteRisesAboveHorizonSignal");
 const simsignal_t SGP4Mobility::satelliteSetsBelowHorizonSignal = registerSignal("space_veins_sgp4mobility_satelliteSetsBelowHorizonSignal");
 const simsignal_t SGP4Mobility::periodAboveHorizonSignal = registerSignal("space_veins_sgp4mobility_periodAboveHorizonSignal");
@@ -641,12 +646,16 @@ void SGP4Mobility::move()
 void SGP4Mobility::moveAndUpdate()
 {
     EV_TRACE << "SGP4Mobility::moveAndUpdate() called" << std::endl;
+    emit(moveAndUpdateCallSignal, 1);
     simtime_t now = simTime();
     // check if lastPosition is outdated
     if (lastUpdate != now) {
         // only update the position if it is outdated
+        emit(moveAndUpdateLastUpdateNotNowCallSignal, 1);
         SGP4Mobility::move();
         // orient();
+    } else {
+        emit(moveAndUpdateLastUpdateNowCallSignal, 1);
     }
 }
 
@@ -806,6 +815,7 @@ inet::deg SGP4Mobility::calculateElevationAngleRelativeToSop(calculatedSgp4Satel
 inet::Coord SGP4Mobility::getCurrentPosition() {
     updateType = getCurrentPositionUpdate;
     numberOfGetCurrentPositionUpdateCalls++;
+    emit(getCurrentPositionUpdateCallSignal, 1);
     if (isRelevantInterval(simTime())) {
         SGP4Mobility::moveAndUpdate();
         return lastPosition;
@@ -825,6 +835,7 @@ void SGP4Mobility::handleSelfMessage(cMessage* message)
     SGP4Mobility::moveAndUpdate();
     SGP4Mobility::scheduleUpdate();
     emit(processedEventSignal, 1);
+    emit(periodicUpdateCallSignal, 1);
     processedEvents++;
 }
 
