@@ -813,7 +813,7 @@ inet::deg SGP4Mobility::calculateElevationAngleRelativeToSop(calculatedSgp4Satel
 }
 
 inet::Coord SGP4Mobility::getCurrentPosition() {
-    Enter_Method((std::string(getFullName()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
+    Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
     updateType = getCurrentPositionUpdate;
     numberOfGetCurrentPositionUpdateCalls++;
     emit(getCurrentPositionUpdateCallSignal, 1);
