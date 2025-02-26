@@ -488,7 +488,7 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
         }
         isAboveHorizon = false;
     }
-    refreshDisplay();
+    // refreshDisplay();
     emitMobilityStateChangedSignal();
     // statistics
     numberOfPositionUpdates++;

@@ -74,18 +74,18 @@ network ManhattanBuildingShadowing
             @display("p=192,224");
         }
 
-        // satelliteRadioMedium: <default("UnitDiskRadioMedium")> like IRadioMedium {
-        //     @display("p=580,275");
-        // }
+        satelliteRadioMedium: <default("UnitDiskRadioMedium")> like IRadioMedium {
+            @display("p=580,275");
+        }
 
-        // visualizer: IntegratedMultiVisualizer {
-        //     @display("p=580,125");
-        // }
+        visualizer: IntegratedMultiVisualizer {
+            @display("p=580,125");
+        }
 
         // space_Veins
-        // globalStatistics: GlobalStatistics {
-        //     @display("p=580, 425");
-        // }
+        globalStatistics: GlobalStatistics {
+            @display("p=580, 425");
+        }
 
         satelliteInserter : SatelliteInserter {
             @display("p=128, 612");
