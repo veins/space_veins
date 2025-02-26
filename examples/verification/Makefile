@@ -14,8 +14,8 @@ mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
 space := $(subst ,, )
-experimentCommitMessage := $(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=%B))))
-experimentId := $(experimentTime)_$(experimentCommit)_$(experimentCommitMessage)
+experimentCommitMessage := $(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=oneline --abbrev-commit))))
+experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
 getCurrentPositionBehavior := LastPosition Sgp4Position LinearInterpolationPosition NearestPeriodicPosition
@@ -30,7 +30,7 @@ experiments := EnableUpdatePositionOnlyAboveHorizon DisableUpdatePositionOnlyAbo
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
 allConfigs := $(verificationConfigs)
-vectors := moveAndUpdateCalls moveAndUpdateLastUpdateNowCalls moveAndUpdateLastUpdateNotNowCalls
+vectors := moveAndUpdateCalls moveAndUpdateLastUpdateNowCalls moveAndUpdateLastUpdateNotNowCalls lastElevationAngleToSop
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 runmakerJobs := 3
 runmakerLogLines := 200
