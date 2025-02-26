@@ -45,6 +45,7 @@ const simsignal_t SGP4Mobility::getCurrentPositionUpdateCallSignal = registerSig
 const simsignal_t SGP4Mobility::moveAndUpdateCallSignal = registerSignal("space_veins_sgp4mobility_moveAndUpdateCallSignal");
 const simsignal_t SGP4Mobility::moveAndUpdateLastUpdateNowCallSignal = registerSignal("space_veins_sgp4mobility_moveAndUpdateLastUpdateNowCallSignal");
 const simsignal_t SGP4Mobility::moveAndUpdateLastUpdateNotNowCallSignal = registerSignal("space_veins_sgp4mobility_moveAndUpdateLastUpdateNotNowCallSignal");
+const simsignal_t SGP4Mobility::lastElevationAngleToSopSignal = registerSignal("space_veins_sgp4mobility_lastElevationAngleToSopSignal");
 const simsignal_t SGP4Mobility::satelliteRisesAboveHorizonSignal = registerSignal("space_veins_sgp4mobility_satelliteRisesAboveHorizonSignal");
 const simsignal_t SGP4Mobility::satelliteSetsBelowHorizonSignal = registerSignal("space_veins_sgp4mobility_satelliteSetsBelowHorizonSignal");
 const simsignal_t SGP4Mobility::periodAboveHorizonSignal = registerSignal("space_veins_sgp4mobility_periodAboveHorizonSignal");
@@ -304,11 +305,11 @@ void SGP4Mobility::calculateIntervalPositions() {
         // calculate start position
         it->startPosition = calculateSgp4SatellitePosition(it->start);
         // calculate elevation angle relative to the SOP for the start position
-        it->startElevationAngleToSOP = calculateElevationAngleRelativeToSop(it->startPosition);
+        it->startElevationAngleToSOP = calculateElevationAngleRelativeToSop(it->startPosition.omnetppCoord);
         // calculate end position
         it->endPosition = calculateSgp4SatellitePosition(it->end);
         // calculate elevation angle relative to the SOP for the end position
-        it->endElevationAngleToSOP = calculateElevationAngleRelativeToSop(it->endPosition);
+        it->endElevationAngleToSOP = calculateElevationAngleRelativeToSop(it->endPosition.omnetppCoord);
         // check if satellite is rising
         if (it->endElevationAngleToSOP > it->startElevationAngleToSOP) {
             it->isRising = true;
@@ -447,6 +448,7 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
     if (method == usingSgp4Computation) {
         lastCalculatedSgp4SatellitePosition = calculateSgp4SatellitePosition(now);
         lastPosition = lastCalculatedSgp4SatellitePosition.omnetppCoord;
+        lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
     } else if (method == usingLinearInterpolationReference) {
         if (firstPeriodicPositionUpdateDone) {
             // just copy the linearInterpolationReference as this is the satellite's position at t = lastPeriodicUpdate + updateInterval
@@ -456,8 +458,10 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
             lastCalculatedSgp4SatellitePosition = calculateSgp4SatellitePosition(now);
         }
         lastPosition = lastCalculatedSgp4SatellitePosition.omnetppCoord;
+        lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
     } else if (method == usingLinearInterpolation) {
         lastPosition = linearInterpolation(now);
+        lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
     } else {
         throw cException(this, "Unsupported update method!");
     }
@@ -489,6 +493,7 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
     // statistics
     numberOfPositionUpdates++;
     vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
+    emit(lastElevationAngleToSopSignal, lastElevationAngleToSop.get());
 }
 
 bool SGP4Mobility::nextPeriodicPositionUpdate() {
@@ -799,12 +804,12 @@ SGP4Mobility::calculatedSgp4SatellitePositions_t SGP4Mobility::calculateSgp4Sate
     return returnValues;
 }
 
-inet::deg SGP4Mobility::calculateElevationAngleRelativeToSop(calculatedSgp4SatellitePositions_t pos) {
+inet::deg SGP4Mobility::calculateElevationAngleRelativeToSop(inet::Coord pos) {
     inet::Coord vecSopToSatellite;    // a vector pointing from SOP to a satellite position
     // get mobility module of the SOP
     auto sopMobility = static_cast<inet::StationaryMobility*>(sop->getSubmodule("mobility"));
     // calculate vector pointing from SOP to the satellite
-    vecSopToSatellite = pos.omnetppCoord - sopMobility->getCurrentPosition();
+    vecSopToSatellite = pos - sopMobility->getCurrentPosition();
     // normalize the vector, it's length is 1
     vecSopToSatellite.normalize();
     // since the length of the vector is 1, the elevation angle is the arcsinus of the z-component of vecSopToSatellite

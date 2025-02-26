@@ -46,6 +46,7 @@ simple SGP4Mobility extends MovingMobilityBase
         @signal[space_veins_sgp4mobility_moveAndUpdateCallSignal](type=long);
         @signal[space_veins_sgp4mobility_moveAndUpdateLastUpdateNowCallSignal](type=long);
         @signal[space_veins_sgp4mobility_moveAndUpdateLastUpdateNotNowCallSignal](type=long);
+        @signal[space_veins_sgp4mobility_lastElevationAngleToSopSignal](type=double);
         @signal[space_veins_sgp4mobility_satelliteRisesAboveHorizonSignal](type=simtime_t);
         @signal[space_veins_sgp4mobility_satelliteSetsBelowHorizonSignal](type=simtime_t);
         @signal[space_veins_sgp4mobility_periodAboveHorizonSignal](type=simtime_t);
@@ -57,6 +58,7 @@ simple SGP4Mobility extends MovingMobilityBase
         @statistic[moveAndUpdateCalls](source=space_veins_sgp4mobility_moveAndUpdateCallSignal; record=count, vector);
         @statistic[moveAndUpdateLastUpdateNowCalls](source=space_veins_sgp4mobility_moveAndUpdateLastUpdateNowCallSignal; record=count, vector);
         @statistic[moveAndUpdateLastUpdateNotNowCalls](source=space_veins_sgp4mobility_moveAndUpdateLastUpdateNotNowCallSignal; record=count, vector);
+        @statistic[lastElevationAngleToSop](source=space_veins_sgp4mobility_lastElevationAngleToSopSignal; record=count, vector);
         @statistic[horizonRises](source=space_veins_sgp4mobility_satelliteRisesAboveHorizonSignal; record=count, vector);
         @statistic[horizonSets](source=space_veins_sgp4mobility_satelliteSetsBelowHorizonSignal; record=count, vector);
         @statistic[periodsAboveHorizon](source=space_veins_sgp4mobility_periodAboveHorizonSignal; record=count, vector);

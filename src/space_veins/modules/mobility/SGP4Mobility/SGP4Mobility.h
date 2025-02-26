@@ -189,7 +189,7 @@ protected:
     bool nextGetCurrentPositionUpdate();
     bool nextNearestPeriodicPositionUpdate();
     calculatedSgp4SatellitePositions_t calculateSgp4SatellitePosition(simtime_t simulationTime);
-    inet::deg calculateElevationAngleRelativeToSop(calculatedSgp4SatellitePositions_t pos);
+    inet::deg calculateElevationAngleRelativeToSop(inet::Coord pos);
     std::string sgp4SatellitePositionToString(calculatedSgp4SatellitePositions_t pos);
     std::string precalculationIntervalToString(precalculationInterval_t interval);
     std::string vectorOfPrecalculationIntervalsToString(std::vector<precalculationInterval_t> vec);
@@ -210,6 +210,7 @@ protected:
     updateType_t updateType = undefined; // stores the last used update type: either periodic or getCurrentPosition
     bool isAboveHorizon = false;
     simtime_t lastRisingAboveHorizon;
+    inet::deg lastElevationAngleToSop; // elevation angle of lastPosition relative to the SOP
 
     // linear interpolation mode for getCurrentPosition()
     calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear
@@ -263,6 +264,7 @@ protected:
     static const simsignal_t moveAndUpdateCallSignal;
     static const simsignal_t moveAndUpdateLastUpdateNowCallSignal;
     static const simsignal_t moveAndUpdateLastUpdateNotNowCallSignal;
+    static const simsignal_t lastElevationAngleToSopSignal;
     static const simsignal_t satelliteRisesAboveHorizonSignal;
     static const simsignal_t satelliteSetsBelowHorizonSignal;
     static const simsignal_t periodAboveHorizonSignal;
