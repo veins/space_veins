@@ -16,6 +16,7 @@ experimentCommit := $(shell git rev-parse --short HEAD)
 space := $(subst ,, )
 experimentCommitMessage := $(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=%B))))
 experimentId := $(experimentTime)_$(experimentCommit)_$(experimentCommitMessage)
+experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
 getCurrentPositionBehavior := LastPosition Sgp4Position LinearInterpolationPosition NearestPeriodicPosition
 experiments := EnableUpdatePositionOnlyAboveHorizon DisableUpdatePositionOnlyAboveHorizon
@@ -44,6 +45,7 @@ debugVariables := space_veins_binaries \
 					experimentCommit \
 					experimentCommitMessage \
 					experimentId \
+					experimentFolderName \
 					verificationConfigs \
 					vectors \
 					vectorCsvFiles \
@@ -95,7 +97,7 @@ $(experimentId)_runs.log:
 	@touch $@
 
 $(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
-	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid -- perl $< $(allConfigs) > ../examples/manhattanGrid/$@
+	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins/examples/$(experimentFolderName) -- perl $< $(allConfigs) > ../examples/$(experimentFolderName)/$@
 
 runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 
@@ -111,7 +113,7 @@ simMachines.txt:
 # make results dir on own our because otherwise the radio medium communication log is not written
 runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt
 	mkdir -p results
-	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspaces/space_veins/examples/manhattanGrid --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
+	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspaces/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
 	sleep 5
 	mkdir -p csv/gnuTimeResults
 	mv GnuTimeResults* csv/gnuTimeResults
