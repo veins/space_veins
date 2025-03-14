@@ -189,10 +189,17 @@ $(vectorCsvFiles): csv/vectors/%.csv : $(vectorFiles)
 resultCollection: $(vectorCsvFiles)
 	touch $@
 
+../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def
+	cd ../../lib/singularity-r-env && singularity build --force --fakeroot singularity-R-env.sif singularity-R-env.def
+
+plots: ../../lib/singularity-r-env/singularity-R-env.sif
+	touch plots
+
 experiment:
 	mkdir -p archive/$(experimentId)
-	$(MAKE) runAll
+	$(MAKE) runAll experimentId=$(experimentId)
 	$(MAKE) resultCollection
+	$(MAKE) plots
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
