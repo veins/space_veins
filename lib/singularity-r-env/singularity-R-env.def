@@ -1,0 +1,52 @@
+#
+# singularity-R-env -- Singularity container providing a R environment for plotting simulation
+#results
+# Copyright (C) 2020 Christoph Sommer <sommer@cms-labs.org>
+# Copyright (C) 2022 Mario Franke <research@m-franke.net>
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+
+Bootstrap: docker
+
+From: docker-r-env:0.0.2
+
+Registry: docker-registry.iai.inf.tu-dresden.de
+
+%labels
+    Author sommer@cms-labs.org research@m-franke.net
+    Version v0.0.2
+
+%help
+    Singularity container providing a R environment for plotting simulation results
+    Tested with Singularity 3.5.2.
+
+    Run this container with its `--help` option for details:
+    ```
+    singularity run singularity-r-env.sif --help
+    ```
+
+%environment
+    export LC_ALL=C
+    #PATH
+    export PATH="$PATH:/opt/mambaforge/bin"
+
+%setup
+    # create stub hosts file contents (necessary for resolving "localhost" if network isolation is turned on)
+    test -s "${SINGULARITY_ROOTFS}/etc/hosts" || echo '127.0.0.1\tlocalhost' >> "${SINGULARITY_ROOTFS}/etc/hosts"
+
