@@ -56,6 +56,8 @@ debugVariables := space_veins_binaries \
 					hFiles \
 					vectorFiles \
 
+export experimentId
+
 # scenarios \
 # experiments \
 # runTimerPerformanceConfigs \
@@ -197,7 +199,7 @@ plots: ../../lib/singularity-r-env/singularity-R-env.sif
 
 experiment:
 	mkdir -p archive/$(experimentId)
-	$(MAKE) runAll experimentId=$(experimentId)
+	$(MAKE) runAll
 	$(MAKE) resultCollection
 	$(MAKE) plots
 	mv $(experimentId)_runs.log archive/$(experimentId)
