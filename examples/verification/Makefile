@@ -191,8 +191,8 @@ $(vectorCsvFiles): csv/vectors/%.csv : $(vectorFiles)
 resultCollection: $(vectorCsvFiles)
 	touch $@
 
-../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def
-	cd ../../lib/singularity-r-env && singularity build --force --fakeroot singularity-R-env.sif singularity-R-env.def
+# ../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def
+# 	cd ../../lib/singularity-r-env && singularity build --force --fakeroot singularity-R-env.sif singularity-R-env.def
 
 plots: ../../lib/singularity-r-env/singularity-R-env.sif
 	touch plots
@@ -206,4 +206,5 @@ experiment:
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
 	mv csv archive/$(experimentId)
+	ln -s archive/$(experimentId) archive/latest
 	rm runAll resultCollection
