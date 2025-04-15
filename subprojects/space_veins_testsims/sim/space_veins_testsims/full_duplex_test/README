@@ -1,0 +1,7 @@
+space_Veins smoke tests. Please ignore.
+
+To run this simulation, execute the script `sim/space_veins_testsims/space_veins_test/runall`.
+
+This simulation requires sumo-launchd to be started and listening for
+connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
+

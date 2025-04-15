@@ -1,0 +1,25 @@
+space_Veins smoke tests. Please ignore.
+
+To run this simulation, execute the script `sim/space_veins_testsims/space_veins_test/runall`.
+
+This simulation requires sumo-launchd to be started and listening for
+connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
+
+
+This test checks the occurence of an issue, that a satellite below the horizon can cause interference to a vehicle, which should not be possible. The original issue has now been fixed.
+
+Setup:
+    - 1 satellite (A) below the horizon (with negative elevation angle to SOP)
+    - 1 satellite (B) above the minimum elevation angle
+    - 1 vehicle
+
+Functionality:
+    - both satellites send packets to the vehicle, which arrive around the same time, and could interfere with each other
+    - There are two runs:
+        - In the first run, "ignoreInterference" is set to true. All packets from satellite B should therefore be received. (Satellite A does not pass the minimum elevation angle.)
+        - In the second run, "ignoreInterference" is set to false. All packets from satellite B should be received. (Satellite A does not pass the minimum elevation angle and should not cause any interference.)
+
+
+
+
+

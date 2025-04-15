@@ -1,0 +1,15 @@
+space_Veins smoke tests. Please ignore.
+
+To run this simulation, execute the script `sim/space_veins_testsims/space_veins_test/runall`.
+
+This simulation requires sumo-launchd to be started and listening for
+connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
+
+This test does checks whether vehicles can communicate via SatNic.
+
+Setup:
+- 2 vehicles (both sending UdpBasicApp packets via SatNic)
+
+The test will fail if a vehicle can receive a packet.
+It is possible that the configuration in the `omnetpp.ini` file is incorrect, which could couse the expected packet loss.
+

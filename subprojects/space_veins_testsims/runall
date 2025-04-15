@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+
+#
+# Copyright (C) 2025 Mario Franke <research@m-franke.net>
+#
+# Documentation for these modules is at http://veins.car2x.org/
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+"""
+Runs all tests
+"""
+
+import os
+import sys
+import argparse
+import subprocess
+import asyncio
+import re
+
+def py_grep(filename, string):
+    with open(f"./{filename}", 'r') as file:
+        for line in file.readlines():
+            if line == string or line == f"{string}\n":
+                return True
+        return False
+
+errors = []
+skipped = []
+
+base_path = '.'
+
+for root, dirs, files in os.walk("sim"):
+    depth = root.count(os.sep) - base_path.count(os.sep)
+    if depth == 2:
+        if py_grep("skippedTests", root):
+            print(f"\nSkip test {root}, because it is in the file ./skippedTests\n")
+            skipped.append(root)
+        else:
+            run_script_path = os.path.join(root, 'runall')
+            if os.path.isfile(run_script_path) and os.access(run_script_path, os.X_OK):
+                print(f"Starting {run_script_path}...")
+                try:
+                    subprocess.run(["./runall"], cwd=root, check=True)
+                except subprocess.CalledProcessError as e:
+                    errors.append(root)
+
+                print("")
+
+
+print("-------------------------------------------------------------------------------")
+print("-- Skipped tests (see ./skippedTests)------------------------------------------")
+print("-------------------------------------------------------------------------------")
+if len(skipped) == 0:
+    print("none.")
+else:
+    for (s) in skipped:
+        print(s)
+
+print()
+print("-------------------------------------------------------------------------------")
+print("-- Failed tests in all simulations---------------------------------------------")
+print("-------------------------------------------------------------------------------")
+
+if len(errors) == 0:
+    print("none.")
+else:
+    for (e) in errors:
+        print(e)
+    sys.exit(1)
+
