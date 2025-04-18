@@ -204,6 +204,7 @@ protected:
     void recordWGS84CartCoord(const PJ_COORD c);
     void recordSopRelativeCoord(const inet::Coord c);
     void recordLinearInterpolationSpeedMeterPerSecond(const double speed);
+    void recordSgp4SpeedMeterPerSecond(const double speed);
 
     // ned parameters
     bool updatePositionOnlyAboveHorizon;
@@ -294,6 +295,7 @@ protected:
     static const simsignal_t sopRelativeCoordZ;
 
     static const simsignal_t linearInterpolationSpeedMeterPerSecondSignal;
+    static const simsignal_t sgp4SpeedMeterPerSecondSignal;
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;

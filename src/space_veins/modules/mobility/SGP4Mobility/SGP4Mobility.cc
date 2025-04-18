@@ -62,6 +62,7 @@ const simsignal_t SGP4Mobility::sopRelativeCoordX = registerSignal("space_veins_
 const simsignal_t SGP4Mobility::sopRelativeCoordY = registerSignal("space_veins_sgp4mobility_sopRelativeCoordY");
 const simsignal_t SGP4Mobility::sopRelativeCoordZ = registerSignal("space_veins_sgp4mobility_sopRelativeCoordZ");
 const simsignal_t SGP4Mobility::linearInterpolationSpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobility_linearInterpolationSpeedMeterPerSecondSignal");
+const simsignal_t SGP4Mobility::sgp4SpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobility_sgp4SpeedMeterPerSecondSignal");
 
 void SGP4Mobility::setInitialPosition()
 {
@@ -464,6 +465,7 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
     if (method == usingSgp4Computation) {
         lastCalculatedSgp4SatellitePosition = calculateSgp4SatellitePosition(now);
         lastPosition = lastCalculatedSgp4SatellitePosition.omnetppCoord;
+        recordSgp4SpeedMeterPerSecond(lastCalculatedSgp4SatellitePosition.sgp4SpeedMeterPerSecond);
         lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
     } else if (method == usingLinearInterpolationReference) {
         if (firstPeriodicPositionUpdateDone) {
@@ -474,6 +476,7 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
             lastCalculatedSgp4SatellitePosition = calculateSgp4SatellitePosition(now);
         }
         lastPosition = lastCalculatedSgp4SatellitePosition.omnetppCoord;
+        recordSgp4SpeedMeterPerSecond(lastCalculatedSgp4SatellitePosition.sgp4SpeedMeterPerSecond);
         lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
     } else if (method == usingLinearInterpolation) {
         lastPosition = linearInterpolation(now);
@@ -903,6 +906,10 @@ void SGP4Mobility::recordLinearInterpolationSpeedMeterPerSecond(const double spe
     emit(linearInterpolationSpeedMeterPerSecondSignal, speed);
 }
 
+void SGP4Mobility::recordSgp4SpeedMeterPerSecond(const double speed)
+{
+    emit(sgp4SpeedMeterPerSecondSignal, speed);
+}
 
 /* ---------------------- print data --------------------------------*/
 
