@@ -49,6 +49,19 @@ const simsignal_t SGP4Mobility::lastElevationAngleToSopSignal = registerSignal("
 const simsignal_t SGP4Mobility::satelliteRisesAboveHorizonSignal = registerSignal("space_veins_sgp4mobility_satelliteRisesAboveHorizonSignal");
 const simsignal_t SGP4Mobility::satelliteSetsBelowHorizonSignal = registerSignal("space_veins_sgp4mobility_satelliteSetsBelowHorizonSignal");
 const simsignal_t SGP4Mobility::periodAboveHorizonSignal = registerSignal("space_veins_sgp4mobility_periodAboveHorizonSignal");
+const simsignal_t SGP4Mobility::omnetCoordX = registerSignal("space_veins_sgp4mobility_omnetCoordX");
+const simsignal_t SGP4Mobility::omnetCoordY = registerSignal("space_veins_sgp4mobility_omnetCoordY");
+const simsignal_t SGP4Mobility::omnetCoordZ = registerSignal("space_veins_sgp4mobility_omnetCoordZ");
+const simsignal_t SGP4Mobility::wgs84CoordLat = registerSignal("space_veins_sgp4mobility_wgs84CoordLat");
+const simsignal_t SGP4Mobility::wgs84CoordLon = registerSignal("space_veins_sgp4mobility_wgs84CoordLon");
+const simsignal_t SGP4Mobility::wgs84CoordAlt = registerSignal("space_veins_sgp4mobility_wgs84CoordAlt");
+const simsignal_t SGP4Mobility::wgs84CartCoordX = registerSignal("space_veins_sgp4mobility_wgs84CartCoordX");
+const simsignal_t SGP4Mobility::wgs84CartCoordY = registerSignal("space_veins_sgp4mobility_wgs84CartCoordY");
+const simsignal_t SGP4Mobility::wgs84CartCoordZ = registerSignal("space_veins_sgp4mobility_wgs84CartCoordZ");
+const simsignal_t SGP4Mobility::sopRelativeCoordX = registerSignal("space_veins_sgp4mobility_sopRelativeCoordX");
+const simsignal_t SGP4Mobility::sopRelativeCoordY = registerSignal("space_veins_sgp4mobility_sopRelativeCoordY");
+const simsignal_t SGP4Mobility::sopRelativeCoordZ = registerSignal("space_veins_sgp4mobility_sopRelativeCoordZ");
+const simsignal_t SGP4Mobility::linearInterpolationSpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobility_linearInterpolationSpeedMeterPerSecondSignal");
 
 void SGP4Mobility::setInitialPosition()
 {
@@ -61,7 +74,10 @@ void SGP4Mobility::setInitialPosition()
         // calculate the next linear interpolation reference at simTime() + updateInterval
         linearInterpolationReference = calculateSgp4SatellitePosition(now + updateInterval);
         // update the vector pointing from lastCalculatedSgp4SatellitePosition to linearInterpolationReference
-        linearInterpolationVector = (linearInterpolationReference.omnetppCoord - lastCalculatedSgp4SatellitePosition.omnetppCoord).normalize();
+        linearInterpolationVector = (linearInterpolationReference.omnetppCoord - lastCalculatedSgp4SatellitePosition.omnetppCoord);
+        linearInterpolationSpeedMeterPerSecond = linearInterpolationVector.length() / updateInterval.dbl();
+        recordLinearInterpolationSpeedMeterPerSecond(linearInterpolationSpeedMeterPerSecond);
+        linearInterpolationVector = linearInterpolationVector.normalize();
     } else if (getCurrentPositionBehavior == returnNearestPeriodicPosition) {
         // this getCurrentPositionBehavior uses the next satellite's periodic position to either return the lastPosition or the next periodic position.
         EV_TRACE << "SGP4Mobility::nextPeriodicPositionUpdate() for returnNearestPeriodicPosition" << std::endl;
@@ -231,7 +247,7 @@ void SGP4Mobility::initialize(int stage)
         wgs84cartesian_to_topocentric_projection = proj_create(pj_ctx, ss_proj.str().c_str());
 
         // Statistics
-        vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
+        // vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
 
         // updatePositionOnlyAboveHorizon
         if (updatePositionOnlyAboveHorizon) {
@@ -492,7 +508,7 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
     emitMobilityStateChangedSignal();
     // statistics
     numberOfPositionUpdates++;
-    vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
+    recordOmnetCoord(lastPosition);
     emit(lastElevationAngleToSopSignal, lastElevationAngleToSop.get());
 }
 
@@ -519,7 +535,10 @@ bool SGP4Mobility::nextPeriodicPositionUpdate() {
         // calculate the next linear interpolation reference at simTime() + updateInterval
         linearInterpolationReference = calculateSgp4SatellitePosition(now + updateInterval);
         // update the vector pointing from lastCalculatedSgp4SatellitePosition to linearInterpolationReference
-        linearInterpolationVector = (linearInterpolationReference.omnetppCoord - lastCalculatedSgp4SatellitePosition.omnetppCoord).normalize();
+        linearInterpolationVector = (linearInterpolationReference.omnetppCoord - lastCalculatedSgp4SatellitePosition.omnetppCoord);
+        linearInterpolationSpeedMeterPerSecond = linearInterpolationVector.length() / updateInterval.dbl();
+        recordLinearInterpolationSpeedMeterPerSecond(linearInterpolationSpeedMeterPerSecond);
+        linearInterpolationVector = linearInterpolationVector.normalize();
         updated = true;
     } else if (getCurrentPositionBehavior == returnNearestPeriodicPosition) {
         EV_TRACE << "SGP4Mobility::nextPeriodicPositionUpdate() for returnNearestPeriodicPosition" << std::endl;
@@ -552,7 +571,8 @@ bool SGP4Mobility::nextPeriodicPositionUpdate() {
 
 inet::Coord SGP4Mobility::linearInterpolation(simtime_t t) {
     EV_TRACE << "SGP4Mobility::linearInterpolation(simtime_t t) called" << std::endl;
-    return lastPosition + linearInterpolationVector * (t - lastUpdate).dbl();
+    // lastPosition + direction vector of length 1m * velocity in m/s * time span in s
+    return lastPosition + linearInterpolationVector * linearInterpolationSpeedMeterPerSecond * (t - lastUpdate).dbl();
 }
 
 void SGP4Mobility::nextLinearInterpolationPositionUpdate() {
@@ -796,11 +816,9 @@ SGP4Mobility::calculatedSgp4SatellitePositions_t SGP4Mobility::calculateSgp4Sate
     EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
     numberOfSGP4Computations++;
-    vehicleStatistics->recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
-    vehicleStatistics->recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
-    vehicleStatistics->recordSopRelativeCoord(veins::Coord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP.x,
-                                                        lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP.y,
-                                                        lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP.z));
+    recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
+    recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
+    recordSopRelativeCoord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP);
     return returnValues;
 }
 
@@ -849,6 +867,44 @@ void SGP4Mobility::finish()
 {
     MovingMobilityBase::finish();
 }
+
+/* ---------------------- statistic helper functions --------------------------------*/
+
+void SGP4Mobility::recordOmnetCoord(const inet::Coord c)
+{
+    emit(omnetCoordX, c.x);
+    emit(omnetCoordY, c.y);
+    emit(omnetCoordZ, c.z);
+}
+
+void SGP4Mobility::recordWGS84Coord(const WGS84Coord c)
+{
+    emit(wgs84CoordLat, c.lat);
+    emit(wgs84CoordLon, c.lon);
+    emit(wgs84CoordAlt, c.alt);
+}
+
+void SGP4Mobility::recordWGS84CartCoord(const PJ_COORD c)
+{
+    emit(wgs84CartCoordX, c.xyz.x);
+    emit(wgs84CartCoordY, c.xyz.y);
+    emit(wgs84CartCoordZ, c.xyz.z);
+}
+
+void SGP4Mobility::recordSopRelativeCoord(const inet::Coord c)
+{
+    emit(sopRelativeCoordX, c.x);
+    emit(sopRelativeCoordY, c.y);
+    emit(sopRelativeCoordZ, c.z);
+}
+
+void SGP4Mobility::recordLinearInterpolationSpeedMeterPerSecond(const double speed)
+{
+    emit(linearInterpolationSpeedMeterPerSecondSignal, speed);
+}
+
+
+/* ---------------------- print data --------------------------------*/
 
 std::string SGP4Mobility::sgp4SatellitePositionToString(calculatedSgp4SatellitePositions_t pos) {
     std::stringstream ss;
