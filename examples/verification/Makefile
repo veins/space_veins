@@ -14,8 +14,8 @@ mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
 space := $(subst ,, )
-experimentCommitMessage := $(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=oneline --abbrev-commit))))
-experimentId := $(experimentTime)_$(experimentCommitMessage)
+experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=oneline --abbrev-commit))))))
+export experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
 getCurrentPositionBehavior := LastPosition Sgp4Position LinearInterpolationPosition NearestPeriodicPosition
@@ -30,7 +30,7 @@ experiments := EnableUpdatePositionOnlyAboveHorizon DisableUpdatePositionOnlyAbo
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
 allConfigs := $(verificationConfigs)
-vectors := moveAndUpdateCalls moveAndUpdateLastUpdateNowCalls moveAndUpdateLastUpdateNotNowCalls lastElevationAngleToSop getCurrentPositionUpdates periodicUpdates
+vectors := moveAndUpdateCalls moveAndUpdateLastUpdateNowCalls moveAndUpdateLastUpdateNotNowCalls lastElevationAngleToSop getCurrentPositionUpdates periodicUpdates endToEndDelay linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 runmakerJobs := 3
 runmakerLogLines := 200
@@ -55,8 +55,6 @@ debugVariables := space_veins_binaries \
 					ccFiles \
 					hFiles \
 					vectorFiles \
-
-export experimentId
 
 # scenarios \
 # experiments \
@@ -89,7 +87,8 @@ shell:
 ../../src/Makefile: ../../Makefile ../../singularity/singularity-space_veins.sif
 	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make makefiles
 
-space_veins: ../../src/Makefile $(ccFiles) $(hFiles)
+# !!! fix ../../src/Makefile to not be build over and over again although nothing changed
+space_veins: $(ccFiles) $(hFiles)
 	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make -j8 space_veins
 
 $(space_veins_binaries): ../../src/Makefile $(ccFiles) $(hFiles)
@@ -126,6 +125,13 @@ $(vectorCsvFiles): csv/vectors/%.csv : $(vectorFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv/vectors
 	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F $(word 2, $(subst -, ,$*)):vector=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.vec > $@
+
+prepareCsvFiles:
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position
 
 # csv/packetSentCount.csv: runAll
 # 	mkdir -p csv
@@ -201,10 +207,11 @@ experiment:
 	mkdir -p archive/$(experimentId)
 	$(MAKE) runAll
 	$(MAKE) resultCollection
-	$(MAKE) plots
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
 	mv csv archive/$(experimentId)
-	ln -s archive/$(experimentId) archive/latest
+	rm archive/latest
+	ln -s $(experimentId) archive/latest
+	$(MAKE) plots
 	rm runAll resultCollection
