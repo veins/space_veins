@@ -198,6 +198,13 @@ protected:
     std::string dateTimeTToString(date_time_t t);
     static bool isSmallerStartBorder(std::pair<border_t, border_t> i, std::pair<border_t, border_t> j);
 
+    // statistics helper functions
+    void recordOmnetCoord(const inet::Coord c);
+    void recordWGS84Coord(const space_veins::WGS84Coord c);
+    void recordWGS84CartCoord(const PJ_COORD c);
+    void recordSopRelativeCoord(const inet::Coord c);
+    void recordLinearInterpolationSpeedMeterPerSecond(const double speed);
+
     // ned parameters
     bool updatePositionOnlyAboveHorizon;
     simtime_t precalculationInterval_s;
@@ -215,6 +222,7 @@ protected:
     // linear interpolation mode for getCurrentPosition()
     calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear
     inet::Coord linearInterpolationVector = inet::Coord::NIL; // direction used for linear interpolation, vector is normalized sucht that it can be multiplied with a velocity
+    double linearInterpolationSpeedMeterPerSecond;
 
     // precalculation data structures
     std::vector<precalculationInterval_t> precalculationIntervals;
@@ -268,6 +276,24 @@ protected:
     static const simsignal_t satelliteRisesAboveHorizonSignal;
     static const simsignal_t satelliteSetsBelowHorizonSignal;
     static const simsignal_t periodAboveHorizonSignal;
+
+    static const simsignal_t omnetCoordX;
+    static const simsignal_t omnetCoordY;
+    static const simsignal_t omnetCoordZ;
+
+    static const simsignal_t wgs84CoordLat;
+    static const simsignal_t wgs84CoordLon;
+    static const simsignal_t wgs84CoordAlt;
+
+    static const simsignal_t wgs84CartCoordX;
+    static const simsignal_t wgs84CartCoordY;
+    static const simsignal_t wgs84CartCoordZ;
+
+    static const simsignal_t sopRelativeCoordX;
+    static const simsignal_t sopRelativeCoordY;
+    static const simsignal_t sopRelativeCoordZ;
+
+    static const simsignal_t linearInterpolationSpeedMeterPerSecondSignal;
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
