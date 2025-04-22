@@ -205,6 +205,8 @@ protected:
     void recordSopRelativeCoord(const inet::Coord c);
     void recordLinearInterpolationSpeedMeterPerSecond(const double speed);
     void recordSgp4SpeedMeterPerSecond(const double speed);
+    void recordLinearInterpolationComputation();
+    void recordSgp4Computation();
 
     // ned parameters
     bool updatePositionOnlyAboveHorizon;
@@ -297,6 +299,9 @@ protected:
     static const simsignal_t linearInterpolationSpeedMeterPerSecondSignal;
     static const simsignal_t sgp4SpeedMeterPerSecondSignal;
 
+    static const simsignal_t linearInterpolationComputationsSignal;
+    static const simsignal_t sgp4ComputationsSignal;
+
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
     int numberOfPositionUpdates = 0;
@@ -305,6 +310,7 @@ protected:
     int numberOfGetCurrentPositionUpdateCalls = 0; // number of times getCurrentPosition() is called
     int processedEvents = 0;
     int numberOfSGP4Computations = 0;
+    int numberOfLinearInterpolationComputations = 0;
 
 class SPACE_VEINS_API SGP4MobilityAccess {
 public:

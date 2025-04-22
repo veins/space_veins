@@ -63,6 +63,8 @@ const simsignal_t SGP4Mobility::sopRelativeCoordY = registerSignal("space_veins_
 const simsignal_t SGP4Mobility::sopRelativeCoordZ = registerSignal("space_veins_sgp4mobility_sopRelativeCoordZ");
 const simsignal_t SGP4Mobility::linearInterpolationSpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobility_linearInterpolationSpeedMeterPerSecondSignal");
 const simsignal_t SGP4Mobility::sgp4SpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobility_sgp4SpeedMeterPerSecondSignal");
+const simsignal_t SGP4Mobility::linearInterpolationComputationsSignal = registerSignal("space_veins_sgp4mobility_linearInterpolationComputationsSignal");
+const simsignal_t SGP4Mobility::sgp4ComputationsSignal = registerSignal("space_veins_sgp4mobility_sgp4ComputationsSignal");
 
 void SGP4Mobility::setInitialPosition()
 {
@@ -124,6 +126,7 @@ void SGP4Mobility::initialize(int stage)
         WATCH(numberOfGetCurrentPositionUpdates);
         WATCH(numberOfGetCurrentPositionUpdateCalls);
         WATCH(numberOfSGP4Computations);
+        WATCH(numberOfLinearInterpolationComputations);
         WATCH(getCurrentPositionBehavior);
         WATCH(nextChange);
         WATCH(lastUpdate);
@@ -575,6 +578,8 @@ bool SGP4Mobility::nextPeriodicPositionUpdate() {
 inet::Coord SGP4Mobility::linearInterpolation(simtime_t t) {
     EV_TRACE << "SGP4Mobility::linearInterpolation(simtime_t t) called" << std::endl;
     // lastPosition + direction vector of length 1m * velocity in m/s * time span in s
+    numberOfLinearInterpolationComputations++;
+    recordLinearInterpolationComputation();
     return lastPosition + linearInterpolationVector * linearInterpolationSpeedMeterPerSecond * (t - lastUpdate).dbl();
 }
 
@@ -819,6 +824,7 @@ SGP4Mobility::calculatedSgp4SatellitePositions_t SGP4Mobility::calculateSgp4Sate
     EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
     numberOfSGP4Computations++;
+    recordSgp4Computation();
     recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
     recordSopRelativeCoord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP);
@@ -909,6 +915,16 @@ void SGP4Mobility::recordLinearInterpolationSpeedMeterPerSecond(const double spe
 void SGP4Mobility::recordSgp4SpeedMeterPerSecond(const double speed)
 {
     emit(sgp4SpeedMeterPerSecondSignal, speed);
+}
+
+void SGP4Mobility::recordLinearInterpolationComputation()
+{
+    emit(linearInterpolationComputationsSignal, 1);
+}
+
+void SGP4Mobility::recordSgp4Computation()
+{
+    emit(sgp4ComputationsSignal, 1);
 }
 
 /* ---------------------- print data --------------------------------*/
