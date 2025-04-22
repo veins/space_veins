@@ -68,7 +68,7 @@ simple SGP4Mobility extends MovingMobilityBase
         @signal[space_veins_sgp4mobility_sgp4SpeedMeterPerSecondSignal](type=double);
         // SGP4Mobility performance
         @signal[space_veins_sgp4mobility_linearInterpolationComputationsSignal](type=double);
-        @signal[space_veins_sgp4mobility_sgp4CompuationsSignal](type=double);
+        @signal[space_veins_sgp4mobility_sgp4ComputationsSignal](type=double);
 
         // OMNeT++ event management
         @statistic[positionUpdates](source=mobilityStateChanged; record=count);
