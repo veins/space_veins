@@ -73,7 +73,7 @@ debugVariables:
 all: ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
 
 cleanAll:
-	rm *_runs.log *_runs.txt runAll collectScalars resultCollection
+	rm *_runs.log *_runs.txt runAll collectScalars resultCollection plots
 
 cleanResultCollection:
 	rm -rf csv collectScalars resultCollection
@@ -126,12 +126,16 @@ $(vectorCsvFiles): csv/vectors/%.csv : $(vectorFiles)
 	mkdir -p csv/vectors
 	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F $(word 2, $(subst -, ,$*)):vector=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.vec > $@
 
-prepareCsvFiles:
+plotPositionUpdateBehavior:
 	mkdir -p archive/latest/plots
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/elevationAngle-vs-time-csv.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-getCurrentPositionUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-periodicUpdates.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-endToEndDelay.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position
+
+plotUpdatePositionOnlyAboveHorizon:
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyEnableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-lastPosition
 
 # csv/packetSentCount.csv: runAll
 # 	mkdir -p csv
@@ -201,6 +205,8 @@ resultCollection: $(vectorCsvFiles)
 # 	cd ../../lib/singularity-r-env && singularity build --force --fakeroot singularity-R-env.sif singularity-R-env.def
 
 plots: ../../lib/singularity-r-env/singularity-R-env.sif
+	$(MAKE) plotPositionUpdateBehavior
+	$(MAKE) plotUpdatePositionOnlyAboveHorizon
 	touch plots
 
 experiment:
@@ -214,4 +220,4 @@ experiment:
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) plots
-	rm runAll resultCollection
+	rm runAll resultCollection plots
