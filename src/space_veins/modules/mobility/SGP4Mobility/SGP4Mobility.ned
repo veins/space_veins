@@ -66,6 +66,9 @@ simple SGP4Mobility extends MovingMobilityBase
         @signal[space_veins_sgp4mobility_sopRelativeCoordZ](type=double);
         @signal[space_veins_sgp4mobility_linearInterpolationSpeedMeterPerSecondSignal](type=double);
         @signal[space_veins_sgp4mobility_sgp4SpeedMeterPerSecondSignal](type=double);
+        // SGP4Mobility performance
+        @signal[space_veins_sgp4mobility_linearInterpolationComputationsSignal](type=double);
+        @signal[space_veins_sgp4mobility_sgp4CompuationsSignal](type=double);
 
         // OMNeT++ event management
         @statistic[positionUpdates](source=mobilityStateChanged; record=count);
@@ -98,4 +101,7 @@ simple SGP4Mobility extends MovingMobilityBase
         @statistic[sopRelativeCoordZ](source=space_veins_sgp4mobility_sopRelativeCoordZ; record=vector);
         @statistic[linearInterpolationSpeedMeterPerSecond](source=space_veins_sgp4mobility_linearInterpolationSpeedMeterPerSecondSignal; record=vector);
         @statistic[sgp4SpeedMeterPerSecond](source=space_veins_sgp4mobility_sgp4SpeedMeterPerSecondSignal; record=vector);
+        // SGP4Mobility performance
+        @statistic[linearInterpolationComputations](source=space_veins_sgp4mobility_linearInterpolationComputationsSignal; record=count);
+        @statistic[spg4Computations](source=space_veins_sgp4mobility_sgp4CompuationsSignal; record=count);
 }
