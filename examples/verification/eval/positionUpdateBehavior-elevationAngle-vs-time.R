@@ -19,82 +19,35 @@ eleAngle <- fread(args[1])
 eleAngle <- subset(eleAngle, time >= minTime)
 eleAngle <- subset(eleAngle, time <= maxTime)
 eleAngle <- subset(eleAngle, select = -c(node, repetition))
-# -------- test ------
-# eleAngle <- add_row(eleAngle, event=1, time=1899.791, lastElevationAngleToSop=9)
 print("eleAngle:")
 print(eleAngle)
 
-# read in getCurrentPosition data
+# read time points of getCurrentPositionUpdateCalls (time points when we want to know the position of a satellite)
 # filter based on simulation time
-gcp <- fread(args[2])
-gcp <- subset(gcp, time >= minTime)
-gcp <- subset(gcp, time <= maxTime)
-gcp <- subset(gcp, select = -c(node, repetition))
-gcp <- eleAngle %>% inner_join(gcp, by=c('event', 'time'))
-# print("gcp:")
-# print(gcp)
-# -------- test ------
-# gcp <- add_row(gcp, event=1, time=1899.791, lastElevationAngleToSop=9, getCurrentPositionUpdates=1)
-print("gcp:")
-print(gcp)
+gcpuc <- fread(args[2])
+gcpuc <- subset(gcpuc, time >= minTime)
+gcpuc <- subset(gcpuc, time <= maxTime)
+gcpuc <- subset(gcpuc, select = -c(node, repetition))
+print("gcpuc:")
+print(gcpuc)
 
-# read in periodicUpdates data
+# read time points and calculated elevationAngle relative to the SOP of SGP4 updates
 # filter based on simulation time
-pu <- fread(args[3])
-pu <- subset(pu, time >= minTime)
-pu <- subset(pu, time <= maxTime)
-pu <- subset(pu, select = -c(node, repetition))
-pu <- eleAngle %>% inner_join(pu, by=c('event', 'time'))
-print("pu:")
-print(pu)
+sgp4 <- fread(args[3])
+sgp4 <- subset(sgp4, time >= minTime)
+sgp4 <- subset(sgp4, time <= maxTime)
+sgp4 <- subset(sgp4, select = -c(node, repetition))
+print("sgp4:")
+print(sgp4)
 
-# read in E2E latency data
+# read time points and calculated elevationAngle relative to the SOP of linear interpolation updates
 # filter based on simulation time
-e2e <- fread(args[4])
-e2e <- subset(e2e, time >= minTime)
-e2e <- subset(e2e, time <= maxTime)
-e2e <- subset(e2e, select = -c(node, repetition))
-print("e2e:")
-print(e2e)
-# -------- test ------
-# e2e <- add_row(e2e, event=2, time=1899.791, endToEndDelay=0.009)
-# print("e2e:")
-# print(e2e)
-
-# identify current elevation angle while the packet was received
-if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition") {
-    e2e$floorTime <- floor(e2e$time)
-    e2e <- eleAngle %>% inner_join(e2e, by=c('time' = 'floorTime'), suffix=c('.ele', '.e2e'))
-    e2e$time <- NULL
-    names(e2e)[names(e2e) == 'time.e2e'] <- 'time'
-}
-if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition") {
-    e2e <- eleAngle %>% inner_join(e2e, by=c('time'), suffix=c('.ele', '.e2e'))
-}
-if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition") {
-    e2e$floorTime <- floor(e2e$time)
-    eleAngle$floorTime <- floor(eleAngle$time)
-    e2e <- eleAngle %>% inner_join(e2e, by=c('floorTime'), suffix=c('.ele', '.e2e'))
-    names(e2e)[names(e2e) == 'time.e2e'] <- 'time'
-}
-if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position") {
-    e2e <- eleAngle %>% inner_join(e2e, by=c('time'), suffix=c('.ele', '.e2e'))
-}
-print("eleAngle:")
-print(eleAngle)
-print("e2e:")
-print(e2e)
-# names(tmp)[names(tmp) == 'time'] <- 'time.e2e'
-# print("tmp")
-# print(tmp)
-# search for matches within periodic updates
-# e2e$floorTime <- floor(e2e$time)
-#e2e <- bind_rows(tmp, pu %>% inner_join(e2e, by=c('time' = 'floorTime'), suffix=c('.pu', '.e2e')))
-# e2e <- bind_rows(tmp, pu %>% inner_join(e2e, by=c('time' = 'floorTime'), suffix=c('.pu', '.e2e')))
-# e2e[is.na(e2e)] <- 0
-# e2e <- subset(e2e, select = c(time.e2e, time, lastElevationAngleToSop, getCurrentPositionUpdates, periodicUpdates, endToEndDelay))
-# print("e2e")
-# print(e2e)
+li <- fread(args[4])
+li <- subset(li, time >= minTime)
+li <- subset(li, time <= maxTime)
+li <- subset(li, select = -c(node, repetition))
+print("li:")
+print(li)
 
 # ----------- plot
 
@@ -118,39 +71,41 @@ lwds = list(default=1)
 pchs = list(circle=1,
             cross=4,
             diamond=5)
-legends = list(periodic=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("periodic update")),
-               received=list(pch=pchs[["cross"]], label= expression("packet received")),
-               gcp=list(pch=pchs[["diamond"]], label= expression("getCurrentPosition update")))
+legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("SGP4 update")),
+               liUpdate=list(pch=pchs[["cross"]], label= expression("linear interpolation update")))
 
 done <- myps(file = args[5], width=paper.width, height=paper.height)
 plot.new()
 par(mar=c(3.25,3.0,.5,.75), mgp=c(3.0, 0.5, 0))
-plot.window(xlim=c(minTime + 1, maxTime - 0.9), ylim=c(7.9 ,8.2), xaxs="i", yaxs="i")
-lines(eleAngle$time, eleAngle$lastElevationAngleToSop, type = "s", lwd = legends[["periodic"]][["lwd"]])
-points(pu$time, pu$lastElevationAngleToSop, pch = legends[["periodic"]][["pch"]])
-points(gcp$time, gcp$lastElevationAngleToSop, pch = legends[["gcp"]][["pch"]])
-points(e2e$time, e2e$lastElevationAngleToSop, pch = legends[["received"]][["pch"]])
+plot.window(xlim=c(minTime + 1, maxTime - 0.9), ylim=c(7.8 ,8.2), xaxs="i", yaxs="i")
+lines(eleAngle$time, eleAngle$lastElevationAngleToSop, type = "s", lwd = legends[["sgp4Update"]][["lwd"]])
+points(sgp4$time, sgp4$sgp4Computations, pch = legends[["sgp4Update"]][["pch"]])
+points(li$time, li$linearInterpolationComputations, pch = legends[["liUpdate"]][["pch"]])
+
+# plot a vertical line for every value in gcp$time
+for (i in 1:nrow(gcpuc)) {
+    abline(v=gcpuc$time[i], col="black", lty=2)
+}
 
 box()
 axis(1, xaxp=c(minTime + 1, maxTime - 1, 3))
-#axis(2, las=1, tck=-0.025)
 axis(2, las=1)
 title(xlab="simulation time in s", line=2.2)
 title(ylab="elevation angle in deg", line=2)
 
-legendPosition <- "topright"
+# legend position in the top middle
+legendPosition <- "bottom"
 insetValue <- c(0, 0)
 
-# if (str_detect(args[2], "StarlinkShell2")) {
-#     legendPosition <- "bottomleft"
-#     insetValue <- c(0, -0.05)
+# if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition") {
+#     legendPosition <- "bottom"
+#     # insetValue <- c(0, -0.05)
 # }
 
 legend(legendPosition,
        inset=insetValue,
-       legend=c(legends[["periodic"]][["label"]], legends[["gcp"]][["label"]], legends[["received"]][["label"]]),
-    #    lwd=c(legends[["periodic"]][["lwd"]], legends[["horizontal"]][["lwd"]]),
-       pch=c(legends[["periodic"]][["pch"]], legends[["gcp"]][["pch"]], legends[["received"]]),
+       legend=c(legends[["sgp4Update"]][["label"]], legends[["liUpdate"]][["label"]]),
+       pch=c(legends[["sgp4Update"]][["pch"]], legends[["liUpdate"]][["pch"]]),
        bty="n",
        ncol=1)
 done()
