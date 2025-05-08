@@ -102,6 +102,6 @@ simple SGP4Mobility extends MovingMobilityBase
         @statistic[linearInterpolationSpeedMeterPerSecond](source=space_veins_sgp4mobility_linearInterpolationSpeedMeterPerSecondSignal; record=vector);
         @statistic[sgp4SpeedMeterPerSecond](source=space_veins_sgp4mobility_sgp4SpeedMeterPerSecondSignal; record=vector);
         // SGP4Mobility performance
-        @statistic[linearInterpolationComputations](source=space_veins_sgp4mobility_linearInterpolationComputationsSignal; record=count);
-        @statistic[sgp4Computations](source=space_veins_sgp4mobility_sgp4ComputationsSignal; record=count);
+        @statistic[linearInterpolationComputations](source=space_veins_sgp4mobility_linearInterpolationComputationsSignal; record=count, vector);
+        @statistic[sgp4Computations](source=space_veins_sgp4mobility_sgp4ComputationsSignal; record=count, vector);
 }
