@@ -205,8 +205,8 @@ protected:
     void recordSopRelativeCoord(const inet::Coord c);
     void recordLinearInterpolationSpeedMeterPerSecond(const double speed);
     void recordSgp4SpeedMeterPerSecond(const double speed);
-    void recordLinearInterpolationComputation();
-    void recordSgp4Computation();
+    void recordLinearInterpolationComputation(inet::deg elevationAngleToSop);
+    void recordSgp4Computation(inet::deg elevationAngleToSop);
 
     // ned parameters
     bool updatePositionOnlyAboveHorizon;

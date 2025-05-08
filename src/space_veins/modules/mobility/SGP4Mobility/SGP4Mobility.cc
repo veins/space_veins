@@ -579,8 +579,9 @@ inet::Coord SGP4Mobility::linearInterpolation(simtime_t t) {
     EV_TRACE << "SGP4Mobility::linearInterpolation(simtime_t t) called" << std::endl;
     // lastPosition + direction vector of length 1m * velocity in m/s * time span in s
     numberOfLinearInterpolationComputations++;
-    recordLinearInterpolationComputation();
-    return lastPosition + linearInterpolationVector * linearInterpolationSpeedMeterPerSecond * (t - lastUpdate).dbl();
+    auto newPosition = lastPosition + linearInterpolationVector * linearInterpolationSpeedMeterPerSecond * (t - lastUpdate).dbl();
+    recordLinearInterpolationComputation(calculateElevationAngleRelativeToSop(newPosition));
+    return newPosition;
 }
 
 void SGP4Mobility::nextLinearInterpolationPositionUpdate() {
@@ -824,7 +825,7 @@ SGP4Mobility::calculatedSgp4SatellitePositions_t SGP4Mobility::calculateSgp4Sate
     EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
     numberOfSGP4Computations++;
-    recordSgp4Computation();
+    recordSgp4Computation(calculateElevationAngleRelativeToSop(returnValues.omnetppCoord));
     recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
     recordSopRelativeCoord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP);
@@ -917,14 +918,14 @@ void SGP4Mobility::recordSgp4SpeedMeterPerSecond(const double speed)
     emit(sgp4SpeedMeterPerSecondSignal, speed);
 }
 
-void SGP4Mobility::recordLinearInterpolationComputation()
+void SGP4Mobility::recordLinearInterpolationComputation(inet::deg elevationAngleToSop)
 {
-    emit(linearInterpolationComputationsSignal, 1);
+    emit(linearInterpolationComputationsSignal, elevationAngleToSop.get());
 }
 
-void SGP4Mobility::recordSgp4Computation()
+void SGP4Mobility::recordSgp4Computation(inet::deg elevationAngleToSop)
 {
-    emit(sgp4ComputationsSignal, 1);
+    emit(sgp4ComputationsSignal, elevationAngleToSop.get());
 }
 
 /* ---------------------- print data --------------------------------*/
