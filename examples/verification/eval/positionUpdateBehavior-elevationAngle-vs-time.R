@@ -103,9 +103,10 @@ insetValue <- c(0, 0)
 # }
 
 legend(legendPosition,
+        # add a frame ``
        inset=insetValue,
        legend=c(legends[["sgp4Update"]][["label"]], legends[["liUpdate"]][["label"]]),
        pch=c(legends[["sgp4Update"]][["pch"]], legends[["liUpdate"]][["pch"]]),
-       bty="n",
+       bty="o",
        ncol=1)
 done()

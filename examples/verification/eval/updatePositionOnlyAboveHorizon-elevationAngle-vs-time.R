@@ -20,10 +20,19 @@ print("eleAngleEn:")
 print(eleAngleEn)
 
 minTime <- min(min(eleAngleDis$time), min(eleAngleEn$time))
+# print minimum of eleAngleDis$time and eleAngleEn$time
+print(paste("minTimeDis:", min(eleAngleDis$time)))
+print(paste("minTimeEn:", min(eleAngleEn$time)))
+# print maximum of eleAngleDis$time and eleAngleEn$time
+print(paste("maxTimeDis:", max(eleAngleDis$time)))
+print(paste("maxTimeEn:", max(eleAngleEn$time)))
+
 maxTime <- max(max(eleAngleDis$time), max(eleAngleEn$time))
 
-minEle <- min(min(eleAngleDis$lastElevationAngleToSop), min(eleAngleEn$lastElevationAngleToSop))
-maxEle <- max(max(eleAngleDis$lastElevationAngleToSop), max(eleAngleEn$lastElevationAngleToSop))
+# minEle <- min(min(eleAngleDis$lastElevationAngleToSop), min(eleAngleEn$lastElevationAngleToSop))
+# maxEle <- max(max(eleAngleDis$lastElevationAngleToSop), max(eleAngleEn$lastElevationAngleToSop))
+minEle <- -90
+maxEle <- 90
 
 
 
@@ -46,30 +55,38 @@ paper.height <- paper.width * .4*1.2
 # paper.height <- paper.height * 0.6
 
 ltys = list(solid=1,
+            dashed=2,
             dotted=3
             )
 lwds = list(default=1)
 pchs = list(circle=1,
             cross=4,
-            diamond=5)
-legends = list(dis=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("disabled")),
-               en=list(lty=ltys[["solid"]], lwd=lwds[["default"]], pch=pchs[["cross"]], label= expression("enabled"))
+            diamond=5,
+            filledCircle=20)
+legends = list(dis=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["circle"]], col="black", label= expression("baseline")),
+               en=list(lty=ltys[["solid"]], lwd=lwds[["default"]], pch=pchs[["filledCircle"]], cex=0.1, col="black", label= expression("optimized")),
+               horizon=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], col="gray", label= expression("horizon")),
+               com=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], col="red", label= expression("com. threshold"))
                )
 
 done <- myps(file = args[3], width=paper.width, height=paper.height)
 plot.new()
-par(mar=c(3.25,3.0,.5,.75), mgp=c(3.0, 0.5, 0))
+par(mar=c(3.25,3.0,.5,1.1), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minTime, maxTime), ylim=c(minEle, maxEle), xaxs="i", yaxs="i")
 lines(eleAngleDis$time, eleAngleDis$lastElevationAngleToSop, type = "s", lty = legends[["dis"]][["lty"]], lwd = legends[["dis"]][["lwd"]])
-lines(eleAngleEn$time, eleAngleEn$lastElevationAngleToSop, type = "s", lty = legends[["en"]][["lty"]], lwd = legends[["en"]][["lwd"]])
+# lines(eleAngleEn$time, eleAngleEn$lastElevationAngleToSop, type = "s", lty = legends[["en"]][["lty"]], lwd = legends[["en"]][["lwd"]])
+points(eleAngleEn$time, eleAngleEn$lastElevationAngleToSop, pch = legends[["en"]][["pch"]], cex = 0.09, col = legends[["en"]][["col"]])
+# plot horizon
+abline(h=0, col="gray", lty=legends[["horizon"]][["lty"]])
+# communication threshold
+abline(h=8, col="red", lty=legends[["com"]][["lty"]])
 # points(pu$time, pu$lastElevationAngleToSop, pch = legends[["periodic"]][["pch"]])
 # points(gcp$time, gcp$lastElevationAngleToSop, pch = legends[["gcp"]][["pch"]])
 # points(e2e$time, e2e$lastElevationAngleToSop, pch = legends[["received"]][["pch"]])
 
 box()
-axis(1, xaxp=c(minTime + 1, maxTime - 1, 3))
-#axis(2, las=1, tck=-0.025)
-axis(2, las=1)
+axis(1, xaxp=c(minTime, maxTime, 5))
+axis(2, las=1, tck=-0.025, yaxp=c(minEle, maxEle, 4))
 title(xlab="simulation time in s", line=2.2)
 title(ylab="elevation angle in deg", line=2)
 
@@ -83,10 +100,9 @@ insetValue <- c(0, 0)
 
 legend(legendPosition,
        inset=insetValue,
-       legend=c(legends[["dis"]][["label"]], legends[["en"]][["label"]]),
-    #    lwd=c(legends[["periodic"]][["lwd"]], legends[["horizontal"]][["lwd"]]),
-    #    pch=c(legends[["periodic"]][["pch"]], legends[["gcp"]][["pch"]], legends[["received"]]),
-       lty=c(legends[["dis"]][["lty"]], legends[["en"]][["lty"]]),
+       legend=c(legends[["dis"]][["label"]], legends[["en"]][["label"]], legends[["horizon"]][["label"]], legends[["com"]][["label"]]),
+       col=c(legends[["dis"]][["col"]], legends[["en"]][["col"]], legends[["horizon"]][["col"]], legends[["com"]][["col"]]),
+       lty=c(legends[["dis"]][["lty"]], legends[["en"]][["lty"]], legends[["horizon"]][["lty"]], legends[["com"]][["lty"]]),
        bty="n",
-       ncol=1)
+       ncol=2)
 done()
