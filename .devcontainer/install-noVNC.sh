@@ -29,6 +29,7 @@ apt-get -y install --no-install-recommends \
     tigervnc-standalone-server \
     tigervnc-common \
     tigervnc-tools \
+    x11-xserver-utils \
     xterm \
     novnc \
     fluxbox
@@ -36,25 +37,6 @@ apt-get -y install --no-install-recommends \
 #=============================================================================
 # Create index.html link to automatically display the VNC in the web browser
 ln -s /usr/share/novnc/vnc.html /usr/share/novnc/index.html
-
-#=============================================================================
-# Fluxbox menu, right-click opens the menu
-cat << 'EOF' > /etc/X11/fluxbox/fluxbox-menu
-[begin] (  space_Veins  )
-    [exec] (Terminal) { xterm } <>
-    [exec] (OMNeT++) { omnetpp } <>
-    [end]
-[end]
-EOF
-
-#=============================================================================
-# set XTerm font and font size
-cat << 'EOF' >> /etc/X11/app-defaults/XTerm
-XTerm*faceName: Monospace
-XTerm*faceSize: 10
-XTerm*background: black
-XTerm*foreground: white
-EOF
 
 #=============================================================================
 # Create VNC helper scripts
@@ -98,10 +80,10 @@ else
 fi
 echo
 
-echo "${S_VNC_PASSWORD}" | vncpasswd -f > /workspace/space_veins/.vnc-passwd
+echo "${S_VNC_PASSWORD}" | vncpasswd -f > /$HOME/.vnc-passwd
 
 # start vnc
-tigervncserver ${VNC_DISPLAY} -desktop fluxbox -localhost yes -SecurityTypes VncAuth -rfbport ${VNC_PORT} -rfbauth /workspace/space_veins/.vnc-passwd -geometry ${RESOLUTION} > /tmp/vnc.log 2>&1 &
+tigervncserver ${VNC_DISPLAY} -desktop fluxbox -localhost yes -SecurityTypes VncAuth -rfbport ${VNC_PORT} -rfbauth /$HOME/.vnc-passwd -geometry ${RESOLUTION} > /tmp/vnc.log 2>&1 &
 
 # start noVNC
 /usr/share/novnc/utils/launch.sh --listen ${NOVNC_PORT} --vnc localhost:${VNC_PORT} > /tmp/vnc.log 2>&1 &
