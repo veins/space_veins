@@ -41,13 +41,6 @@
 	}
 	,
 
-	// connect as root
-	"remoteUser": "root",
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [6080]
-	,
-
 	// Mount ../.container_opp_ide_workspace under /opt/omnetpp.workspace
 	// The IDE complains when the workspace directory is inside a project folder.
 	// By explicitly mounting it to a different location, the IDE does not complain anymore.
@@ -55,6 +48,9 @@
 		"source=${localWorkspaceFolder}/.container_opp_ide_workspace,target=/opt/omnetpp.workspace,type=bind,consistency=cached"
 	]
 	,
+
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/space_veins,type=bind,consistency=cached",
+	"workspaceFolder": "/workspace/space_veins",
 
 	// allow debugger to attach to running processes (part 1)
 	"capAdd": [

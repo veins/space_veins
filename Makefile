@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-.PHONY: all space_veins clean_space_veins cleanall_space_veins inet clean_inet cleanall_inet veins_inet clean cleanall makefiles spaceVeinsMakefiles inetMakefiles veinsInetMakefiles checkmakefiles checkInetMakefiles checkVeinsInetMakefiles veins veinsMakefiles checkVeinsMakefiles
+.PHONY: all space_veins clean_space_veins cleanall_space_veins inet clean_inet cleanall_inet veins_inet clean cleanall makefiles spaceVeinsMakefiles inetMakefiles veinsInetMakefiles checkmakefiles checkInetMakefiles checkVeinsInetMakefiles veins veinsMakefiles checkVeinsMakefiles cleanVncDotfiles
 
 # if lib/veins/out/config.py exists, we can also create command line scripts for running Veins simulations
 VEINS_ADDL_TARGETS =
@@ -156,3 +156,19 @@ checkVeinsInetMakefiles:
 	echo; \
 	exit 1; \
 	fi
+
+cleanVncDotfiles:
+	rm -rf \
+	.config \
+	.zcompdump \
+	.eclipse \
+	.local \
+	.cache \
+	.swt \
+	.opp_ide_error.log \
+	.fluxbox \
+	.Xauthority \
+	.vnc \
+	.xsession-errors \
+	.bash_history \
+	.vnc-passwd \
