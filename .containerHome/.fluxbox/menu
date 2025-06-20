@@ -1,0 +1,5 @@
+[begin] (  space_Veins  )
+    [exec] (Terminal) { xterm -e zsh} <>
+    [exec] (OMNeT++) { omnetpp } <>
+    [end]
+[end]
