@@ -41,4 +41,4 @@ export PATH=/usr/lib/ccache:$PATH
 export PATH=$PATH:/opt/omnetpp/bin
 export PATH=$PATH:/opt/sumo/bin
 export PATH=$PATH:/opt/vnc/
-export CCACHE_DIR=/workspaces/space_veins/.ccache
+export CCACHE_DIR=/workspace/space_veins/.ccache
