@@ -56,8 +56,8 @@ ARG SUMO_VERSION=1.11.0
 COPY install-sumo.sh .
 RUN ./install-sumo.sh && rm ./install-sumo.sh
 
-COPY install-desktop-lite.sh .
-RUN ./install-desktop-lite.sh && rm ./install-desktop-lite.sh
+COPY install-noVNC.sh .
+RUN ./install-noVNC.sh && rm ./install-noVNC.sh
 
 COPY install-misc.sh .
 RUN ./install-misc.sh && rm ./install-misc.sh
