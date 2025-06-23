@@ -25,12 +25,13 @@ set -e
 
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get -y install --no-install-recommends \
+apt-get update && apt-get -y install --no-install-recommends \
     tigervnc-standalone-server \
     tigervnc-common \
     tigervnc-tools \
     x11-xserver-utils \
     xterm \
+    xvfb \
     novnc \
     fluxbox
 

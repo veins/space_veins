@@ -1,5 +1,7 @@
 [begin] (  space_Veins  )
     [exec] (Terminal) { xterm -e zsh} <>
+    [exec] (Veins Launchd) { xterm -e "python3 $WORKSPACE/lib/veins/bin/veins_launchd -v"} <>
+    [exec] (Veins Launchd w/ SUMO-GUI) { xterm -e "python3 $WORKSPACE/lib/veins/bin/veins_launchd -v -c sumo-gui"} <>
     [exec] (OMNeT++) { omnetpp } <>
     [end]
 [end]

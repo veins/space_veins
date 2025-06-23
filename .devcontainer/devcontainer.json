@@ -41,7 +41,7 @@
 	}
 	,
 
-	// Mount ../.container_opp_ide_workspace under /opt/omnetpp.workspace
+	// Mount ../.containerHome/omnetpp.workspace under /opt/omnetpp.workspace
 	// The IDE complains when the workspace directory is inside a project folder.
 	// By explicitly mounting it to a different location, the IDE does not complain anymore.
 	"mounts": [

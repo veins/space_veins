@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # build docker container
 cd ../
 SPACE_VEINS_VERSION=$(./print-space_Veins-version)
