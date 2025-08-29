@@ -15,7 +15,7 @@ experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
 space := $(subst ,, )
 experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=oneline --abbrev-commit))))))
-export experimentId := $(experimentTime)_$(experimentCommitMessage)
+experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
 getCurrentPositionBehavior := LastPosition Sgp4Position LinearInterpolationPosition NearestPeriodicPosition
