@@ -462,7 +462,7 @@ bool SGP4Mobility::isSmallerStartBorder(std::pair<border_t, border_t> i, std::pa
     return i.first.simulationTime < j.first.simulationTime ? true : false;
 }
 
-void SGP4Mobility::updateLastPosition(updateMethod_t method) {
+void SGP4Mobility::updateLastPosition(updateMethod_t method, simtime_t t = simTime()) {
     EV_TRACE << "SGP4Mobility::updateLastPosition(updateMethod_t method) called: method: " << method << std::endl;
     simtime_t now = simTime();
     if (method == usingSgp4Computation) {
@@ -521,7 +521,7 @@ void SGP4Mobility::updateLastPosition(updateMethod_t method) {
 bool SGP4Mobility::nextPeriodicPositionUpdate() {
     EV_TRACE << "SGP4Mobility::nextPeriodicPositionUpdate() called" << std::endl;
     simtime_t now = simTime();
-    bool updated;
+    bool updated = false;
     if (getCurrentPositionBehavior == returnLastPosition) {
         // this getCurrentPositionBehavior does not exploit future positions --> just calculate the current position
         EV_TRACE << "SGP4Mobility::nextPeriodicPositionUpdate() for returnLastPosition" << std::endl;
@@ -560,15 +560,23 @@ bool SGP4Mobility::nextPeriodicPositionUpdate() {
         // we can update the lastCalculatedSgp4SatellitePosition by overwriting it with linearInterpolationReference.
         // lastCalculatedSgp4SatellitePosition is the satellite's position at t=tau and linearInterpolationReference is always the satellite's position at t=tau+updateInterval
         // the updated satellite position is the nearest position calculated by a periodic update: if simTime() - lastPeriodicUpdate <= updateInterval/2 return satellite position at t = lastUpdate; if simTime() - lastPeriodicUpdate > updateInterval/2 return satellite position at t = lastPeriodicUpdate + updateInterval
-        if (lastCalculatedSgp4SatellitePosition == linearInterpolationReference) {
-            // lastPosition is already updated due to getCurrentPosition
-            updated = false;
-        } else {
+
+        // if linearInterpolationReference.simulationTime == now
+        if (now == linearInterpolationReference.simulationTime) {
+            EV_TRACE << "updateLastPosition() using linearInterpolationReference: now == linearInterpolationReference.simulationTime -> we can simply copy the reference." << std::endl;
+            // we can update the lastCalculatedSgp4SatellitePosition by overwriting it with linearInterpolationReference.
+            // lastCalculatedSgp4SatellitePosition is the satellite's position at t=tau and linearInterpolationReference is always the satellite's position at t=tau+updateInterval
+            EV_TRACE << "SGP4Mobility::nextPeriodicPositionUpdate() for returnNearestPeriodicPosition" << std::endl;
             updateLastPosition(usingLinearInterpolationReference);
-            updated = true;
+        } else {
+            EV_TRACE << "updateLastPosition() using linearInterpolationReference: now != linearInterpolationReference.simulationTime -> reference is outdated!" << std::endl;
+            // Due to updatePositionOnlyAboveHorizon == true, the linearInterpolationReference does not store the position at now + updateInterval, but at the last periodic update + updateInterval.
+            // We need to calculate the position at now + updateInterval.
+            updateLastPosition(usingSgp4Computation);
         }
         // calculate the next linear interpolation reference at simTime() + updateInterval
         linearInterpolationReference = calculateSgp4SatellitePosition(now + updateInterval);
+        updated = true;
     } else {
         EV_ERROR << "SGP4Mobility::nextPeriodicPositionUpdate() for else branch" << std::endl;
         updated = false;
@@ -611,16 +619,20 @@ bool SGP4Mobility::nextNearestPeriodicPositionUpdate() {
     if (timeSinceLastPeriodicUpdate <= updateInterval/2) {
         // no need to update lastPosition, getCurrentPosition is supposed to simply return the current lastPosition, thus this function returns false as there is no update of lastPosition.
         updated = false;
-    } else if (timeSinceLastPeriodicUpdate > updateInterval/2) {
-        if (lastCalculatedSgp4SatellitePosition == linearInterpolationReference) {
-            // lastPosition is already updated due to getCurrentPosition, do nothing
-            updated = false;
-        } else {
-            // lastPosition == linearInterpolationReference
+    } else { // timeSinceLastPeriodicUpdate > updateInterval/2 --> use the SGP4-based position from lastPeriodicUpdate + updateInterval, even timeSinceLastPeriodicUpdate > updateInterval due to updatePositionOnlyAboveHorizon == true
+        // if linearInterpolationReference is NOT outdated we can use it
+        // if simTime() - linearInterpolationReference.simulationTime > 0 it is outdated, due to updatePositionOnlyAboveHorizon == true
+        if (simTime() - linearInterpolationReference.simulationTime > 0) {
+            // linearInterpolationReference IS outdated, update the satellite's position, return position at t=lastPeriodicUpdate + updateInterval
+            updateLastPosition(usingSgp4Computation, lastPeriodicUpdate + updateInterval);
+        } else { // simTime() - linearInterpolationReference.simulationTime <= 0 --> linearInterpolationReference stores the position for lastPeriodicUpdate + updateInterval
+            // linearInterpolationReference is NOT outdated
+            // update the satellite's position using the linearInterpolationReference
             updateLastPosition(usingLinearInterpolationReference);
-            // return true as the position is updated
-            updated = true;
         }
+        // calculate the next linear interpolation reference at lastPeriodicUpdate + updateInterval + updateInterval
+        linearInterpolationReference = calculateSgp4SatellitePosition(lastPeriodicUpdate + updateInterval + updateInterval);
+        updated = true;
     }
     return updated;
 }

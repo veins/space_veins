@@ -184,7 +184,7 @@ protected:
     inet::Coord linearInterpolation(simtime_t t);
     void nextLinearInterpolationPositionUpdate();
     bool updateSatellitePosition();
-    void updateLastPosition(updateMethod_t method);
+    void updateLastPosition(updateMethod_t method, simtime_t t);
     bool nextPeriodicPositionUpdate();
     bool nextGetCurrentPositionUpdate();
     bool nextNearestPeriodicPositionUpdate();
@@ -223,7 +223,7 @@ protected:
     inet::deg lastElevationAngleToSop; // elevation angle of lastPosition relative to the SOP
 
     // linear interpolation mode for getCurrentPosition()
-    calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear
+    calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear interpolation, also used for returnNearestPeriodicPosition, it should always contain the satellite's position at lastPeriodicUpdate + updateInterval
     inet::Coord linearInterpolationVector = inet::Coord::NIL; // direction used for linear interpolation, vector is normalized sucht that it can be multiplied with a velocity
     double linearInterpolationSpeedMeterPerSecond;
 
