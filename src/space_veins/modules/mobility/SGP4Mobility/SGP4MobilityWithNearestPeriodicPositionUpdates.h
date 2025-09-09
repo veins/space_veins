@@ -31,7 +31,7 @@ class SPACE_VEINS_API SGP4MobilityWithNearestPeriodicPositionUpdates : public SG
 
 public:
     SGP4MobilityWithNearestPeriodicPositionUpdates()
-        : SGP4MobilityBase(false)
+        : SGP4MobilityBase()
     {
     }
 
@@ -46,6 +46,8 @@ protected:
     void finish() override;
     bool nextPeriodicPositionUpdate() override;
     bool nextGetCurrentPositionUpdate() override;
+
+    calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for returnNearestPeriodicPosition, it should always contain the satellite's position at lastPeriodicUpdate + updateInterval
 
     class SPACE_VEINS_API SGP4MobilityWithNearestPeriodicPositionUpdatesAccess {
     public:

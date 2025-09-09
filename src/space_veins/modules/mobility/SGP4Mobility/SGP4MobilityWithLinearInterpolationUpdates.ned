@@ -25,9 +25,14 @@ import space_veins.modules.mobility.SGP4Mobility.SGP4MobilityBase;
 //
 // Mobility module for spacecrafts based on SGP4 model.
 //
-simple SGP4MobilityNoGetCurrentPositionUpdates extends SGP4MobilityBase
+simple SGP4MobilityWithLinearInterpolationUpdates extends SGP4MobilityBase
 {
     parameters:
-        @class(space_veins::SGP4MobilityNoGetCurrentPositionUpdates);
+        @class(space_veins::SGP4MobilityWithLinearInterpolationUpdates);
         @display("i=block/cogwheel");
+        @signal[space_veins_sgp4mobilitybase_linearInterpolationSpeedMeterPerSecondSignal](type=double);
+        @signal[space_veins_sgp4mobilitybase_linearInterpolationComputationsSignal](type=double);
+
+        @statistic[linearInterpolationSpeedMeterPerSecond](source=space_veins_sgp4mobilitybase_linearInterpolationSpeedMeterPerSecondSignal; record=vector);
+        @statistic[linearInterpolationComputations](source=space_veins_sgp4mobilitybase_linearInterpolationComputationsSignal; record=count, vector);
 }

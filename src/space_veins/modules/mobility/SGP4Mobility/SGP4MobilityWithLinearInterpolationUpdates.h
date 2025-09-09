@@ -31,7 +31,7 @@ class SPACE_VEINS_API SGP4MobilityWithLinearInterpolationUpdates : public SGP4Mo
 
 public:
     SGP4MobilityWithLinearInterpolationUpdates()
-        : SGP4MobilityBase(false)
+        : SGP4MobilityBase()
     {
     }
 

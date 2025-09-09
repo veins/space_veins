@@ -36,6 +36,7 @@ void SGP4MobilityWithLinearInterpolationUpdates::initialize(int stage)
     SGP4MobilityBase::initialize(stage);
     if (stage == 0) {
         WATCH(linearInterpolationVector);
+        WATCH(numberOfLinearInterpolationComputations);
     }
 }
 
@@ -50,7 +51,7 @@ inet::Coord SGP4MobilityWithLinearInterpolationUpdates::linearInterpolation(simt
         throw cRuntimeError("linearInterpolationReference.simulationTime - lastCalculatedSgp4SatellitePosition.simulationTime != updateInterval");
     }
     // lastPosition + direction vector of length 1m * velocity in m/s * time span in s
-    return = lastPosition + linearInterpolationVector * linearInterpolationSpeedMeterPerSecond * (t - lastUpdate).dbl();
+    return lastPosition + linearInterpolationVector * linearInterpolationSpeedMeterPerSecond * (t - lastUpdate).dbl();
 }
 
 bool SGP4MobilityWithLinearInterpolationUpdates::nextGetCurrentPositionUpdate() {
@@ -78,7 +79,7 @@ bool SGP4MobilityWithLinearInterpolationUpdates::nextPeriodicPositionUpdate() {
         lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
     } else {
         EV_TRACE << "SGP4MobilityWithLinearInterpolationUpdates::nextPeriodicPositionUpdate(): now != linearInterpolationReference.simulationTime -> reference is outdated!" << std::endl;
-        SGP4PositionUpdate(now)
+        SGP4PositionUpdate(now);
     }
     // calculate the next linear interpolation reference at simTime() + updateInterval
     linearInterpolationReference = calculateSgp4SatellitePosition(now + updateInterval);

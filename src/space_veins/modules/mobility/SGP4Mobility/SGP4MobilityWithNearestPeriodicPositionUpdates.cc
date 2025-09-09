@@ -47,7 +47,7 @@ bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextGetCurrentPositionUpdat
     } else { // timeSinceLastPeriodicUpdate > updateInterval/2 --> use the SGP4-based position from lastPeriodicUpdate + updateInterval, even if timeSinceLastPeriodicUpdate > updateInterval due to updatePositionOnlyAboveHorizon == true
         // if linearInterpolationReference is NOT outdated we can use it
         // if linearInterpolationReference.simulationTime == lastPeriodicUpdate + updateInterval && now - linearInterpolationReference.simulationTime <= 0 (linearInterpolationReference is in the future or up-to-date)
-        if (linearInterpolationReference.simulationTime = lastPeriodicUpdate + updateInterval && now - linearInterpolationReference.simulationTime <= 0) {
+        if (linearInterpolationReference.simulationTime == lastPeriodicUpdate + updateInterval && now - linearInterpolationReference.simulationTime <= 0) {
             // linearInterpolationReference is NOT outdated, we can use it.
             lastPosition = linearInterpolationReference.omnetppCoord;
         } else { // simTime() - linearInterpolationReference.simulationTime <= 0 --> linearInterpolationReference stores the position for lastPeriodicUpdate + updateInterval
@@ -78,7 +78,7 @@ bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(
         lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
     } else {
         EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(): now != linearInterpolationReference.simulationTime -> reference is outdated!" << std::endl;
-        SGP4PositionUpdate(now)
+        SGP4PositionUpdate(now);
     }
     // calculate the next linear interpolation reference at simTime() + updateInterval
     linearInterpolationReference = calculateSgp4SatellitePosition(now + updateInterval);

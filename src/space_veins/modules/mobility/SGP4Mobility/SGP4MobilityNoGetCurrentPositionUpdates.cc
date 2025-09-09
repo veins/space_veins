@@ -43,7 +43,7 @@ bool SGP4MobilityNoGetCurrentPositionUpdates::nextGetCurrentPositionUpdate() {
 bool SGP4MobilityNoGetCurrentPositionUpdates::nextPeriodicPositionUpdate() {
     EV_TRACE << "SGP4MobilityNoGetCurrentPositionUpdates::nextPeriodicPositionUpdate() called" << std::endl;
     simtime_t now = simTime();
-    SGP4PositionUpdate(now)
+    SGP4PositionUpdate(now);
     // Management
     bool updated = true;
     updateManagementDataAndStatistics(periodicUpdate, updated);

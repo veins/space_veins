@@ -61,16 +61,13 @@ const simsignal_t SGP4MobilityBase::wgs84CartCoordZ = registerSignal("space_vein
 const simsignal_t SGP4MobilityBase::sopRelativeCoordX = registerSignal("space_veins_sgp4mobilitybase_sopRelativeCoordX");
 const simsignal_t SGP4MobilityBase::sopRelativeCoordY = registerSignal("space_veins_sgp4mobilitybase_sopRelativeCoordY");
 const simsignal_t SGP4MobilityBase::sopRelativeCoordZ = registerSignal("space_veins_sgp4mobilitybase_sopRelativeCoordZ");
-// const simsignal_t SGP4MobilityBase::linearInterpolationSpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobilitybase_linearInterpolationSpeedMeterPerSecondSignal");
-// const simsignal_t SGP4MobilityBase::sgp4SpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobilitybase_sgp4SpeedMeterPerSecondSignal");
-// const simsignal_t SGP4MobilityBase::linearInterpolationComputationsSignal = registerSignal("space_veins_sgp4mobilitybase_linearInterpolationComputationsSignal");
+const simsignal_t SGP4MobilityBase::sgp4SpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobilitybase_sgp4SpeedMeterPerSecondSignal");
 const simsignal_t SGP4MobilityBase::sgp4ComputationsSignal = registerSignal("space_veins_sgp4mobilitybase_sgp4ComputationsSignal");
 
 void SGP4MobilityBase::setInitialPosition()
 {
     EV_DEBUG << "SGP4Mobility setInitialPosition()" << std::endl;
     nextPeriodicPositionUpdate();
-    firstPeriodicPositionUpdateDone = true;
 }
 
 void SGP4MobilityBase::initializePosition()
@@ -102,17 +99,19 @@ void SGP4MobilityBase::initialize(int stage)
         WATCH(wall_clock_sim_start_time_utc);
         WATCH(processedEvents);
         WATCH(numberOfPeriodicPositionUpdates);
+        WATCH(numberOfPeriodicPositionUpdateCalls);
         WATCH(numberOfGetCurrentPositionUpdates);
-        // WATCH(numberOfGetCurrentPositionUpdateCalls);
+        WATCH(numberOfGetCurrentPositionUpdateCalls);
         WATCH(numberOfSGP4Computations);
-        // WATCH(numberOfLinearInterpolationComputations);
-        // WATCH(getCurrentPositionBehavior);
         WATCH(nextChange);
         WATCH(lastUpdate);
         WATCH(lastPeriodicUpdate);
         WATCH(lastGetCurrentPositionUpdate);
         WATCH(updatePositionOnlyAboveHorizon);
         WATCH(precalculationInterval_s);
+        WATCH(precalculationIntervalsSize);
+        WATCH(relevantPrecalculationIntervalsSize);
+        WATCH(bordersOfRelevantIntervalsSize);
 
         // parse ned parameters
         updatePositionOnlyAboveHorizon = par("updatePositionOnlyAboveHorizon").boolValue();
@@ -242,6 +241,9 @@ void SGP4MobilityBase::initialize(int stage)
                 // identify relevant intervals in which the position of a satellite needs to be calculated precisely
                 identifyRelevantIntervals();
                 calculateBordersOfRelevantIntervals();
+                precalculationIntervalsSize = precalculationIntervals.size();
+                relevantPrecalculationIntervalsSize = relevantPrecalculationIntervals.size();
+                bordersOfRelevantIntervalsSize = bordersOfRelevantIntervals.size();
             } else {
                 // disable updatePositionOnlyAboveHorizon
                 updatePositionOnlyAboveHorizon = false;
@@ -475,7 +477,7 @@ void SGP4MobilityBase::move()
     // check if position is updated
     if (updated) {
         // lastPosition is updated
-        EV_DEBUG << "SGP4Mobility moved SimTime: " << simTime() << std::endl;
+        EV_DEBUG << "SGP4Mobility moved SimTime: " << now << std::endl;
     }
 }
 
@@ -492,6 +494,7 @@ void SGP4MobilityBase::moveAndUpdate()
         // orient();
     } else {
         emit(moveAndUpdateLastUpdateNowCallSignal, 1);
+        updateManagementDataAndStatistics(updateType, false);
     }
 }
 
@@ -499,8 +502,6 @@ void SGP4MobilityBase::moveAndUpdate()
 inet::Coord SGP4MobilityBase::getCurrentPosition() {
     Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
     updateType = getCurrentPositionUpdate;
-    numberOfGetCurrentPositionUpdateCalls++;
-    emit(getCurrentPositionUpdateCallSignal, 1);
     if (isRelevantInterval(simTime())) {
         SGP4MobilityBase::moveAndUpdate();
         return lastPosition;
@@ -521,7 +522,6 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
     SGP4MobilityBase::moveAndUpdate();
     SGP4MobilityBase::scheduleUpdate();
     emit(processedEventSignal, 1);
-    emit(periodicUpdateCallSignal, 1);
     processedEvents++;
 }
 
@@ -729,14 +729,16 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         numberOfPositionUpdates++;
         recordOmnetCoord(lastPosition);
         emit(lastElevationAngleToSopSignal, lastElevationAngleToSop.get());
+    }
+    if (type == periodicUpdate) {
+        emit(periodicUpdateCallSignal, 1);
+        numberOfPeriodicPositionUpdateCalls++;
+    } else if (type == getCurrentPositionUpdate) {
+        emit(getCurrentPositionUpdateCallSignal, 1);
+        numberOfGetCurrentPositionUpdateCalls++;
     } else {
-        if (type == periodicUpdate) {
-        } else if (type == getCurrentPositionUpdate) {
-            numberOfGetCurrentPositionUpdateCalls++;
-        } else {
-            EV_ERROR << "SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
-            throw cRuntimeError("SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t");
-        }
+        EV_ERROR << "SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
+        throw cRuntimeError("SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t");
     }
 }
 
@@ -770,10 +772,10 @@ void SGP4MobilityBase::recordSopRelativeCoord(const inet::Coord c)
     emit(sopRelativeCoordZ, c.z);
 }
 
-// void SGP4MobilityBase::recordSgp4SpeedMeterPerSecond(const double speed)
-// {
-//     emit(sgp4SpeedMeterPerSecondSignal, speed);
-// }
+void SGP4MobilityBase::recordSgp4SpeedMeterPerSecond(const double speed)
+{
+    emit(sgp4SpeedMeterPerSecondSignal, speed);
+}
 
 void SGP4MobilityBase::recordSgp4Computation(inet::deg elevationAngleToSop)
 {

@@ -31,7 +31,7 @@ class SPACE_VEINS_API SGP4MobilityNoGetCurrentPositionUpdates : public SGP4Mobil
 
 public:
     SGP4MobilityNoGetCurrentPositionUpdates()
-        : SGP4MobilityBase(false)
+        : SGP4MobilityBase()
     {
     }
 

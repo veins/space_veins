@@ -55,12 +55,6 @@ namespace space_veins {
 
 class SPACE_VEINS_API SGP4MobilityBase : public inet::MovingMobilityBase {
 
-enum updateType_t {
-    undefined = -1,
-    periodicUpdate,
-    getCurrentPositionUpdate
-    };
-
 struct date_time_t {
     int year;
     int mon;
@@ -79,6 +73,18 @@ struct date_time_t {
                 this->sec == t.sec);
     }
 };
+
+struct border_t {
+    simtime_t simulationTime;
+    date_time_t utcTime;
+};
+
+protected:
+enum updateType_t {
+    undefined = -1,
+    periodicUpdate,
+    getCurrentPositionUpdate
+    };
 
 struct calculatedSgp4SatellitePositions_t {
     simtime_t simulationTime = SIMTIME_MAX;
@@ -126,10 +132,8 @@ struct precalculationInterval_t {
     bool canContainMaxima = false; // is true if one of the neighboring interval isRising and this interval isFalling or vice versa
 };
 
-struct border_t {
-    simtime_t simulationTime;
-    date_time_t utcTime;
-};
+
+
 
 public:
     SGP4MobilityBase()
@@ -145,9 +149,9 @@ public:
     void preInitialize(TLE pTle, std::string pWall_clock_sim_start_time_utc);
 
     virtual inet::Coord getCurrentPosition() override;
-    virtual inet::Coord getCurrentVelocity() override { throw std::runtime_error("getCurrentVelocity is not implemented yet."); }
-    virtual inet::Quaternion getCurrentAngularPosition() override { throw std::runtime_error("getCurrentAngularPosition is not implemented yet."); }
-    virtual inet::Coord getCurrentAcceleration() override { throw std::runtime_error("getCurrentAcceleration is not implemented yet."); }
+    virtual inet::Coord getCurrentVelocity() override { return inet::Coord::ZERO; }
+    virtual inet::Quaternion getCurrentAngularPosition() override { return inet::Quaternion::IDENTITY; }
+    virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
 
 protected:
     // methods
@@ -167,12 +171,12 @@ protected:
     void calculateBordersOfRelevantIntervals();
     void setInitialPosition() override;
     void initializePosition() override;
-    bool nextPeriodicPositionUpdate();
-    bool nextGetCurrentPositionUpdate();
+    virtual bool nextPeriodicPositionUpdate();
+    virtual bool nextGetCurrentPositionUpdate();
     void SGP4PositionUpdate(simtime_t sgp4InputTime);
     calculatedSgp4SatellitePositions_t calculateSgp4SatellitePosition(simtime_t simulationTime);
     inet::deg calculateElevationAngleRelativeToSop(inet::Coord pos);
-    void updateManagementDataAndStatistics(updateType_t type, bool updated);
+    virtual void updateManagementDataAndStatistics(updateType_t type, bool updated);
     std::string sgp4SatellitePositionToString(calculatedSgp4SatellitePositions_t pos);
     std::string precalculationIntervalToString(precalculationInterval_t interval);
     std::string vectorOfPrecalculationIntervalsToString(std::vector<precalculationInterval_t> vec);
@@ -186,7 +190,7 @@ protected:
     void recordWGS84Coord(const space_veins::WGS84Coord c);
     void recordWGS84CartCoord(const PJ_COORD c);
     void recordSopRelativeCoord(const inet::Coord c);
-    // void recordSgp4SpeedMeterPerSecond(const double speed);
+    void recordSgp4SpeedMeterPerSecond(const double speed);
     void recordSgp4Computation(inet::deg elevationAngleToSop);
 
     // attributes
@@ -210,8 +214,11 @@ protected:
     std::vector<int> indicesOfRelevantIntervals;
     std::vector<std::pair<border_t, border_t>> bordersOfRelevantIntervals;
 
+    int precalculationIntervalsSize;
+    int relevantPrecalculationIntervalsSize;
+    int bordersOfRelevantIntervalsSize;
+
     bool isPreInitialized;
-    bool firstPeriodicPositionUpdateDone = false;
     // proj context
     PJ_CONTEXT* pj_ctx;
     PJ* itrf2008_to_wgs84_projection;
@@ -273,7 +280,7 @@ protected:
     static const simsignal_t sopRelativeCoordY;
     static const simsignal_t sopRelativeCoordZ;
 
-    // static const simsignal_t sgp4SpeedMeterPerSecondSignal;
+    static const simsignal_t sgp4SpeedMeterPerSecondSignal;
 
     static const simsignal_t sgp4ComputationsSignal;
 
@@ -281,6 +288,7 @@ protected:
     VehicleStatistics* vehicleStatistics;
     int numberOfPositionUpdates = 0;
     int numberOfPeriodicPositionUpdates = 0; // position updates triggered by this module's self message according to updateInterval
+    int numberOfPeriodicPositionUpdateCalls = 0; // number of times nextPeriodicPositionUpdate() is called
     int numberOfGetCurrentPositionUpdates = 0; // position updates triggered by a different module calling GetCurrentPosition at a simulation time in which no regular position update happened.
     int numberOfGetCurrentPositionUpdateCalls = 0; // number of times getCurrentPosition() is called
     int processedEvents = 0;
