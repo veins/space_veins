@@ -23,11 +23,11 @@
 #
 
 bootstrap: docker-archive
-From: ../.devcontainer/space_veins-0.3-2be4d76e.tar
+From: ../.devcontainer/space_veins-0.0-XXXXXXX.tar
 
 %labels
     Author sommer@cms-labs.org research@m-franke.net
-    Version 0.3-2be4d76e
+    Version 0.0-XXXXXXX
 
 %help
     Singularity container for quickly building and running space_veins simulations anywhere.
@@ -71,18 +71,16 @@ From: ../.devcontainer/space_veins-0.3-2be4d76e.tar
     echo "- optionally in parallel to sumo-launchd.py (runscript --launchd option);" >> /opt/singularity-space_veins/help.txt
     echo "- optionally after changing to a given directory (runscript --chdir option)." >> /opt/singularity-space_veins/help.txt
     echo "" >> /opt/singularity-space_veins/help.txt
-    echo "You might want to turn on \"contain all\" (singularity -C option) to isolate programs run in this container from the host system (and vice versa)." >> /opt/singularity-space_veins/help.txt
-    echo "" >> /opt/singularity-space_veins/help.txt
     echo "For example, to compile and run the space_Veins example simulation, you would run the following:" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H ..:/workspaces/space_veins -C singularity-space_veins.sif --chdir /workspaces/space_veins -- make makefiles" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H ..:/workspaces/space_veins -C singularity-space_veins.sif --chdir /workspaces/space_veins -- make -j4" >> /opt/singularity-space_veins/help.txt
-    echo "singularity run -H ..:/workspaces/space_veins -C singularity-space_veins.sif --chdir /workspaces/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv" >> /opt/singularity-space_veins/help.txt
+    echo "./singularity-space_veins.sh /workspace/space_veins -- make makefiles" >> /opt/singularity-space_veins/help.txt
+    echo "./singularity-space_veins.sh /workspace/space_veins -- make -j4" >> /opt/singularity-space_veins/help.txt
+    echo "./singularity-space_veins.sh /workspace/space_veins/examples/space_veins --launchd -- ./run -u Cmdenv" >> /opt/singularity-space_veins/help.txt
 
     # script for singularity-space_veins
     mkdir -p /opt/singularity-space_veins
     echo '#!/bin/bash' > /opt/singularity-space_veins/run-with-launchd.sh
     echo 'set -e' >> /opt/singularity-space_veins/run-with-launchd.sh
-    echo '/workspaces/space_veins/lib/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo '/workspace/space_veins/lib/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
     echo 'trap "kill $(cat /tmp/sumo-launchd.pid)" EXIT' >> /opt/singularity-space_veins/run-with-launchd.sh
     echo '"$@"' >> /opt/singularity-space_veins/run-with-launchd.sh
     chmod a+x /opt/singularity-space_veins/run-with-launchd.sh

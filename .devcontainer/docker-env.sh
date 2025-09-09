@@ -35,10 +35,16 @@
 #
 # 2024-12-09 remove /opt/mambaforge/bin from PATH variable
 #            set CCACHE_DIR
+#
+# 2025-06-20 add WORKSPACE, HOST variable
 
 export PYTHONPATH=/opt/pip/usr/local/lib/python3.10/dist-packages:$PYTHONPATH
 export PATH=/usr/lib/ccache:$PATH
 export PATH=$PATH:/opt/omnetpp/bin
 export PATH=$PATH:/opt/sumo/bin
 export PATH=$PATH:/opt/vnc/
-export CCACHE_DIR=/workspaces/space_veins/.ccache
+export CCACHE_DIR=/workspace/space_veins/.ccache
+export WORKSPACE=/workspace/space_veins
+
+# displayed in zsh prompt
+export HOST=space_VeinsContainer

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # build docker container
 cd ../
 SPACE_VEINS_VERSION=$(./print-space_Veins-version)
@@ -30,3 +32,7 @@ sed -i "s/    Version [0-9]*\.[0-9]*-[a-zA-Z0-9]*/    Version ${SPACE_VEINS_ID}/
 
 # build singularity container
 singularity build --force --fakeroot singularity-space_veins.sif singularity-space_veins.def
+
+# reset singularity-space_veins.def such that Git does not detect changes.
+sed -i 's/From: \.\.\/\.devcontainer\/'"${SPACE_VEINS_DOCKER_CONTAINER_ARCHIVE_NAME}"'/From: \.\.\/\.devcontainer\/space_veins-0\.0-XXXXXXX.tar/g' singularity-space_veins.def
+sed -i "s/    Version ${SPACE_VEINS_ID}/    Version 0\.0-XXXXXXX/g" singularity-space_veins.def
