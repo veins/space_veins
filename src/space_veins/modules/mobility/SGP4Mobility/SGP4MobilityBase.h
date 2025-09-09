@@ -1,6 +1,6 @@
 //
 // Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
-// Copyright (C) 2021 Mario Franke <research@m-franke.net>
+// Copyright (C) 2025 Mario Franke <research@m-franke.net>
 //
 // Documentation for these modules is at http://sat.car2x.org/
 //
@@ -53,25 +53,12 @@
 
 namespace space_veins {
 
-class SPACE_VEINS_API SGP4Mobility : public inet::MovingMobilityBase {
+class SPACE_VEINS_API SGP4MobilityBase : public inet::MovingMobilityBase {
 
 enum updateType_t {
     undefined = -1,
     periodicUpdate,
     getCurrentPositionUpdate
-    };
-
-enum updateMethod_t {
-    usingSgp4Computation = 0,
-    usingLinearInterpolation,
-    usingLinearInterpolationReference,
-    };
-
-enum getCurrentPositionType_t {
-    returnLastPosition = 0,
-    returnSgp4Position,
-    returnLinearInterpolationPosition,
-    returnNearestPeriodicPosition
     };
 
 struct date_time_t {
@@ -145,26 +132,25 @@ struct border_t {
 };
 
 public:
-    SGP4Mobility()
+    SGP4MobilityBase()
         : MovingMobilityBase()
         , isPreInitialized(false)
     {
     }
 
-    ~SGP4Mobility() override
+    ~SGP4MobilityBase() override
     {
     }
 
     void preInitialize(TLE pTle, std::string pWall_clock_sim_start_time_utc);
 
     virtual inet::Coord getCurrentPosition() override;
-    virtual inet::Coord getCurrentVelocity() override { return inet::Coord::ZERO; } // Throw error as it is not implemented yet
-    virtual inet::Quaternion getCurrentAngularPosition() override { return inet::Quaternion::IDENTITY; }
-    virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
+    virtual inet::Coord getCurrentVelocity() override { throw std::runtime_error("getCurrentVelocity is not implemented yet."); }
+    virtual inet::Quaternion getCurrentAngularPosition() override { throw std::runtime_error("getCurrentAngularPosition is not implemented yet."); }
+    virtual inet::Coord getCurrentAcceleration() override { throw std::runtime_error("getCurrentAcceleration is not implemented yet."); }
 
 protected:
     // methods
-
     void initialize(int) override;
     int numInitStages() const override { return std::max(cSimpleModule::numInitStages(), 5); }
     TLE get_TLE() const;
@@ -181,15 +167,12 @@ protected:
     void calculateBordersOfRelevantIntervals();
     void setInitialPosition() override;
     void initializePosition() override;
-    inet::Coord linearInterpolation(simtime_t t);
-    void nextLinearInterpolationPositionUpdate();
-    bool updateSatellitePosition();
-    void updateLastPosition(updateMethod_t method, simtime_t t);
     bool nextPeriodicPositionUpdate();
     bool nextGetCurrentPositionUpdate();
-    bool nextNearestPeriodicPositionUpdate();
+    void SGP4PositionUpdate(simtime_t sgp4InputTime);
     calculatedSgp4SatellitePositions_t calculateSgp4SatellitePosition(simtime_t simulationTime);
     inet::deg calculateElevationAngleRelativeToSop(inet::Coord pos);
+    void updateManagementDataAndStatistics(updateType_t type, bool updated);
     std::string sgp4SatellitePositionToString(calculatedSgp4SatellitePositions_t pos);
     std::string precalculationIntervalToString(precalculationInterval_t interval);
     std::string vectorOfPrecalculationIntervalsToString(std::vector<precalculationInterval_t> vec);
@@ -203,15 +186,13 @@ protected:
     void recordWGS84Coord(const space_veins::WGS84Coord c);
     void recordWGS84CartCoord(const PJ_COORD c);
     void recordSopRelativeCoord(const inet::Coord c);
-    void recordLinearInterpolationSpeedMeterPerSecond(const double speed);
-    void recordSgp4SpeedMeterPerSecond(const double speed);
-    void recordLinearInterpolationComputation(inet::deg elevationAngleToSop);
+    // void recordSgp4SpeedMeterPerSecond(const double speed);
     void recordSgp4Computation(inet::deg elevationAngleToSop);
 
+    // attributes
     // ned parameters
     bool updatePositionOnlyAboveHorizon;
     simtime_t precalculationInterval_s;
-    getCurrentPositionType_t getCurrentPositionBehavior;
 
     // base
     calculatedSgp4SatellitePositions_t lastCalculatedSgp4SatellitePosition;
@@ -220,12 +201,8 @@ protected:
     updateType_t updateType = undefined; // stores the last used update type: either periodic or getCurrentPosition
     bool isAboveHorizon = false;
     simtime_t lastRisingAboveHorizon;
+    simtime_t lastDipBelowHorizon;
     inet::deg lastElevationAngleToSop; // elevation angle of lastPosition relative to the SOP
-
-    // linear interpolation mode for getCurrentPosition()
-    calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for linear interpolation, also used for returnNearestPeriodicPosition, it should always contain the satellite's position at lastPeriodicUpdate + updateInterval
-    inet::Coord linearInterpolationVector = inet::Coord::NIL; // direction used for linear interpolation, vector is normalized sucht that it can be multiplied with a velocity
-    double linearInterpolationSpeedMeterPerSecond;
 
     // precalculation data structures
     std::vector<precalculationInterval_t> precalculationIntervals;
@@ -296,10 +273,8 @@ protected:
     static const simsignal_t sopRelativeCoordY;
     static const simsignal_t sopRelativeCoordZ;
 
-    static const simsignal_t linearInterpolationSpeedMeterPerSecondSignal;
-    static const simsignal_t sgp4SpeedMeterPerSecondSignal;
+    // static const simsignal_t sgp4SpeedMeterPerSecondSignal;
 
-    static const simsignal_t linearInterpolationComputationsSignal;
     static const simsignal_t sgp4ComputationsSignal;
 
     /* Statistics */
@@ -310,15 +285,14 @@ protected:
     int numberOfGetCurrentPositionUpdateCalls = 0; // number of times getCurrentPosition() is called
     int processedEvents = 0;
     int numberOfSGP4Computations = 0;
-    int numberOfLinearInterpolationComputations = 0;
 
-class SPACE_VEINS_API SGP4MobilityAccess {
+class SPACE_VEINS_API SGP4MobilityBaseAccess {
 public:
-    SGP4Mobility* get(cModule* host)
+    SGP4MobilityBase* get(cModule* host)
     {
-        SGP4Mobility* sgp4 = veins::FindModule<SGP4Mobility*>::findSubModule(host);
-        ASSERT(sgp4);
-        return sgp4;
+        SGP4MobilityBase* sgp4MobilityBase = veins::FindModule<SGP4MobilityBase*>::findSubModule(host);
+        ASSERT(sgp4MobilityBase);
+        return sgp4MobilityBase;
     };
 };
 };

@@ -26,7 +26,7 @@
 #include <regex>
 
 #include "space_veins/modules/mobility/SatelliteInserter/SatelliteInserter.h"
-#include "space_veins/modules/mobility/SGP4Mobility/SGP4Mobility.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityBase.h"
 
 using namespace space_veins;
 
@@ -115,7 +115,7 @@ std::pair<std::string, unsigned int> SatelliteInserter::getConstellationAndSatNu
         satNum = std::stoul(satelliteName, nullptr, 0);
     }
     catch (const std::invalid_argument& ia) {
-        // if satNum is not a number, use the catalog number 
+        // if satNum is not a number, use the catalog number
         satNum = std::stoul(tle.get_tle_line1().substr(2, 5));
     }
     if (satNum == 0) {
@@ -141,7 +141,7 @@ void SatelliteInserter::createSatellite(TLE tle, unsigned int satNum, unsigned i
 
     mod->finalizeParameters();
     mod->buildInside();
-    auto sgp4Mobility = veins::getSubmodulesOfType<SGP4Mobility>(mod);
+    auto sgp4Mobility = veins::getSubmodulesOfType<SGP4MobilityBase>(mod);
     for (auto sm : sgp4Mobility) {
         sm->preInitialize(tle, wall_clock_sim_start_time_utc);
     }
