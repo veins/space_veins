@@ -452,29 +452,6 @@ void SGP4MobilityBase::SGP4PositionUpdate(simtime_t sgp4InputTime = simTime()) {
     lastCalculatedSgp4SatellitePosition = calculateSgp4SatellitePosition(sgp4InputTime);
     lastPosition = lastCalculatedSgp4SatellitePosition.omnetppCoord;
     lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
-    // Update management data
-    lastUpdate = now;
-    if (lastPosition.z > 0) {
-        // satellite is above the horizon
-        if (isAboveHorizon == false) {
-            // satellite rises ABOVE the horizon because according the last position update the satelltite was below the horizon (isAboveHorizon == false) but now it rised above the horizon because lastPosition.z > 0.
-            emit(satelliteRisesAboveHorizonSignal, now);
-            lastRisingAboveHorizon = now;
-        } else {
-            // another position update while the satellite is ABOVE the horizon because isAboveHorizon is already equal to TRUE.
-        }
-        isAboveHorizon = true;
-    } else {
-        // satellite is below the horizon
-        if (isAboveHorizon == false) {
-            // another position update while the satellite is BELOW the horizon because isAboveHorizon is already equal to FALSE.
-        } else {
-            // satellite sets BELOW the horizon because according the last position update the satelltite was above the horizon (isAboveHorizon == true) but now it sets below the horizon because lastPosition.z <= 0.
-            emit(satelliteSetsBelowHorizonSignal, now);
-            emit(periodAboveHorizonSignal, now - lastRisingAboveHorizon);
-        }
-        isAboveHorizon = false;
-    }
 }
 
 void SGP4MobilityBase::move()
