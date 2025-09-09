@@ -121,13 +121,3 @@ void SGP4MobilityWithLinearInterpolationUpdates::finish()
 {
     SGP4MobilityBase::finish();
 }
-
-void SGP4MobilityWithLinearInterpolationUpdates::recordLinearInterpolationSpeedMeterPerSecond(const double speed)
-{
-    emit(linearInterpolationSpeedMeterPerSecondSignal, speed);
-}
-
-void SGP4MobilityWithLinearInterpolationUpdates::recordLinearInterpolationComputation(inet::deg elevationAngleToSop)
-{
-    emit(linearInterpolationComputationsSignal, elevationAngleToSop.get());
-}
