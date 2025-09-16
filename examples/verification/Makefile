@@ -9,7 +9,6 @@
 # result collection
 # build plots
 
-space_veins_binaries := ../../src/libspace_veins.so
 mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
@@ -18,8 +17,8 @@ experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst 
 experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
-getCurrentPositionBehavior := LastPosition Sgp4Position LinearInterpolationPosition NearestPeriodicPosition
-experiments := EnableUpdatePositionOnlyAboveHorizon DisableUpdatePositionOnlyAboveHorizon
+getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
+experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # runTimerPerformanceConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$ERunTimePerformance))
 # validationConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$EValidation))
 # allConfigs := $(validationConfigs) $(runTimerPerformanceConfigs)
@@ -34,7 +33,7 @@ vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputati
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
-runmakerJobs := 3
+runmakerJobs := 8
 runmakerLogLines := 200
 simMachines := nsm-sim03 nsm-sim04
 ccFiles := $(shell find ../../src -name "*.cc")
@@ -72,8 +71,6 @@ debugVariables := space_veins_binaries \
 debugVariables:
 	$(foreach V, $(debugVariables), $(info $V: $($V)))
 
-all: ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
-
 cleanAll:
 	rm *_runs.log *_runs.txt runAll collectScalars resultCollection plots
 
@@ -83,24 +80,27 @@ cleanResultCollection:
 shell:
 	cd ../../singularity && ./singularity-space_veins.sh shell
 
+# touch ../../singularity/singularity-space_veins.sif to make sure that its timestep is newer than singularity-space_veins.def after running this target
 ../../singularity/singularity-space_veins.sif: ../../singularity/buildSingularityContainer.sh ../../singularity/singularity-space_veins.def
 	cd ../../singularity && bash buildSingularityContainer.sh
+	touch ../../singularity/singularity-space_veins.sif
 
+# touch ../../src/Makefile to make sure that its timestep is newer than singularity-space_veins.sif after running this target
 ../../src/Makefile: ../../Makefile ../../singularity/singularity-space_veins.sif
-	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make makefiles
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make makefiles
+	touch ../../src/Makefile
 
-# !!! fix ../../src/Makefile to not be build over and over again although nothing changed
-space_veins: $(ccFiles) $(hFiles)
-	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make -j8 space_veins
+space_veins: $(ccFiles) $(hFiles) ../../src/Makefile
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 space_veins
 
-$(space_veins_binaries): ../../src/Makefile $(ccFiles) $(hFiles)
-	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins -- make -j8 all
+../../src/libspace_veins.so: ../../src/Makefile $(ccFiles) $(hFiles)
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 all
 
 $(experimentId)_runs.log:
 	@touch $@
 
-$(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../singularity/singularity-space_veins.sif $(space_veins_binaries)
-	cd ../../singularity && ./singularity-space_veins.sh /workspaces/space_veins/examples/$(experimentFolderName) -- perl $< $(allConfigs) > ../examples/$(experimentFolderName)/$@
+$(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../src/libspace_veins.so
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(allConfigs) > ../examples/$(experimentFolderName)/$@
 
 runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 
@@ -116,7 +116,7 @@ simMachines.txt:
 # make results dir on own our because otherwise the radio medium communication log is not written
 runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt
 	mkdir -p results
-	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspaces/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
+	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
 	sleep 5
 	mkdir -p csv/gnuTimeResults
 	mv GnuTimeResults* csv/gnuTimeResults
