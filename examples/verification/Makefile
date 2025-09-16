@@ -33,7 +33,7 @@ vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputati
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
-runmakerJobs := 8
+runmakerJobs := 4
 runmakerLogLines := 200
 simMachines := nsm-sim03 nsm-sim04
 ccFiles := $(shell find ../../src -name "*.cc")
@@ -135,42 +135,66 @@ $(scalarCsvFiles): csv/scalars/%.csv : $(scalarFiles)
 
 plotPositionUpdateBehavior:
 	mkdir -p archive/latest/plots
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-getCurrentPositionUpdateCalls.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-sgp4Computations.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-linearInterpolationComputations.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-getCurrentPositionUpdateCalls.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-sgp4Computations.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-linearInterpolationComputations.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-getCurrentPositionUpdateCalls.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-sgp4Computations.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-linearInterpolationComputations.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-getCurrentPositionUpdateCalls.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-sgp4Computations.csv archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-linearInterpolationComputations.csv archive/latest/plots/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-getCurrentPositionUpdateCalls.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-linearInterpolationComputations.csv \
+																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonNGCP
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-getCurrentPositionUpdateCalls.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-linearInterpolationComputations.csv \
+																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWLIP
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-getCurrentPositionUpdateCalls.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-linearInterpolationComputations.csv \
+																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWNPP
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-getCurrentPositionUpdateCalls.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
+																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-linearInterpolationComputations.csv \
+																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWGCP
 
 plotUpdatePositionOnlyAboveHorizon:
 	mkdir -p archive/latest/plots
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyEnableUpdatePositionOnlyAboveHorizonLastPosition-lastElevationAngleToSop.csv archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-lastPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyEnableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-lastElevationAngleToSop.csv archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-linearInterpolationPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyEnableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-lastElevationAngleToSop.csv archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-NearestPeriodicPosition
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-lastElevationAngleToSop.csv archive/latest/csv/vectors/VerifyEnableUpdatePositionOnlyAboveHorizonSgp4Position-lastElevationAngleToSop.csv archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-Sgp4Position
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
+																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
+																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-NGCP
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
+																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
+																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WLIP
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
+																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
+																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WNPP
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
+																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
+																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WGCP
 
 plotPdrVsConfig:
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/pdr-vs-config.R \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonLastPosition-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonSgp4Position-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonNGCP-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWLIP-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWNPP-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWGCP-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonNGCP-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWLIP-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWNPP-packetReceived.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWGCP-packetReceived.csv \
 		archive/latest/plots/pdr-vs-config
 
 plotNumberOfPositionUpdatesVsConfig:
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/numberOfPositionUpdates-vs-config.R \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyDisableUpdatePositionOnlyAboveHorizonSgp4Position-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonLastPosition-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonLinearInterpolationPosition-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonNearestPeriodicPosition-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnableUpdatePositionOnlyAboveHorizonSgp4Position-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
+		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
 		archive/latest/plots/numberOfPositionUpdates-vs-config
 
 # csv/packetSentCount.csv: runAll
