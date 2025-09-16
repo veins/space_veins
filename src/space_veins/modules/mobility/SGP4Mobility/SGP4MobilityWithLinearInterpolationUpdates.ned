@@ -30,9 +30,9 @@ simple SGP4MobilityWithLinearInterpolationUpdates extends SGP4MobilityBase
     parameters:
         @class(space_veins::SGP4MobilityWithLinearInterpolationUpdates);
         @display("i=block/cogwheel");
-        @signal[space_veins_sgp4mobilitybase_linearInterpolationSpeedMeterPerSecondSignal](type=double);
-        @signal[space_veins_sgp4mobilitybase_linearInterpolationComputationsSignal](type=double);
+        @signal[space_veins_sgp4MobilityWithLinearInterpolationUpdates_linearInterpolationSpeedMeterPerSecondSignal](type=double);
+        @signal[space_veins_sgp4MobilityWithLinearInterpolationUpdates_linearInterpolationComputationsSignal](type=double);
 
-        @statistic[linearInterpolationSpeedMeterPerSecond](source=space_veins_sgp4mobilitybase_linearInterpolationSpeedMeterPerSecondSignal; record=vector);
-        @statistic[linearInterpolationComputations](source=space_veins_sgp4mobilitybase_linearInterpolationComputationsSignal; record=count, vector);
+        @statistic[linearInterpolationSpeedMeterPerSecond](source=space_veins_sgp4MobilityWithLinearInterpolationUpdates_linearInterpolationSpeedMeterPerSecondSignal; record=vector);
+        @statistic[linearInterpolationComputations](source=space_veins_sgp4MobilityWithLinearInterpolationUpdates_linearInterpolationComputationsSignal; record=count, vector);
 }
