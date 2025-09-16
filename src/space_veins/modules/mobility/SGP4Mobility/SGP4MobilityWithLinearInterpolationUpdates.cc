@@ -36,7 +36,6 @@ void SGP4MobilityWithLinearInterpolationUpdates::initialize(int stage)
     SGP4MobilityBase::initialize(stage);
     if (stage == 0) {
         WATCH(linearInterpolationVector);
-        WATCH(numberOfLinearInterpolationComputations);
     }
 }
 
@@ -100,7 +99,6 @@ void SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatisti
         if (type == periodicUpdate) {
             recordLinearInterpolationSpeedMeterPerSecond(linearInterpolationSpeedMeterPerSecond);
         } else if (type == getCurrentPositionUpdate) {
-            numberOfLinearInterpolationComputations++;
             recordLinearInterpolationComputation(lastElevationAngleToSop);
         } else {
             EV_ERROR << "SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;

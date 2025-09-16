@@ -97,12 +97,6 @@ void SGP4MobilityBase::initialize(int stage)
         WATCH(tle.tle_line1);
         WATCH(tle.tle_line2);
         WATCH(wall_clock_sim_start_time_utc);
-        WATCH(processedEvents);
-        WATCH(numberOfPeriodicPositionUpdates);
-        WATCH(numberOfPeriodicPositionUpdateCalls);
-        WATCH(numberOfGetCurrentPositionUpdates);
-        WATCH(numberOfGetCurrentPositionUpdateCalls);
-        WATCH(numberOfSGP4Computations);
         WATCH(nextChange);
         WATCH(lastUpdate);
         WATCH(lastPeriodicUpdate);
@@ -522,7 +516,6 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
     SGP4MobilityBase::moveAndUpdate();
     SGP4MobilityBase::scheduleUpdate();
     emit(processedEventSignal, 1);
-    processedEvents++;
 }
 
 void SGP4MobilityBase::scheduleRelevantUpdate()
@@ -662,7 +655,6 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     EV_TRACE << "SGP4Mobility satellite position at simulation time " << simulationTime << ": " << satellitePosition << std::endl;
     EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
-    numberOfSGP4Computations++;
     recordSgp4Computation(calculateElevationAngleRelativeToSop(returnValues.omnetppCoord));
     recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
@@ -711,11 +703,9 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         }
         if (type == periodicUpdate) {
             lastPeriodicUpdate = now;
-            numberOfPeriodicPositionUpdates++;
             emit(periodicUpdateSignal, 1);
         } else if (type == getCurrentPositionUpdate) {
             lastGetCurrentPositionUpdate = now;
-            numberOfGetCurrentPositionUpdates++;
             emit(getCurrentPositionUpdateSignal, 1);
         } else {
             EV_ERROR << "SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
@@ -726,16 +716,13 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         refreshDisplay();
         // statistics
         emitMobilityStateChangedSignal();
-        numberOfPositionUpdates++;
         recordOmnetCoord(lastPosition);
         emit(lastElevationAngleToSopSignal, lastElevationAngleToSop.get());
     }
     if (type == periodicUpdate) {
         emit(periodicUpdateCallSignal, 1);
-        numberOfPeriodicPositionUpdateCalls++;
     } else if (type == getCurrentPositionUpdate) {
         emit(getCurrentPositionUpdateCallSignal, 1);
-        numberOfGetCurrentPositionUpdateCalls++;
     } else {
         EV_ERROR << "SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
         throw cRuntimeError("SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t");

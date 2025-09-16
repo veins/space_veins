@@ -286,13 +286,6 @@ protected:
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
-    int numberOfPositionUpdates = 0;
-    int numberOfPeriodicPositionUpdates = 0; // position updates triggered by this module's self message according to updateInterval
-    int numberOfPeriodicPositionUpdateCalls = 0; // number of times nextPeriodicPositionUpdate() is called
-    int numberOfGetCurrentPositionUpdates = 0; // position updates triggered by a different module calling GetCurrentPosition at a simulation time in which no regular position update happened.
-    int numberOfGetCurrentPositionUpdateCalls = 0; // number of times getCurrentPosition() is called
-    int processedEvents = 0;
-    int numberOfSGP4Computations = 0;
 
 class SPACE_VEINS_API SGP4MobilityBaseAccess {
 public:

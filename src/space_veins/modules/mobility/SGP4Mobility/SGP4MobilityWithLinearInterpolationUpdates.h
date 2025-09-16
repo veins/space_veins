@@ -61,9 +61,6 @@ protected:
     static const simsignal_t linearInterpolationSpeedMeterPerSecondSignal;
     static const simsignal_t linearInterpolationComputationsSignal;
 
-    // Statistics
-    int numberOfLinearInterpolationComputations = 0;
-
     class SPACE_VEINS_API SGP4MobilityWithLinearInterpolationUpdatesAccess {
     public:
         SGP4MobilityWithLinearInterpolationUpdates* get(cModule* host)
