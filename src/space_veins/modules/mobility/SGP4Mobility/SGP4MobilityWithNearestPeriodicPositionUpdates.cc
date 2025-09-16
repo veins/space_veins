@@ -50,6 +50,7 @@ bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextGetCurrentPositionUpdat
         if (linearInterpolationReference.simulationTime == lastPeriodicUpdate + updateInterval && now - linearInterpolationReference.simulationTime <= 0) {
             // linearInterpolationReference is NOT outdated, we can use it.
             lastPosition = linearInterpolationReference.omnetppCoord;
+            lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
         } else { // simTime() - linearInterpolationReference.simulationTime <= 0 --> linearInterpolationReference stores the position for lastPeriodicUpdate + updateInterval
             // linearInterpolationReference IS outdated
             // update the satellite's position using the SGP4Model, calculate it at lastPeriodicUpdate + updateInterval, as this is the time of the next periodic position update

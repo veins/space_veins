@@ -452,26 +452,18 @@ void SGP4MobilityBase::SGP4PositionUpdate(simtime_t sgp4InputTime = simTime()) {
 
 void SGP4MobilityBase::move()
 {
-    EV_TRACE << "SGP4MobilityBase::move() called" << std::endl;
-    // check if satellite position needs to be updated because of a periodic update
-    // or because getCurrentPosition() was called
-    // returns true if the position was actually updated or false if it was not.
     simtime_t now = simTime();
     bool updated = false;
     EV_TRACE << "SGP4MobilityBase::move() now: " << now << ", now - updateInterval: " << now - updateInterval << ", lastPeriodicUpdate: " << lastPeriodicUpdate << std::endl;
     if (updateType == periodicUpdate) {
-        // it is time for the next periodic position update
         updated = nextPeriodicPositionUpdate();
     } else if (updateType == getCurrentPositionUpdate) {
-        // the current simulation time requires no periodic position update --> getCurrentPosition() was called
         updated = nextGetCurrentPositionUpdate();
     } else {
         throw cException(this, "updateSatellitePosition with unknown updateType!");
     }
-    // check if position is updated
     if (updated) {
-        // lastPosition is updated
-        EV_DEBUG << "SGP4Mobility moved SimTime: " << now << std::endl;
+        EV_DEBUG << "SGP4Mobility moved to position: " << lastPosition << ", at t: " << now << std::endl;
     }
 }
 
@@ -488,7 +480,6 @@ void SGP4MobilityBase::moveAndUpdate()
         // orient();
     } else {
         emit(moveAndUpdateLastUpdateNowCallSignal, 1);
-        updateManagementDataAndStatistics(updateType, false);
     }
 }
 
@@ -496,6 +487,7 @@ void SGP4MobilityBase::moveAndUpdate()
 inet::Coord SGP4MobilityBase::getCurrentPosition() {
     Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
     updateType = getCurrentPositionUpdate;
+    emit(getCurrentPositionUpdateCallSignal, 1);
     if (isRelevantInterval(simTime())) {
         SGP4MobilityBase::moveAndUpdate();
         return lastPosition;
@@ -515,6 +507,7 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
     updateType = periodicUpdate;
     SGP4MobilityBase::moveAndUpdate();
     SGP4MobilityBase::scheduleUpdate();
+    emit(periodicUpdateCallSignal, 1);
     emit(processedEventSignal, 1);
 }
 
@@ -718,14 +711,6 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         emitMobilityStateChangedSignal();
         recordOmnetCoord(lastPosition);
         emit(lastElevationAngleToSopSignal, lastElevationAngleToSop.get());
-    }
-    if (type == periodicUpdate) {
-        emit(periodicUpdateCallSignal, 1);
-    } else if (type == getCurrentPositionUpdate) {
-        emit(getCurrentPositionUpdateCallSignal, 1);
-    } else {
-        EV_ERROR << "SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
-        throw cRuntimeError("SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t");
     }
 }
 
