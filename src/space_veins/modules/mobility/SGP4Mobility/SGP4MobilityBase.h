@@ -165,7 +165,7 @@ protected:
     void moveAndUpdate();
     void scheduleUpdate();
     void scheduleRelevantUpdate();  // schedule next event according to the precalculation results
-    void setUpPrecalculationIntervals();
+    void setUpPrecalculationIntervals(simtime_t pUpperTimeLimit);
     void calculateIntervalPositions();
     void identifyRelevantIntervals();
     void calculateBordersOfRelevantIntervals();
@@ -197,6 +197,7 @@ protected:
     // ned parameters
     bool updatePositionOnlyAboveHorizon;
     simtime_t precalculationInterval_s;
+    simtime_t precalculationUpperTimeLimit_s;
 
     // base
     calculatedSgp4SatellitePositions_t lastCalculatedSgp4SatellitePosition;
@@ -214,9 +215,9 @@ protected:
     std::vector<int> indicesOfRelevantIntervals;
     std::vector<std::pair<border_t, border_t>> bordersOfRelevantIntervals;
 
-    int precalculationIntervalsSize;
-    int relevantPrecalculationIntervalsSize;
-    int bordersOfRelevantIntervalsSize;
+    int precalculationIntervalsSize = -1;
+    int relevantPrecalculationIntervalsSize = -1;
+    int bordersOfRelevantIntervalsSize = -1;
 
     bool isPreInitialized;
     // proj context
@@ -286,6 +287,8 @@ protected:
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
+    int SGP4Calculations = 0;
+    int SGP4CalculationsDuringPrecalculation = 0;
 
 class SPACE_VEINS_API SGP4MobilityBaseAccess {
 public:

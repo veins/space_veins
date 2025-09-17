@@ -32,6 +32,7 @@ simple SGP4MobilityBase extends MovingMobilityBase
         @display("i=block/cogwheel");
         bool updatePositionOnlyAboveHorizon = default(false); // update satellite position only when it is above the horizon of the SOP
         double precalculationInterval_s = default(180s) @unit(s);    // calculate satellite positions every <precalculationInterval_s> seconds for testing if the satellite is above the horizon
+        double precalculationUpperTimeLimit_s = default (-1s) @unit(s);   // the upper time limit for which precalculation intervals are calculated. -1 means that the whole simulation time is considered. If precalculationUpperTimeLimit > simTimeLimit, normal event scheduling is done for simTime > precalculationUpperTimeLimit.
         // OMNeT++ event management
         @signal[mobilityStateChanged](type=inet::MobilityBase);
         @signal[space_veins_sgp4mobilitybase_processedEventSignal](type=long);

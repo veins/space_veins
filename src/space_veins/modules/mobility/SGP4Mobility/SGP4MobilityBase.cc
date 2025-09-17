@@ -106,10 +106,12 @@ void SGP4MobilityBase::initialize(int stage)
         WATCH(precalculationIntervalsSize);
         WATCH(relevantPrecalculationIntervalsSize);
         WATCH(bordersOfRelevantIntervalsSize);
+        WATCH(SGP4CalculationsDuringPrecalculation);
 
         // parse ned parameters
         updatePositionOnlyAboveHorizon = par("updatePositionOnlyAboveHorizon").boolValue();
         precalculationInterval_s = par("precalculationInterval_s");
+        precalculationUpperTimeLimit_s = par("precalculationUpperTimeLimit_s");
 
         // create projection context
         pj_ctx = proj_context_create();
@@ -227,7 +229,7 @@ void SGP4MobilityBase::initialize(int stage)
         if (updatePositionOnlyAboveHorizon) {
             // precalculate time periods in which the satellite is above the horizon of the SOP
             // set up vector of intervals to investigate
-            setUpPrecalculationIntervals();
+            setUpPrecalculationIntervals(precalculationUpperTimeLimit_s);
             // check that precalculation intervals are created, otherwise abort precalculation
             if (!precalculationIntervals.empty()) {
                 // calculate start and end position for all intervals
@@ -243,20 +245,26 @@ void SGP4MobilityBase::initialize(int stage)
                 updatePositionOnlyAboveHorizon = false;
             }
         }
+        SGP4CalculationsDuringPrecalculation = SGP4Calculations;
 
         // initialize position
         initializePosition();
     }
 }
 
-void SGP4MobilityBase::setUpPrecalculationIntervals()
+void SGP4MobilityBase::setUpPrecalculationIntervals(simtime_t pUpperTimeLimit)
 {
-    // get simTimeLimit
-    const char* sim_time_limit_str = getEnvir()->getConfig()->getConfigValue("sim-time-limit");
-    simtime_t simTimeLimit = SimTime::parse(sim_time_limit_str);
-    // set up pre calculation intervals only if simTimeLimit is greater then 5 times the preCalculationInterval_s
+    simtime_t upperTimeLimit;
+    if (pUpperTimeLimit != SimTime(-1)) {
+        upperTimeLimit = pUpperTimeLimit;
+    } else {
+        // get simTimeLimit
+        const char* sim_time_limit_str = getEnvir()->getConfig()->getConfigValue("sim-time-limit");
+        upperTimeLimit = SimTime::parse(sim_time_limit_str);
+    }
+    // set up pre calculation intervals only if upperTimeLimit is greater then 5 times the preCalculationInterval_s
     // This should ensure that enough intervals are created, otherwise precalculationIntervals remains empty and precalculation is cancelled.
-    if (simTimeLimit > 5 * precalculationInterval_s) {
+    if (upperTimeLimit > 5 * precalculationInterval_s) {
         // set up first interval
         precalculationInterval_t firstInterval;
         firstInterval.start = SimTime::ZERO - precalculationInterval_s;
@@ -265,12 +273,12 @@ void SGP4MobilityBase::setUpPrecalculationIntervals()
         precalculationIntervals.push_back(firstInterval);
         // set up intermediate intervals
         simtime_t simTimeIterate = SimTime::ZERO;
-        while (simTimeIterate < simTimeLimit) {
+        while (simTimeIterate < upperTimeLimit) {
             precalculationInterval_t intermediateInterval;
             intermediateInterval.start = simTimeIterate;
             intermediateInterval.end = simTimeIterate + precalculationInterval_s;
             precalculationIntervals.push_back(intermediateInterval);
-            if (intermediateInterval.end > simTimeLimit) {
+            if (intermediateInterval.end > upperTimeLimit) {
                 intermediateInterval.isEndDummy = true;
             }
             simTimeIterate = simTimeIterate + precalculationInterval_s;
@@ -278,11 +286,11 @@ void SGP4MobilityBase::setUpPrecalculationIntervals()
         // set up last interval
         precalculationInterval_t lastInterval;
         lastInterval.start = simTimeIterate;
-        if (lastInterval.start > simTimeLimit) {
+        if (lastInterval.start > upperTimeLimit) {
             lastInterval.isStartDummy = true;
         }
         lastInterval.end = simTimeIterate + precalculationInterval_s;
-        if (lastInterval.end > simTimeLimit) {
+        if (lastInterval.end > upperTimeLimit) {
             lastInterval.isEndDummy = true;
         }
         precalculationIntervals.push_back(lastInterval);
@@ -541,6 +549,10 @@ void SGP4MobilityBase::scheduleRelevantUpdate()
             scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
             EV_TRACE << "scheduleRelevantUpdate(): next periodic update is before the next relevant period, schedule it at the beginning of the next relevant period at: " << moveTimer->getArrivalTime() << "s." << std::endl;
         }
+    } else {
+        // there are no relevant intervals anymore, just fall back to normal scheduling
+        inet::MovingMobilityBase::scheduleUpdate();
+        EV_TRACE << "scheduleRelevantUpdate(): periodic update scheduled at: " << moveTimer->getArrivalTime() << "s." << std::endl;
     }
 }
 
@@ -561,6 +573,10 @@ void SGP4MobilityBase::scheduleUpdate()
 void SGP4MobilityBase::finish()
 {
     MovingMobilityBase::finish();
+    recordScalar("precalculationIntervalsSize:count", precalculationIntervalsSize);
+    recordScalar("relevantPrecalculationIntervalsSize:count", relevantPrecalculationIntervalsSize);
+    recordScalar("bordersOfRelevantIntervalsSize:count", bordersOfRelevantIntervalsSize);
+    recordScalar("sgp4CalculationsDuringPrecalculation:count", SGP4CalculationsDuringPrecalculation);
 }
 
 
@@ -648,6 +664,7 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     EV_TRACE << "SGP4Mobility satellite position at simulation time " << simulationTime << ": " << satellitePosition << std::endl;
     EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
+    SGP4Calculations++;
     recordSgp4Computation(calculateElevationAngleRelativeToSop(returnValues.omnetppCoord));
     recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
