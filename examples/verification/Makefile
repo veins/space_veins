@@ -31,9 +31,9 @@ verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPosi
 allConfigs := $(verificationConfigs)
 vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
-scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize
+scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
-runmakerJobs := 5
+runmakerJobs := 8
 runmakerLogLines := 200
 simMachines := nsm-sim03 nsm-sim04
 ccFiles := $(shell find ../../src -name "*.cc")
@@ -282,3 +282,6 @@ experiment:
 	ln -s $(experimentId) archive/latest
 	$(MAKE) plots
 	rm runAll resultCollection plots
+
+debugInContainer: ../../src/libspace_veins.so
+	./run --mode release -- -u Qtenv -c Debug
