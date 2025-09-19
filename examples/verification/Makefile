@@ -10,7 +10,7 @@
 # build plots
 
 mkfile_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-experimentTime := $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
+experimentTime := $(shell date +%Y-%m-%dT%H-%M-%S)
 experimentCommit := $(shell git rev-parse --short HEAD)
 space := $(subst ,, )
 experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst $(space),_,$(shell git log -1 --pretty=oneline --abbrev-commit))))))
@@ -31,9 +31,10 @@ vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputati
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
-runmakerJobs := 24
+runmakerJobs := 128
 runmakerLogLines := 200
-simMachines := nsm-sim03 nsm-sim04
+# simMachines := nsm-sim03 nsm-sim04
+simMachines := nsm-sim05
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
 vectorFiles := $(shell find results -name "*.vec")
@@ -270,7 +271,7 @@ plots: ../../lib/singularity-r-env/singularity-R-env.sif
 
 experiment:
 	mkdir -p archive/$(experimentId)
-	$(MAKE) -e runAll
+	$(MAKE) experimentId=$(experimentId) runAll
 	$(MAKE) resultCollection
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
@@ -279,7 +280,16 @@ experiment:
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) plots
-	rm runAll resultCollection plots
+	rm runAll resultCollection plots simMachines.txt
 
 debugInContainer: ../../src/libspace_veins.so
 	./run --mode release -- -u Qtenv -c Debug
+
+time = $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
+test:
+	echo $(time)
+
+parentTarget:
+	echo $(time)
+	sleep 3
+	$(MAKE) time=$(time) test
