@@ -19,21 +19,19 @@ experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
 getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
-# runTimerPerformanceConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$ERunTimePerformance))
-# validationConfigs := $(foreach S, $(scenarios), $(foreach E, $(experiments), $S$EValidation))
-# allConfigs := $(validationConfigs) $(runTimerPerformanceConfigs)
 # # combinational expansion of scenarios and experiments
 # validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
 # validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
 # validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G)) VerifyUpPosOnlyAboveHorizon
-allConfigs := $(verificationConfigs)
+runtimePerformanceConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Rtp$E$G))
+allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
 vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
-runmakerJobs := 8
+runmakerJobs := 24
 runmakerLogLines := 200
 simMachines := nsm-sim03 nsm-sim04
 ccFiles := $(shell find ../../src -name "*.cc")
@@ -48,6 +46,7 @@ debugVariables := space_veins_binaries \
 					experimentId \
 					experimentFolderName \
 					verificationConfigs \
+					runtimePerformanceConfigs \
 					vectors \
 					vectorCsvFiles \
 					runmakerJobs \
@@ -59,7 +58,6 @@ debugVariables := space_veins_binaries \
 
 # scenarios \
 # experiments \
-# runTimerPerformanceConfigs \
 # validationConfigs \
 # allConfigs \
 # validationFiles \
