@@ -25,16 +25,16 @@ experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G)) VerifyUpPosOnlyAboveHorizon
-runtimePerformanceConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Rtp$E$G))
+runtimePerformanceConfigs =  RtpEnUpPosOnlyAboveHorizonNGCP0360 RtpEnUpPosOnlyAboveHorizonNGCP0720 RtpEnUpPosOnlyAboveHorizonNGCP1080 RtpEnUpPosOnlyAboveHorizonNGCP1440 RtpEnUpPosOnlyAboveHorizonNGCP1800 RtpEnUpPosOnlyAboveHorizonNGCP2160 RtpEnUpPosOnlyAboveHorizonNGCP2520 RtpEnUpPosOnlyAboveHorizonNGCP2880 RtpEnUpPosOnlyAboveHorizonNGCP3240 RtpEnUpPosOnlyAboveHorizonNGCP3600 RtpEnUpPosOnlyAboveHorizonWGCP0360 RtpEnUpPosOnlyAboveHorizonWGCP0720 RtpEnUpPosOnlyAboveHorizonWGCP1080 RtpEnUpPosOnlyAboveHorizonWGCP1440 RtpEnUpPosOnlyAboveHorizonWGCP1800 RtpEnUpPosOnlyAboveHorizonWGCP2160 RtpEnUpPosOnlyAboveHorizonWGCP2520 RtpEnUpPosOnlyAboveHorizonWGCP2880 RtpEnUpPosOnlyAboveHorizonWGCP3240 RtpEnUpPosOnlyAboveHorizonWGCP3600 RtpEnUpPosOnlyAboveHorizonWLIP0360 RtpEnUpPosOnlyAboveHorizonWLIP0720 RtpEnUpPosOnlyAboveHorizonWLIP1080 RtpEnUpPosOnlyAboveHorizonWLIP1440 RtpEnUpPosOnlyAboveHorizonWLIP1800 RtpEnUpPosOnlyAboveHorizonWLIP2160 RtpEnUpPosOnlyAboveHorizonWLIP2520 RtpEnUpPosOnlyAboveHorizonWLIP2880 RtpEnUpPosOnlyAboveHorizonWLIP3240 RtpEnUpPosOnlyAboveHorizonWLIP3600 RtpEnUpPosOnlyAboveHorizonWNPP0360 RtpEnUpPosOnlyAboveHorizonWNPP0720 RtpEnUpPosOnlyAboveHorizonWNPP1080 RtpEnUpPosOnlyAboveHorizonWNPP1440 RtpEnUpPosOnlyAboveHorizonWNPP1800 RtpEnUpPosOnlyAboveHorizonWNPP2160 RtpEnUpPosOnlyAboveHorizonWNPP2520 RtpEnUpPosOnlyAboveHorizonWNPP2880 RtpEnUpPosOnlyAboveHorizonWNPP3240 RtpEnUpPosOnlyAboveHorizonWNPP3600 RtpDisUpPosOnlyAboveHorizonNGCP0360 RtpDisUpPosOnlyAboveHorizonNGCP0720 RtpDisUpPosOnlyAboveHorizonNGCP1080 RtpDisUpPosOnlyAboveHorizonNGCP1440 RtpDisUpPosOnlyAboveHorizonNGCP1800 RtpDisUpPosOnlyAboveHorizonNGCP2160 RtpDisUpPosOnlyAboveHorizonNGCP2520 RtpDisUpPosOnlyAboveHorizonNGCP2880 RtpDisUpPosOnlyAboveHorizonNGCP3240 RtpDisUpPosOnlyAboveHorizonNGCP3600 RtpDisUpPosOnlyAboveHorizonWGCP0360 RtpDisUpPosOnlyAboveHorizonWGCP0720 RtpDisUpPosOnlyAboveHorizonWGCP1080 RtpDisUpPosOnlyAboveHorizonWGCP1440 RtpDisUpPosOnlyAboveHorizonWGCP1800 RtpDisUpPosOnlyAboveHorizonWGCP2160 RtpDisUpPosOnlyAboveHorizonWGCP2520 RtpDisUpPosOnlyAboveHorizonWGCP2880 RtpDisUpPosOnlyAboveHorizonWGCP3240 RtpDisUpPosOnlyAboveHorizonWGCP3600 RtpDisUpPosOnlyAboveHorizonWLIP0360 RtpDisUpPosOnlyAboveHorizonWLIP0720 RtpDisUpPosOnlyAboveHorizonWLIP1080 RtpDisUpPosOnlyAboveHorizonWLIP1440 RtpDisUpPosOnlyAboveHorizonWLIP1800 RtpDisUpPosOnlyAboveHorizonWLIP2160 RtpDisUpPosOnlyAboveHorizonWLIP2520 RtpDisUpPosOnlyAboveHorizonWLIP2880 RtpDisUpPosOnlyAboveHorizonWLIP3240 RtpDisUpPosOnlyAboveHorizonWLIP3600 RtpDisUpPosOnlyAboveHorizonWNPP0360 RtpDisUpPosOnlyAboveHorizonWNPP0720 RtpDisUpPosOnlyAboveHorizonWNPP1080 RtpDisUpPosOnlyAboveHorizonWNPP1440 RtpDisUpPosOnlyAboveHorizonWNPP1800 RtpDisUpPosOnlyAboveHorizonWNPP2160 RtpDisUpPosOnlyAboveHorizonWNPP2520 RtpDisUpPosOnlyAboveHorizonWNPP2880 RtpDisUpPosOnlyAboveHorizonWNPP3240 RtpDisUpPosOnlyAboveHorizonWNPP3600
 allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
 vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
-runmakerJobs := 128
+runmakerJobs := 32
 runmakerLogLines := 200
 # simMachines := nsm-sim03 nsm-sim04
-simMachines := nsm-sim05
+simMachines := nsm-sim04
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
 vectorFiles := $(shell find results -name "*.vec")
@@ -109,16 +109,19 @@ simMachines.txt:
 		echo $$m >> $@ ; \
 	done
 
+runtimePerformanceConfigs.txt: eval/writeRuntimePerformanceConfigs.R
+	@singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^
+
 # sleep 5 seconds after finishing all runs to wait for files written to disk
 # write results of GNU time in a dedicated file for every config to avoid race conditions
 # --timeout=0: no timeout
 # make results dir on own our because otherwise the radio medium communication log is not written
 runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt
 	mkdir -p results
-	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
+	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt" || true
 	sleep 5
-	mkdir -p csv/gnuTimeResults
-	mv GnuTimeResults* csv/gnuTimeResults
+	mkdir -p csv/gnuTimeResults/rawData
+	mv GnuTimeResults* csv/gnuTimeResults/rawData
 	sleep 5
 	touch $@
 
@@ -131,6 +134,13 @@ $(scalarCsvFiles): csv/scalars/%.csv : $(scalarFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv/scalars
 	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
+
+gnuTimeResults.csv: eval/gnuTimeResults.R
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
+
+speedUp-vs-precalculationInterval.pdf: eval/speedUp-vs-precalculationInterval.R
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+
 
 plotPositionUpdateBehavior:
 	mkdir -p archive/latest/plots
@@ -267,6 +277,7 @@ resultCollection: $(vectorCsvFiles) $(scalarCsvFiles)
 plots: ../../lib/singularity-r-env/singularity-R-env.sif
 	$(MAKE) plotPositionUpdateBehavior
 	$(MAKE) plotUpdatePositionOnlyAboveHorizon
+	$(MAKE) speedUp-vs-precalculationInterval.pdf
 	touch plots
 
 experiment:
@@ -279,6 +290,7 @@ experiment:
 	mv csv archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
+	$(MAKE) gnuTimeResults.csv
 	$(MAKE) plots
 	rm runAll resultCollection plots simMachines.txt
 
