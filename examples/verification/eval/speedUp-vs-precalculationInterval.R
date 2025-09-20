@@ -21,19 +21,22 @@ speedUps <- data.table(
 )
 
 for (gcpb in unique(avgs$getCurrentPositionBehavior)) {
-    tmp <- avgs[getCurrentPositionBehavior == gcpb]
-    speedUpUserTime = tmp[updateAboveHorizon == FALSE]$avg_userTime[1] / tmp[updateAboveHorizon == TRUE]$avg_userTime[1]
-    speedUpKernelTime = tmp[updateAboveHorizon == FALSE]$avg_kernelTime[1] / tmp[updateAboveHorizon == TRUE]$avg_kernelTime[1]
-    speedUpWallClockTime = tmp[updateAboveHorizon == FALSE]$avg_wallClockTime[1] / tmp[updateAboveHorizon == TRUE]$avg_wallClockTime[1]
-    # print(speedUpKernelTime)
+    for (p in unique(avgs$precalculationInterval)) {
+        tmp <- avgs[getCurrentPositionBehavior == gcpb & precalculationInterval == p]
+        print(tmp)
+        speedUpUserTime = tmp[updateAboveHorizon == FALSE]$avg_userTime[1] / tmp[updateAboveHorizon == TRUE]$avg_userTime[1]
+        speedUpKernelTime = tmp[updateAboveHorizon == FALSE]$avg_kernelTime[1] / tmp[updateAboveHorizon == TRUE]$avg_kernelTime[1]
+        speedUpWallClockTime = tmp[updateAboveHorizon == FALSE]$avg_wallClockTime[1] / tmp[updateAboveHorizon == TRUE]$avg_wallClockTime[1]
+        # print(speedUpKernelTime)
 
-    speedUpRow <- list(getCurrentPositionBehavior = tmp$getCurrentPositionBehavior[1],
-                       precalculationInterval = tmp$precalculationInterval[1],
-                       speedUpUserTime = speedUpUserTime,
-                       speedUpKernelTime = speedUpKernelTime,
-                       speedUpWallClockTime = speedUpWallClockTime
-                       )
-    speedUps <- rbind(speedUps, speedUpRow)
+        speedUpRow <- list(getCurrentPositionBehavior = tmp$getCurrentPositionBehavior[1],
+                        precalculationInterval = tmp$precalculationInterval[1],
+                        speedUpUserTime = speedUpUserTime,
+                        speedUpKernelTime = speedUpKernelTime,
+                        speedUpWallClockTime = speedUpWallClockTime
+                        )
+        speedUps <- rbind(speedUps, speedUpRow)
+    }
 }
 
 print(speedUps)
@@ -75,7 +78,7 @@ legends = list(dis=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["
 done <- myps(file = "archive/latest/plots/speedUp-vs-precalculationInterval", width=paper.width, height=paper.height)
 plot.new()
 par(mar=c(3.25,3.0,.5,1.1), mgp=c(3.0, 0.5, 0))
-plot.window(xlim=c(0, 3600), ylim=c(0, 10), xaxs="i", yaxs="i")
+plot.window(xlim=c(0, 360), ylim=c(0, 10), xaxs="i", yaxs="i")
 
 for (gcpb in unique(speedUps$getCurrentPositionBehavior)) {
     tmp <- speedUps[getCurrentPositionBehavior == gcpb]

@@ -27,7 +27,6 @@
 
 use List::Util qw(shuffle);
 
-my $command = "/usr/bin/time --append -o gnuTimeResults.csv --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
 my $commandBegin = "/usr/bin/time -o GnuTimeResults_";
 my $commandEnd = ".csv --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
 
