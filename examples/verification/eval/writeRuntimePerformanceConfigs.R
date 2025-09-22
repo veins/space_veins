@@ -1,6 +1,7 @@
 experiments <- list("RtpEnUpPosOnlyAboveHorizon", "RtpDisUpPosOnlyAboveHorizon")
 getCurrentPositionBehavior <- list("NGCP", "WGCP", "WLIP", "WNPP")
-precalculationIntervals <- list("0060", "0120", "0180", "0240", "0300", "0360")
+# precalculationIntervals <- list("0060", "0120", "0180", "0240", "0300", "0360")
+precalculationIntervals <- list("0060", "0120")
 
 
 configNames <- list()
