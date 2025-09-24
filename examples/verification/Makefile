@@ -33,9 +33,11 @@ vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), 
 scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 runmakerJobs := 48
-runmakerLogLines := 1
+runmakerLogLines := 2
 # simMachines := nsm-sim03 nsm-sim04
-simMachines := nsm-sim04
+# simMachines := nsm-sim04
+simMachines := nsm-lab08
+compilationMachine := nsm-lab08
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
 vectorFiles := $(shell find results -name "*.vec")
@@ -54,6 +56,7 @@ debugVariables := space_veins_binaries \
 					runmakerJobs \
 					runmakerLogLines \
 					simMachines \
+					compilationMachine \
 					ccFiles \
 					hFiles \
 					vectorFiles \
@@ -91,10 +94,10 @@ shell:
 	touch ../../src/Makefile
 
 space_veins: $(ccFiles) $(hFiles) ../../src/Makefile
-	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 space_veins
+	ssh $(compilationMachine) "cd $(mkfile_path) && cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 space_veins"
 
 ../../src/libspace_veins.so: ../../src/Makefile $(ccFiles) $(hFiles)
-	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 all
+	ssh $(compilationMachine) "cd $(mkfile_path) && cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 all"
 
 $(experimentId)_runs.log:
 	@touch $@
