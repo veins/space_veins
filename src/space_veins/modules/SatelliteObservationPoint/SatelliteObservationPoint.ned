@@ -32,6 +32,7 @@ module SatelliteObservationPoint
         @display("i=block/cogwheel");
         int margin = default(25); // margin added by the TraCIScenarioManager. Both value must be identical.
         xml sumoNetXmlFile = default(xmldoc("erlangen.net.xml"));  // path to the simulated SUMO scenario, required to read in the proj string
+        bool enableSumo = default(true);
 
     submodules:
         mobility: StationaryMobility {

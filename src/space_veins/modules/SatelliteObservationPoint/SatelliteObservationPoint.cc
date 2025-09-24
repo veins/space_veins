@@ -136,12 +136,15 @@ void SatelliteObservationPoint::initialize(int stage)
         // get Mobility
         mobility = static_cast<inet::StationaryMobility*>(getSubmodule("mobility"));
         ASSERT(mobility);
-        // get AnnotationManager
-        annotations = veins::AnnotationManagerAccess().getIfExists();
-        ASSERT(annotations);
+        enableSumo = par("enableSumo");
+        if (enableSumo) {
+            // get AnnotationManager
+            annotations = veins::AnnotationManagerAccess().getIfExists();
+            ASSERT(annotations);
 
-        cMessage *drawPosition = new cMessage("drawMessage", 0);
-        scheduleAt(simTime() + 0.01, drawPosition);
+            cMessage *drawPosition = new cMessage("drawMessage", 0);
+            scheduleAt(simTime() + 0.01, drawPosition);
+        }
     }
     if (stage == 3) {
         // Initialize projections after lastPosition of the mobility submodule is initialized

@@ -80,6 +80,8 @@ protected:
 
     veins::Coord netOffset;
 
+    bool enableSumo;
+
     // proj context
     PJ_CONTEXT* pj_ctx;
     PJ* sumo_to_wgs84_projection;
