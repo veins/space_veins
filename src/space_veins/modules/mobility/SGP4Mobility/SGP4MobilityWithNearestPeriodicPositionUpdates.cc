@@ -56,8 +56,6 @@ bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextGetCurrentPositionUpdat
             // update the satellite's position using the SGP4Model, calculate it at lastPeriodicUpdate + updateInterval, as this is the time of the next periodic position update
             SGP4PositionUpdate(lastPeriodicUpdate + updateInterval);
         }
-        // calculate the next linear interpolation reference at lastPeriodicUpdate + updateInterval
-        linearInterpolationReference = calculateSgp4SatellitePosition(lastPeriodicUpdate + updateInterval);
         // update management data
         updated = true;
         updateManagementDataAndStatistics(getCurrentPositionUpdate, updated);
