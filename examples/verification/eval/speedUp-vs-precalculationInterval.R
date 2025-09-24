@@ -62,17 +62,18 @@ paper.height <- paper.width * .4*1.2
 
 ltys = list(solid=1,
             dashed=2,
-            dotted=3
+            dotted=3,
+            dotdash=4
             )
 lwds = list(default=1)
 pchs = list(circle=1,
             cross=4,
             diamond=5,
             filledCircle=20)
-legends = list(dis=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["circle"]], col="black", label= expression("baseline")),
-               en=list(lty=ltys[["solid"]], lwd=lwds[["default"]], pch=pchs[["filledCircle"]], cex=0.1, col="black", label= expression("optimized")),
-               horizon=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], col="gray", label= expression("horizon")),
-               com=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], col="red", label= expression("com. threshold"))
+legends = list(NGCP=list(lty=ltys[["solid"]], lwd=lwds[["default"]], pch=pchs[["circle"]], cex=0.5, col="black", label= expression("NGCP")),
+               WGCP=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], pch=pchs[["cross"]], cex=0.5, col="black", label= expression("WGCP")),
+               WLIP=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["diamond"]], cex=0.5, col="black", label= expression("WLIP")),
+               WNPP=list(lty=ltys[["dotdash"]], lwd=lwds[["default"]], pch=pchs[["filledCircle"]], cex=0.5, col="black", label= expression("WNPP"))
                )
 
 done <- myps(file = "archive/latest/plots/speedUp-vs-precalculationInterval", width=paper.width, height=paper.height)
@@ -82,9 +83,9 @@ plot.window(xlim=c(0, 360), ylim=c(0, 10), xaxs="i", yaxs="i")
 
 for (gcpb in unique(speedUps$getCurrentPositionBehavior)) {
     tmp <- speedUps[getCurrentPositionBehavior == gcpb]
-    print(tmp)
-    lines(tmp$precalculationInterval, tmp$speedUpUserTime, lty = legends[["dis"]][["lty"]], lwd = legends[["dis"]][["lwd"]])
-    points(tmp$precalculationInterval, tmp$speedUpUserTime, pch = legends[["en"]][["pch"]], cex = 0.09, col = legends[["en"]][["col"]])
+    print(gcpb)
+    lines(tmp$precalculationInterval, tmp$speedUpWallClockTime, lty = legends[[gcpb]][["lty"]], lwd = legends[[gcpb]][["lwd"]])
+    points(tmp$precalculationInterval, tmp$speedUpWallClockTime, pch = legends[[gcpb]][["pch"]], cex = 0.5, col = legends[[gcpb]][["col"]])
 }
 
 box()
@@ -103,9 +104,10 @@ insetValue <- c(0, 0)
 
 legend(legendPosition,
        inset=insetValue,
-       legend=c(legends[["dis"]][["label"]], legends[["en"]][["label"]], legends[["horizon"]][["label"]], legends[["com"]][["label"]]),
-       col=c(legends[["dis"]][["col"]], legends[["en"]][["col"]], legends[["horizon"]][["col"]], legends[["com"]][["col"]]),
-       lty=c(legends[["dis"]][["lty"]], legends[["en"]][["lty"]], legends[["horizon"]][["lty"]], legends[["com"]][["lty"]]),
+       legend=c(legends[["NGCP"]][["label"]], legends[["WGCP"]][["label"]], legends[["WLIP"]][["label"]], legends[["WNPP"]][["label"]]),
+       col=c(legends[["NGCP"]][["col"]], legends[["WGCP"]][["col"]], legends[["WLIP"]][["col"]], legends[["WNPP"]][["col"]]),
+       lty=c(legends[["NGCP"]][["lty"]], legends[["WGCP"]][["lty"]], legends[["WLIP"]][["lty"]], legends[["WNPP"]][["lty"]]),
+       pch=c(legends[["NGCP"]][["pch"]], legends[["WGCP"]][["pch"]], legends[["WLIP"]][["pch"]], legends[["WNPP"]][["pch"]]),
        bty="n",
        ncol=2)
 done()
