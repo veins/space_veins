@@ -91,7 +91,7 @@ for (gcpb in unique(speedUps$getCurrentPositionBehavior)) {
 box()
 axis(1)
 axis(2, las=1, tck=-0.025)
-title(xlab="precalculation interfval in s", line=2.2)
+title(xlab="precalculation interval in s", line=2.2)
 title(ylab="speed up", line=2)
 
 legendPosition <- "topright"

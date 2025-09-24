@@ -51,7 +51,7 @@ network ManhattanBuildingShadowing
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
         string satelliteType = default("Satellite");
-        bool enableSumo = default(true);
+        bool enableSumo = default(false);
         int numSatCars = default(1);
 
         @display("bgb=$playgroundSizeX,$playgroundSizeY");
