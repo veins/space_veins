@@ -77,7 +77,12 @@ bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(
             recordSgp4SpeedMeterPerSecond(lastCalculatedSgp4SatellitePosition.sgp4SpeedMeterPerSecond);
             lastElevationAngleToSop = calculateElevationAngleRelativeToSop(lastPosition);
             updated = true;
-        } // else { updated = false; // do nothing we already updated the satellite's position to the up-to-date position }
+        } else {
+            // do nothing we already updated the satellite's position to the up-to-date position
+            updated = false;
+            // however, we need to update lastPeriodicUpdate to now, such that the models logic is correct. lastPeriodicUpdate should always store the time when a periodic update happened or is supposed to be happen.
+            lastPeriodicUpdate = now;
+        }
     } else {
         EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(): now != linearInterpolationReference.simulationTime -> reference is outdated!" << std::endl;
         SGP4PositionUpdate(now);
