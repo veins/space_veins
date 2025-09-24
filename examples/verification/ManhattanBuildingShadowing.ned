@@ -51,6 +51,7 @@ network ManhattanBuildingShadowing
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
         string satelliteType = default("Satellite");
+        bool enableSumo = default(true);
         int numSatCars = default(1);
 
         @display("bgb=$playgroundSizeX,$playgroundSizeY");
@@ -58,15 +59,15 @@ network ManhattanBuildingShadowing
 
     submodules:
         // Veins
-        annotations: AnnotationManager {
+        annotations: AnnotationManager if enableSumo {
             @display("p=750,744.98");
         }
-        roadsCanvasVisualizer: RoadsCanvasVisualizer {
+        roadsCanvasVisualizer: RoadsCanvasVisualizer if enableSumo {
             @display("p=750,750");
         }
 
         // Veins INET
-        manager: <default("VeinsInetManager")> like IVeinsInetManager {
+        manager: <default("VeinsInetManager")> like IVeinsInetManager if enableSumo {
         }
 
         // INET
@@ -93,6 +94,7 @@ network ManhattanBuildingShadowing
 
         sop: SatelliteObservationPoint {
             @display("p=0,0");
+            enableSumo = enableSumo;
         }
         leoSatellite[0]: <default(satelliteType)> like INetworkNode {
             @display("p=250, 612");
