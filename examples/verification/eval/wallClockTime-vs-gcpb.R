@@ -15,7 +15,7 @@ toPlot <- avgs[precalculationInterval == 120]
 toPlot <- toPlot[order(config)]
 print("data.table")
 print(toPlot)
-toPlot <- matrix(toPlot$avg_wallClockTime, byrow = TRUE, nrow=2, ncol=4, dimnames = list(c("Disabled", "Enabled"), c("NGCP", "WGCP", "WLIP", "WNPP")))
+toPlot <- matrix(toPlot$avg_wallClockTime, byrow = TRUE, nrow=2, ncol=4, dimnames = list(c("Baseline", "Optimized"), c("NGCP", "WGCP", "WLIP", "WNPP")))
 print("matrix")
 print(toPlot)
 fwrite(toPlot, "archive/latest/csv/gnuTimeResults/wallClockTime-vs-gcpb.csv")
@@ -58,7 +58,7 @@ done <- myps(file = "archive/latest/plots/wallClockTime-vs-gcpb", width=paper.wi
 plot.new()
 par(mar=c(3.25,3.0,.5,1.1), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(0, 1), ylim=c(0, 20), xaxs="i", yaxs="i")
-barplot(toPlot, beside=TRUE, ylim=c(0, 20), axes=FALSE, legend.text=TRUE, args.legend=list(bty="n"))
+barplot(toPlot, beside=TRUE, ylim=c(0, 150), axes=FALSE, legend.text=TRUE, args.legend=list(bty="n"))
 
 box()
 axis(2, las=1)
