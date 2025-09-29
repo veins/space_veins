@@ -38,6 +38,9 @@
 #            change SUMO version from 1.18.0 to 1.11.0
 #
 # 2024-12-11 Move install-misc.sh to the end, to easily add new packages
+#
+# 2026-03-24 Add scripts to install debug symbols and perf
+#            Reorder installation steps
 
 FROM mcr.microsoft.com/devcontainers/base:jammy
 
@@ -59,13 +62,15 @@ RUN ./install-sumo.sh && rm ./install-sumo.sh
 COPY install-noVNC.sh .
 RUN ./install-noVNC.sh && rm ./install-noVNC.sh
 
+COPY install-perf.sh .
+RUN ./install-perf.sh && rm ./install-perf.sh
+
+COPY install-debugSymbolPackages.sh .
+RUN ./install-debugSymbolPackages.sh && rm ./install-debugSymbolPackages.sh
+
 COPY install-misc.sh .
 RUN ./install-misc.sh && rm ./install-misc.sh
 
 COPY docker-env.sh .
 COPY install-docker-env.sh .
 RUN ./install-docker-env.sh && rm ./install-docker-env.sh
-
-COPY install-pythonDeps.sh .
-RUN ./install-pythonDeps.sh && rm ./install-pythonDeps.sh
-

@@ -37,14 +37,22 @@
 #            set CCACHE_DIR
 #
 # 2025-06-20 add WORKSPACE, HOST variable
+#
+# 2026-03-24 add /opt/pipx to PATH variable
 
 export PYTHONPATH=/opt/pip/usr/local/lib/python3.10/dist-packages:$PYTHONPATH
 export PATH=/usr/lib/ccache:$PATH
 export PATH=$PATH:/opt/omnetpp/bin
 export PATH=$PATH:/opt/sumo/bin
 export PATH=$PATH:/opt/vnc/
+export PATH=$PATH:/opt/pipx
 export CCACHE_DIR=/workspace/space_veins/.ccache
 export WORKSPACE=/workspace/space_veins
 
 # displayed in zsh prompt
 export HOST=space_VeinsContainer
+
+# encoding
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+export LC_CTYPE=C.UTF-8

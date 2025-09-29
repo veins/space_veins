@@ -37,6 +37,9 @@
 # 2024-12-11 install ccache here, such that this script has no dependencies
 #
 # 2024-12-12 change default IDE workspace directory
+#
+# 2026-03-24 use gcc for compilation
+#            add O0 optimization for debug flags
 
 # This script needs the following environment variables to be set:
 #   - OPP_VERSION: the version of OMNeT++ to install (e.g. 6.0.1)
@@ -130,12 +133,20 @@ export PATH=/usr/lib/ccache:$PATH
 
 # disable OSG EARTH because we did not installed the dependency
 sed -i 's/WITH_OSGEARTH=yes/WITH_OSGEARTH=no/g' /opt/omnetpp/configure.user
+# disable parallel distributed simulation feature
+sed -i 's/WITH_PARSIM=yes/WITH_PARSIM=no/g' /opt/omnetpp/configure.user
+# set O0 optimization for debugging and perf
+sed -i "s/#CFLAGS_DEBUG='-g -Wall'/CFLAGS_DEBUG='-g -Wall -O0'/g" /opt/omnetpp/configure.user
+# use gcc/g++ as it worked better with perf than clang
+sed -i 's/PREFER_CLANG=yes/PREFER_CLANG=no/g' /opt/omnetpp/configure.user
+# use GNU linker
+sed -i 's/PREFER_LLD=yes/PREFER_LLD=no/g' /opt/omnetpp/configure.user
 
 # build OMNeT++
 cd /opt/omnetpp
 export PATH=$PATH:/opt/omnetpp/bin
 source setenv
-CC=clang-13 CXX=clang++-13 ./configure
+CC=gcc CXX=g++ ./configure
 make -j$(nproc) MODE=debug
 make -j$(nproc) MODE=release
 

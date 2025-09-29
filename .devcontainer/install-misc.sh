@@ -28,6 +28,8 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 # 2024-11-12 install ccache
+#
+# 2026-03-24 install x11-apps, time, pipx, poetry
 
 set -e
 
@@ -42,4 +44,15 @@ apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get -y install --
     ccache \
     x11-apps \
     time \
+    pipx \
     ;
+
+# install poetry
+mkdir -p /opt/pipx
+export PIPX_HOME="/opt/pipx"
+export PIPX_BIN_DIR="/opt/pipx"
+pipx install poetry==2.0.0
+
+export PATH="$PIPX_HOME:$PATH"
+# store poetry's virtual envs in the folder where poetry init was called
+poetry config virtualenvs.in-project true
