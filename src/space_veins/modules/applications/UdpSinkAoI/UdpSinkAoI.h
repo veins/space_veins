@@ -23,6 +23,8 @@
 
 #include "inet/applications/udpapp/UdpSink.h"
 
+#include "space_veins/space_veins.h"
+
 namespace space_veins {
 
 class SPACE_VEINS_API UdpSinkAoI : public inet::UdpSink {
@@ -33,12 +35,12 @@ public:
     {
     }
 
-    ~UdpSink() override
+    ~UdpSinkAoI() override
     {
     }
 protected:
     // methodes
-    virtual void processPacket(Packet *msg) override;
+    virtual void processPacket(inet::Packet *msg) override;
 
     // attributes
     simtime_t lastReception = SimTime::ZERO;
