@@ -29,7 +29,7 @@ SCRIPTSTEM=$(basename -s .sh "$0")
 
 if [ $1 == "shell" ]
     then
-        singularity shell -H ../.containerHome:/home/containerHome --containall -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif"
+        singularity shell -H ../.containerHome:/home/containerHome --containall -B /ramdisk:/ramdisk -B /tmp:/tmp -B /sys/kernel/tracing:/sys/kernel/tracing -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif"
     else
-        singularity run -H ../.containerHome:/home/containerHome --containall -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
+        singularity run -H ../.containerHome:/home/containerHome --containall -B /ramdisk:/ramdisk -B /tmp:/tmp -B /sys/kernel/tracing:/sys/kernel/tracing -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
 fi
