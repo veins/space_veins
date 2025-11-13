@@ -31,6 +31,7 @@ void SGP4MobilityWithGetCurrentPositionUpdates::initialize(int stage)
 {
     EV_DEBUG << "SGP4MobilityWithGetCurrentPositionUpdates stage: " << stage << std::endl;
     SGP4MobilityBase::initialize(stage);
+    return;
 }
 
 bool SGP4MobilityWithGetCurrentPositionUpdates::nextGetCurrentPositionUpdate() {

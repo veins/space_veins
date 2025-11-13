@@ -492,7 +492,8 @@ void SGP4MobilityBase::moveAndUpdate()
 }
 
 // for random time updates
-inet::Coord SGP4MobilityBase::getCurrentPosition() {
+inet::Coord SGP4MobilityBase::getCurrentPosition()
+{
     Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
     updateType = getCurrentPositionUpdate;
     emit(getCurrentPositionUpdateCallSignal, 1);
@@ -517,6 +518,7 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
     SGP4MobilityBase::scheduleUpdate();
     emit(periodicUpdateCallSignal, 1);
     emit(processedEventSignal, 1);
+    return;
 }
 
 void SGP4MobilityBase::scheduleRelevantUpdate()
@@ -723,7 +725,8 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         }
         // Management
         lastUpdate = now;
-        refreshDisplay();
+        // do not call refreshDisplay() as this might call getCurrentPosition() inside a getCurrentPosition() call which confuses perf output
+        // refreshDisplay();
         // statistics
         emitMobilityStateChangedSignal();
         recordOmnetCoord(lastPosition);
