@@ -21,8 +21,8 @@ perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add wnpp_in
 perf probe --exec /workspace/space_veins/src/libspace_veins.so --add wnpp_init_rls=_ZN11space_veins46SGP4MobilityWithNearestPeriodicPositionUpdates10initializeEi --add wnpp_init_rls=_ZN11space_veins46SGP4MobilityWithNearestPeriodicPositionUpdates10initializeEi%return --no-demangle
 
 # SGP4MobilityBase getCurrentPosition() - for random time updates
-perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add gcp_dbg=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv --add gcp_dbg=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv%return --no-demangle
-perf probe --exec /workspace/space_veins/src/libspace_veins.so --add gcp_rls=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv --add gcp_rls=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv%return --no-demangle
+perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --no-inlines --add gcp_dbg=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv --add gcp_dbg=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv%return --no-demangle
+perf probe --exec /workspace/space_veins/src/libspace_veins.so --no-inlines --add gcp_rls=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv --add gcp_rls=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv%return --no-demangle
 
 # SGP4MobilityBase handleSelfMessage() - for periodic updates
 perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add hsm_dbg=_ZN11space_veins16SGP4MobilityBase17handleSelfMessageEPN7omnetpp8cMessageE --add hsm_dbg=_ZN11space_veins16SGP4MobilityBase17handleSelfMessageEPN7omnetpp8cMessageE%return --no-demangle
