@@ -130,12 +130,18 @@ export PATH=/usr/lib/ccache:$PATH
 
 # disable OSG EARTH because we did not installed the dependency
 sed -i 's/WITH_OSGEARTH=yes/WITH_OSGEARTH=no/g' /opt/omnetpp/configure.user
+# disable parallel distributed simulation feature
+sed -i 's/WITH_PARSIM=yes/WITH_PARSIM=no/g' /opt/omnetpp/configure.user
+# enable -g for debugging information in the binary
+sed -i "s/#CXXFLAGS=-std=c++17/CXXFLAGS='-g'/g" /opt/omnetpp/configure.user
+# use gcc/g++
+sed -i 's/PREFER_CLANG=yes/PREFER_CLANG=no/g' /opt/omnetpp/configure.user
 
 # build OMNeT++
 cd /opt/omnetpp
 export PATH=$PATH:/opt/omnetpp/bin
 source setenv
-CC=clang-13 CXX=clang++-13 ./configure
+CC=gcc CXX=g++ ./configure
 make -j$(nproc) MODE=debug
 make -j$(nproc) MODE=release
 
