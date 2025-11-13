@@ -99,17 +99,7 @@ cleanall: checkmakefiles checkInetMakefiles checkVeinsInetMakefiles
 makefiles: inetMakefiles veinsMakefiles veinsInetMakefiles spaceVeinsMakefiles
 
 spaceVeinsMakefiles:
-	@echo
-	@echo '====================================================================='
-	@echo 'Warning: make makefiles has been deprecated in favor of ./configure'
-	@echo '====================================================================='
-	@echo
 	./configure
-	@echo
-	@echo '====================================================================='
-	@echo 'Warning: make makefiles has been deprecated in favor of ./configure'
-	@echo '====================================================================='
-	@echo
 
 inetMakefiles:
 	cd lib/inet && opp_featuretool reset
