@@ -31,6 +31,8 @@ my $command = "/usr/bin/time --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
 my $commandBegin = "/usr/bin/time -o GnuTimeResults_";
 my $commandEnd = ".csv --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
 
+my $callGraphOption = "fp";
+
 my @configs = `./run -a`;
 my @runs = ();
 
@@ -40,9 +42,12 @@ foreach (@configs) {
 			for my $j (0 .. $#ARGV)
 			{
 				# iterate over all configs specified as commandline arguments
+				# $1 is the OMNeT++ config
+				# $i is the repetition
 				if ($1 eq $ARGV[$j]) {
 					# check if configs match
-					push(@runs,". $commandBegin$1_$i$commandEnd $1 -r $i\n");
+					# push(@runs,". $commandBegin$1_$i$commandEnd $1 -r $i\n");
+					push(@runs,". ./eval/runPerf.sh /ramdisk/$1_$i.perf.data $callGraphOption \"./run --debug -- -u Cmdenv -c $1 -r $i\" perfResults/$1_$i.perf\n");
 					# push(@runs,". $command $1 -r $i\n");
 				}
 			}

@@ -26,7 +26,7 @@ experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G)) VerifyUpPosOnlyAboveHorizon
 # runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0360 RtpEnUpPosOnlyAboveHorizonNGCP0720 RtpEnUpPosOnlyAboveHorizonNGCP1080 RtpEnUpPosOnlyAboveHorizonNGCP1440 RtpEnUpPosOnlyAboveHorizonNGCP1800 RtpEnUpPosOnlyAboveHorizonNGCP2160 RtpEnUpPosOnlyAboveHorizonNGCP2520 RtpEnUpPosOnlyAboveHorizonNGCP2880 RtpEnUpPosOnlyAboveHorizonNGCP3240 RtpEnUpPosOnlyAboveHorizonNGCP3600 RtpEnUpPosOnlyAboveHorizonWGCP0360 RtpEnUpPosOnlyAboveHorizonWGCP0720 RtpEnUpPosOnlyAboveHorizonWGCP1080 RtpEnUpPosOnlyAboveHorizonWGCP1440 RtpEnUpPosOnlyAboveHorizonWGCP1800 RtpEnUpPosOnlyAboveHorizonWGCP2160 RtpEnUpPosOnlyAboveHorizonWGCP2520 RtpEnUpPosOnlyAboveHorizonWGCP2880 RtpEnUpPosOnlyAboveHorizonWGCP3240 RtpEnUpPosOnlyAboveHorizonWGCP3600 RtpEnUpPosOnlyAboveHorizonWLIP0360 RtpEnUpPosOnlyAboveHorizonWLIP0720 RtpEnUpPosOnlyAboveHorizonWLIP1080 RtpEnUpPosOnlyAboveHorizonWLIP1440 RtpEnUpPosOnlyAboveHorizonWLIP1800 RtpEnUpPosOnlyAboveHorizonWLIP2160 RtpEnUpPosOnlyAboveHorizonWLIP2520 RtpEnUpPosOnlyAboveHorizonWLIP2880 RtpEnUpPosOnlyAboveHorizonWLIP3240 RtpEnUpPosOnlyAboveHorizonWLIP3600 RtpEnUpPosOnlyAboveHorizonWNPP0360 RtpEnUpPosOnlyAboveHorizonWNPP0720 RtpEnUpPosOnlyAboveHorizonWNPP1080 RtpEnUpPosOnlyAboveHorizonWNPP1440 RtpEnUpPosOnlyAboveHorizonWNPP1800 RtpEnUpPosOnlyAboveHorizonWNPP2160 RtpEnUpPosOnlyAboveHorizonWNPP2520 RtpEnUpPosOnlyAboveHorizonWNPP2880 RtpEnUpPosOnlyAboveHorizonWNPP3240 RtpEnUpPosOnlyAboveHorizonWNPP3600 RtpDisUpPosOnlyAboveHorizonNGCP0360 RtpDisUpPosOnlyAboveHorizonNGCP0720 RtpDisUpPosOnlyAboveHorizonNGCP1080 RtpDisUpPosOnlyAboveHorizonNGCP1440 RtpDisUpPosOnlyAboveHorizonNGCP1800 RtpDisUpPosOnlyAboveHorizonNGCP2160 RtpDisUpPosOnlyAboveHorizonNGCP2520 RtpDisUpPosOnlyAboveHorizonNGCP2880 RtpDisUpPosOnlyAboveHorizonNGCP3240 RtpDisUpPosOnlyAboveHorizonNGCP3600 RtpDisUpPosOnlyAboveHorizonWGCP0360 RtpDisUpPosOnlyAboveHorizonWGCP0720 RtpDisUpPosOnlyAboveHorizonWGCP1080 RtpDisUpPosOnlyAboveHorizonWGCP1440 RtpDisUpPosOnlyAboveHorizonWGCP1800 RtpDisUpPosOnlyAboveHorizonWGCP2160 RtpDisUpPosOnlyAboveHorizonWGCP2520 RtpDisUpPosOnlyAboveHorizonWGCP2880 RtpDisUpPosOnlyAboveHorizonWGCP3240 RtpDisUpPosOnlyAboveHorizonWGCP3600 RtpDisUpPosOnlyAboveHorizonWLIP0360 RtpDisUpPosOnlyAboveHorizonWLIP0720 RtpDisUpPosOnlyAboveHorizonWLIP1080 RtpDisUpPosOnlyAboveHorizonWLIP1440 RtpDisUpPosOnlyAboveHorizonWLIP1800 RtpDisUpPosOnlyAboveHorizonWLIP2160 RtpDisUpPosOnlyAboveHorizonWLIP2520 RtpDisUpPosOnlyAboveHorizonWLIP2880 RtpDisUpPosOnlyAboveHorizonWLIP3240 RtpDisUpPosOnlyAboveHorizonWLIP3600 RtpDisUpPosOnlyAboveHorizonWNPP0360 RtpDisUpPosOnlyAboveHorizonWNPP0720 RtpDisUpPosOnlyAboveHorizonWNPP1080 RtpDisUpPosOnlyAboveHorizonWNPP1440 RtpDisUpPosOnlyAboveHorizonWNPP1800 RtpDisUpPosOnlyAboveHorizonWNPP2160 RtpDisUpPosOnlyAboveHorizonWNPP2520 RtpDisUpPosOnlyAboveHorizonWNPP2880 RtpDisUpPosOnlyAboveHorizonWNPP3240 RtpDisUpPosOnlyAboveHorizonWNPP3600
-runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonNGCP0040 RtpEnUpPosOnlyAboveHorizonNGCP0050 RtpEnUpPosOnlyAboveHorizonNGCP0060 RtpEnUpPosOnlyAboveHorizonNGCP0120 RtpEnUpPosOnlyAboveHorizonNGCP0180 RtpEnUpPosOnlyAboveHorizonNGCP0240 RtpEnUpPosOnlyAboveHorizonNGCP0300 RtpEnUpPosOnlyAboveHorizonNGCP0360 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0040 RtpEnUpPosOnlyAboveHorizonWGCP0050 RtpEnUpPosOnlyAboveHorizonWGCP0060 RtpEnUpPosOnlyAboveHorizonWGCP0120 RtpEnUpPosOnlyAboveHorizonWGCP0180 RtpEnUpPosOnlyAboveHorizonWGCP0240 RtpEnUpPosOnlyAboveHorizonWGCP0300 RtpEnUpPosOnlyAboveHorizonWGCP0360 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWLIP0040 RtpEnUpPosOnlyAboveHorizonWLIP0050 RtpEnUpPosOnlyAboveHorizonWLIP0060 RtpEnUpPosOnlyAboveHorizonWLIP0120 RtpEnUpPosOnlyAboveHorizonWLIP0180 RtpEnUpPosOnlyAboveHorizonWLIP0240 RtpEnUpPosOnlyAboveHorizonWLIP0300 RtpEnUpPosOnlyAboveHorizonWLIP0360 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpEnUpPosOnlyAboveHorizonWNPP0040 RtpEnUpPosOnlyAboveHorizonWNPP0050 RtpEnUpPosOnlyAboveHorizonWNPP0060 RtpEnUpPosOnlyAboveHorizonWNPP0120 RtpEnUpPosOnlyAboveHorizonWNPP0180 RtpEnUpPosOnlyAboveHorizonWNPP0240 RtpEnUpPosOnlyAboveHorizonWNPP0300 RtpEnUpPosOnlyAboveHorizonWNPP0360 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonNGCP0040 RtpDisUpPosOnlyAboveHorizonNGCP0050 RtpDisUpPosOnlyAboveHorizonNGCP0060 RtpDisUpPosOnlyAboveHorizonNGCP0120 RtpDisUpPosOnlyAboveHorizonNGCP0180 RtpDisUpPosOnlyAboveHorizonNGCP0240 RtpDisUpPosOnlyAboveHorizonNGCP0300 RtpDisUpPosOnlyAboveHorizonNGCP0360 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0040 RtpDisUpPosOnlyAboveHorizonWGCP0050 RtpDisUpPosOnlyAboveHorizonWGCP0060 RtpDisUpPosOnlyAboveHorizonWGCP0120 RtpDisUpPosOnlyAboveHorizonWGCP0180 RtpDisUpPosOnlyAboveHorizonWGCP0240 RtpDisUpPosOnlyAboveHorizonWGCP0300 RtpDisUpPosOnlyAboveHorizonWGCP0360 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWLIP0040 RtpDisUpPosOnlyAboveHorizonWLIP0050 RtpDisUpPosOnlyAboveHorizonWLIP0060 RtpDisUpPosOnlyAboveHorizonWLIP0120 RtpDisUpPosOnlyAboveHorizonWLIP0180 RtpDisUpPosOnlyAboveHorizonWLIP0240 RtpDisUpPosOnlyAboveHorizonWLIP0300 RtpDisUpPosOnlyAboveHorizonWLIP0360 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonWNPP0040 RtpDisUpPosOnlyAboveHorizonWNPP0050 RtpDisUpPosOnlyAboveHorizonWNPP0060 RtpDisUpPosOnlyAboveHorizonWNPP0120 RtpDisUpPosOnlyAboveHorizonWNPP0180 RtpDisUpPosOnlyAboveHorizonWNPP0240 RtpDisUpPosOnlyAboveHorizonWNPP0300 RtpDisUpPosOnlyAboveHorizonWNPP0360 
+runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030
 allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
 vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
@@ -34,10 +34,9 @@ scalars := sgp4Computations linearInterpolationComputations packetSent packetRec
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 runmakerJobs := 256
 runmakerLogLines := 2
-# simMachines := nsm-sim03 nsm-sim04
-# simMachines := nsm-sim04
 simMachines := nsm-sim05
-compilationMachine := nsm-sim05
+perfMachines := nsm-lab08
+compilationMachine := nsm-lab08
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
 vectorFiles := $(shell find results -name "*.vec")
@@ -88,6 +87,13 @@ shell:
 	cd ../../singularity && bash buildSingularityContainer.sh
 	touch ../../singularity/singularity-space_veins.sif
 
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                               Compiling                               #
+#                                                                       #
+#                                                                       #
+#########################################################################
 # touch ../../src/Makefile to make sure that its timestep is newer than singularity-space_veins.sif after running this target
 ../../src/Makefile: ../../Makefile ../../singularity/singularity-space_veins.sif
 	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make makefiles
@@ -99,13 +105,28 @@ space_veins: $(ccFiles) $(hFiles) ../../src/Makefile
 ../../src/libspace_veins.so: ../../src/Makefile $(ccFiles) $(hFiles)
 	ssh $(compilationMachine) "cd $(mkfile_path) && cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 all"
 
-$(experimentId)_runs.log:
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                                runmaker                               #
+#                                                                       #
+#                                                                       #
+#########################################################################
+$(experimentId)_VerificationRuns.log:
 	@touch $@
 
-$(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../src/libspace_veins.so
-	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(allConfigs) > ../examples/$(experimentFolderName)/$@
+$(experimentId)_VerificationRuns.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../src/libspace_veins.so
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(verificationConfigs) > ../examples/$(experimentFolderName)/$@
 
-runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
+verificationRunmakerFiles: $(experimentId)_VerificationRuns.log $(experimentId)_VerificationRuns.txt
+
+$(experimentId)_RuntimeRuns.log:
+	@touch $@
+
+$(experimentId)_RuntimeRuns.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../src/libspace_veins.so
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(runtimePerformanceConfigs) > ../examples/$(experimentFolderName)/$@
+
+runtimeRunmakerFiles: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt
 
 simMachines.txt:
 	touch $@
@@ -113,21 +134,51 @@ simMachines.txt:
 		echo $$m >> $@ ; \
 	done
 
+perfMachines.txt:
+	touch $@
+	for m in $(perfMachines) ; do \
+		echo $$m >> $@ ; \
+	done
+
 runtimePerformanceConfigs.txt: eval/writeRuntimePerformanceConfigs.R
 	@singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^
+
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                         Run simulations                               #
+#                                                                       #
+#                                                                       #
+#########################################################################
 
 # sleep 5 seconds after finishing all runs to wait for files written to disk
 # write results of GNU time in a dedicated file for every config to avoid race conditions
 # --timeout=0: no timeout
 # make results dir on own our because otherwise the radio medium communication log is not written
-runAll: $(experimentId)_runs.log $(experimentId)_runs.txt simMachines.txt
+runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_VerificationRuns.txt simMachines.txt
 	mkdir -p results
-	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt" || true
+	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_VerificationRuns.log --loglines $(runmakerLogLines) $(experimentId)_VerificationRuns.txt" || true
 	sleep 5
 	mkdir -p csv/gnuTimeResults/rawData
 	mv GnuTimeResults* csv/gnuTimeResults/rawData
 	sleep 5
 	touch $@
+
+runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt perfMachines.txt
+	mkdir -p results
+	mkdir -p perfResults
+	bash eval/setPerfProbes.sh
+	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs 1 -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
+	touch $@
+
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                         Result collection                             #
+#                                                                       #
+#                                                                       #
+#########################################################################
+
 
 $(vectorCsvFiles): csv/vectors/%.csv : $(vectorFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
@@ -287,9 +338,9 @@ plots: ../../lib/singularity-r-env/singularity-R-env.sif
 	$(MAKE) wallClockTime-vs-gcpb.pdf
 	touch plots
 
-experiment:
+verificationExperiment:
 	mkdir -p archive/$(experimentId)
-	$(MAKE) -j1 experimentId=$(experimentId) runAll
+	$(MAKE) -j1 experimentId=$(experimentId) runVerification
 	$(MAKE) resultCollection
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
@@ -300,6 +351,10 @@ experiment:
 	$(MAKE) gnuTimeResults.csv
 	$(MAKE) plots
 	rm runAll resultCollection plots simMachines.txt
+
+runtimeExperiment:
+	mkdir -p archive/$(experimentId)
+	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
 
 debugInContainer: ../../src/libspace_veins.so
 	date +%Y-%m-%dT%H-%M-%S
