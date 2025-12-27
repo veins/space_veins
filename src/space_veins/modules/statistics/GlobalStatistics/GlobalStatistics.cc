@@ -18,10 +18,14 @@
 // 
 
 #include "space_veins/modules/statistics/GlobalStatistics/GlobalStatistics.h"
+#include "inet/common/Simsignals.h"
+#include "inet/common/packet/Packet.h"
 
 Define_Module(space_veins::GlobalStatistics);
 
 using namespace space_veins;
+
+const simsignal_t GlobalStatistics::packetReceptionHash = registerSignal("space_veins_globalStatistics_packetReceptionHash");
 
 void GlobalStatistics::initialize(int stage)
 {
@@ -33,6 +37,13 @@ void GlobalStatistics::initialize(int stage)
         WATCH(numCurrentCars);
 
         vecCurrentCars.setName("vecCurrentCars:vector");
+
+        // listen for all packet receptions and calculate a hash
+        auto onPacketReception = [this](veins::SignalPayload<cObject*> payload) {
+            lastHash = hasher(lastHash + (size_t)(check_and_cast<inet::Packet*>(payload.p)->getId()));
+            emit(packetReceptionHash, lastHash);
+        };
+        signalManager.subscribeCallback(getSimulation()->getSystemModule(), inet::packetReceivedSignal, onPacketReception);
     }
 }
 

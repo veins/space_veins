@@ -19,8 +19,11 @@
 
 #pragma once
 
+#include <functional>
+
 #include "veins/veins.h"
 #include "veins/base/utils/FindModule.h"
+#include "veins/modules/utility/SignalManager.h"
 
 #include "space_veins/space_veins.h"
 
@@ -41,6 +44,12 @@ class SPACE_VEINS_API GlobalStatistics : public cSimpleModule
         unsigned long numCurrentCars = 0;
 
         cOutVector vecCurrentCars;
+
+        static const simsignal_t packetReceptionHash;
+        std::hash<size_t> hasher;
+        size_t lastHash = 0;
+
+        veins::SignalManager signalManager;
 
     public:
 

@@ -27,4 +27,6 @@ simple GlobalStatistics
 {
     parameters:
         @class(space_veins::GlobalStatistics);
+        @signal[space_veins_globalStatistics_packetReceptionHash];
+        @statistic[packetReceptionHash](source=space_veins_globalStatistics_packetReceptionHash; record=last);
 }
