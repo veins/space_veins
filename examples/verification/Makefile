@@ -17,23 +17,24 @@ experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst 
 experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
-getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
+# getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
+getCurrentPositionBehavior := NGCP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
 # validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
 # validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
 # validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
 # vectorFiles := $(wildcard results/*.vec)
-verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G)) VerifyUpPosOnlyAboveHorizon
+verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
 # runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0360 RtpEnUpPosOnlyAboveHorizonNGCP0720 RtpEnUpPosOnlyAboveHorizonNGCP1080 RtpEnUpPosOnlyAboveHorizonNGCP1440 RtpEnUpPosOnlyAboveHorizonNGCP1800 RtpEnUpPosOnlyAboveHorizonNGCP2160 RtpEnUpPosOnlyAboveHorizonNGCP2520 RtpEnUpPosOnlyAboveHorizonNGCP2880 RtpEnUpPosOnlyAboveHorizonNGCP3240 RtpEnUpPosOnlyAboveHorizonNGCP3600 RtpEnUpPosOnlyAboveHorizonWGCP0360 RtpEnUpPosOnlyAboveHorizonWGCP0720 RtpEnUpPosOnlyAboveHorizonWGCP1080 RtpEnUpPosOnlyAboveHorizonWGCP1440 RtpEnUpPosOnlyAboveHorizonWGCP1800 RtpEnUpPosOnlyAboveHorizonWGCP2160 RtpEnUpPosOnlyAboveHorizonWGCP2520 RtpEnUpPosOnlyAboveHorizonWGCP2880 RtpEnUpPosOnlyAboveHorizonWGCP3240 RtpEnUpPosOnlyAboveHorizonWGCP3600 RtpEnUpPosOnlyAboveHorizonWLIP0360 RtpEnUpPosOnlyAboveHorizonWLIP0720 RtpEnUpPosOnlyAboveHorizonWLIP1080 RtpEnUpPosOnlyAboveHorizonWLIP1440 RtpEnUpPosOnlyAboveHorizonWLIP1800 RtpEnUpPosOnlyAboveHorizonWLIP2160 RtpEnUpPosOnlyAboveHorizonWLIP2520 RtpEnUpPosOnlyAboveHorizonWLIP2880 RtpEnUpPosOnlyAboveHorizonWLIP3240 RtpEnUpPosOnlyAboveHorizonWLIP3600 RtpEnUpPosOnlyAboveHorizonWNPP0360 RtpEnUpPosOnlyAboveHorizonWNPP0720 RtpEnUpPosOnlyAboveHorizonWNPP1080 RtpEnUpPosOnlyAboveHorizonWNPP1440 RtpEnUpPosOnlyAboveHorizonWNPP1800 RtpEnUpPosOnlyAboveHorizonWNPP2160 RtpEnUpPosOnlyAboveHorizonWNPP2520 RtpEnUpPosOnlyAboveHorizonWNPP2880 RtpEnUpPosOnlyAboveHorizonWNPP3240 RtpEnUpPosOnlyAboveHorizonWNPP3600 RtpDisUpPosOnlyAboveHorizonNGCP0360 RtpDisUpPosOnlyAboveHorizonNGCP0720 RtpDisUpPosOnlyAboveHorizonNGCP1080 RtpDisUpPosOnlyAboveHorizonNGCP1440 RtpDisUpPosOnlyAboveHorizonNGCP1800 RtpDisUpPosOnlyAboveHorizonNGCP2160 RtpDisUpPosOnlyAboveHorizonNGCP2520 RtpDisUpPosOnlyAboveHorizonNGCP2880 RtpDisUpPosOnlyAboveHorizonNGCP3240 RtpDisUpPosOnlyAboveHorizonNGCP3600 RtpDisUpPosOnlyAboveHorizonWGCP0360 RtpDisUpPosOnlyAboveHorizonWGCP0720 RtpDisUpPosOnlyAboveHorizonWGCP1080 RtpDisUpPosOnlyAboveHorizonWGCP1440 RtpDisUpPosOnlyAboveHorizonWGCP1800 RtpDisUpPosOnlyAboveHorizonWGCP2160 RtpDisUpPosOnlyAboveHorizonWGCP2520 RtpDisUpPosOnlyAboveHorizonWGCP2880 RtpDisUpPosOnlyAboveHorizonWGCP3240 RtpDisUpPosOnlyAboveHorizonWGCP3600 RtpDisUpPosOnlyAboveHorizonWLIP0360 RtpDisUpPosOnlyAboveHorizonWLIP0720 RtpDisUpPosOnlyAboveHorizonWLIP1080 RtpDisUpPosOnlyAboveHorizonWLIP1440 RtpDisUpPosOnlyAboveHorizonWLIP1800 RtpDisUpPosOnlyAboveHorizonWLIP2160 RtpDisUpPosOnlyAboveHorizonWLIP2520 RtpDisUpPosOnlyAboveHorizonWLIP2880 RtpDisUpPosOnlyAboveHorizonWLIP3240 RtpDisUpPosOnlyAboveHorizonWLIP3600 RtpDisUpPosOnlyAboveHorizonWNPP0360 RtpDisUpPosOnlyAboveHorizonWNPP0720 RtpDisUpPosOnlyAboveHorizonWNPP1080 RtpDisUpPosOnlyAboveHorizonWNPP1440 RtpDisUpPosOnlyAboveHorizonWNPP1800 RtpDisUpPosOnlyAboveHorizonWNPP2160 RtpDisUpPosOnlyAboveHorizonWNPP2520 RtpDisUpPosOnlyAboveHorizonWNPP2880 RtpDisUpPosOnlyAboveHorizonWNPP3240 RtpDisUpPosOnlyAboveHorizonWNPP3600
 runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030
 allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
 vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
-scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation
+scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
-runmakerJobs := 256
-runmakerLogLines := 2
+runmakerJobs := 1
+runmakerLogLines := 50
 simMachines := nsm-sim05
 perfMachines := nsm-lab08
 compilationMachine := nsm-lab08
@@ -82,7 +83,7 @@ cleanResultCollection:
 shell:
 	cd ../../singularity && ./singularity-space_veins.sh shell
 
-# touch ../../singularity/singularity-space_veins.sif to make sure that its timestep is newer than singularity-space_veins.def after running this target
+# TODO: add dependencies: all devcontainer files that are need to build the docker container
 ../../singularity/singularity-space_veins.sif: ../../singularity/buildSingularityContainer.sh ../../singularity/singularity-space_veins.def
 	cd ../../singularity && bash buildSingularityContainer.sh
 	touch ../../singularity/singularity-space_veins.sif
@@ -155,12 +156,11 @@ runtimePerformanceConfigs.txt: eval/writeRuntimePerformanceConfigs.R
 # write results of GNU time in a dedicated file for every config to avoid race conditions
 # --timeout=0: no timeout
 # make results dir on own our because otherwise the radio medium communication log is not written
-runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_VerificationRuns.txt simMachines.txt
+runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_VerificationRuns.txt perfMachines.txt
 	mkdir -p results
-	parallel-ssh -i -h simMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_VerificationRuns.log --loglines $(runmakerLogLines) $(experimentId)_VerificationRuns.txt" || true
-	sleep 5
-	mkdir -p csv/gnuTimeResults/rawData
-	mv GnuTimeResults* csv/gnuTimeResults/rawData
+	mkdir -p perfResults
+	bash eval/setPerfProbes.sh
+	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_VerificationRuns.log --loglines $(runmakerLogLines) $(experimentId)_VerificationRuns.txt" || true
 	sleep 5
 	touch $@
 
@@ -188,80 +188,94 @@ $(vectorCsvFiles): csv/vectors/%.csv : $(vectorFiles)
 $(scalarCsvFiles): csv/scalars/%.csv : $(scalarFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv/scalars
-	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
+	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
 
-gnuTimeResults.csv: eval/gnuTimeResults.R
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
+PERF_RESULTS := $(shell find perfResults -name "*.perf")
+$(PERF_RESULTS:.perf=.perf.counts.csv): %.perf.counts.csv: %.perf
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/checkPerfResults.R $<
 
-speedUp-vs-precalculationInterval.pdf: eval/speedUp-vs-precalculationInterval.R
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+checkPerfResults: $(PERF_RESULTS:.perf=.perf.counts.csv)
 
-wallClockTime-vs-gcpb.pdf: eval/wallClockTime-vs-gcpb.R
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+$(PERF_RESULTS:.perf=.perf.results.csv): %.perf.results.csv: %.perf
+	@echo "target: $@\nprereq: $^\nstem: $*"
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/perfResults.R $<
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/perfResults.pl $<
 
-plotPositionUpdateBehavior:
-	mkdir -p archive/latest/plots
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-getCurrentPositionUpdateCalls.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-linearInterpolationComputations.csv \
-																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonNGCP
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-getCurrentPositionUpdateCalls.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-linearInterpolationComputations.csv \
-																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWLIP
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-getCurrentPositionUpdateCalls.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-linearInterpolationComputations.csv \
-																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWNPP
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-getCurrentPositionUpdateCalls.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
-																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-linearInterpolationComputations.csv \
-																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWGCP
+collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
 
-plotUpdatePositionOnlyAboveHorizon:
-	mkdir -p archive/latest/plots
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
-																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
-																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-NGCP
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
-																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
-																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WLIP
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
-																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
-																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WNPP
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
-																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
-																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WGCP
-
-plotPdrVsConfig:
-	mkdir -p archive/latest/plots
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/pdr-vs-config.R \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonNGCP-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWLIP-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWNPP-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWGCP-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonNGCP-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWLIP-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWNPP-packetReceived.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWGCP-packetReceived.csv \
-		archive/latest/plots/pdr-vs-config
-
-plotNumberOfPositionUpdatesVsConfig:
-	mkdir -p archive/latest/plots
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/numberOfPositionUpdates-vs-config.R \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
-		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
-		archive/latest/plots/numberOfPositionUpdates-vs-config
+# gnuTimeResults.csv: eval/gnuTimeResults.R
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
+# 
+# speedUp-vs-precalculationInterval.pdf: eval/speedUp-vs-precalculationInterval.R
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+# 
+# wallClockTime-vs-gcpb.pdf: eval/wallClockTime-vs-gcpb.R
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+# 
+# plotPositionUpdateBehavior:
+# 	mkdir -p archive/latest/plots
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-getCurrentPositionUpdateCalls.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-linearInterpolationComputations.csv \
+# 																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonNGCP
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-getCurrentPositionUpdateCalls.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-linearInterpolationComputations.csv \
+# 																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWLIP
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-getCurrentPositionUpdateCalls.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-linearInterpolationComputations.csv \
+# 																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWNPP
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/positionUpdateBehavior-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-getCurrentPositionUpdateCalls.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
+# 																																	  archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-linearInterpolationComputations.csv \
+# 																																	  archive/latest/plots/VerifyDisUpPosOnlyAboveHorizonWGCP
+# 
+# plotUpdatePositionOnlyAboveHorizon:
+# 	mkdir -p archive/latest/plots
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonNGCP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-NGCP
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWLIP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WLIP
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWNPP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WNPP
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/csv/vectors/VerifyEnUpPosOnlyAboveHorizonWGCP-lastElevationAngleToSop.csv \
+# 																																			  archive/latest/plots/updatePositionOnlyAboveHorizon-elevationAngle-vs-time-WGCP
+# 
+# plotPdrVsConfig:
+# 	mkdir -p archive/latest/plots
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/pdr-vs-config.R \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonNGCP-packetReceived.csv \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWLIP-packetReceived.csv \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWNPP-packetReceived.csv \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWGCP-packetReceived.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonNGCP-packetReceived.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWLIP-packetReceived.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWNPP-packetReceived.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWGCP-packetReceived.csv \
+# 		archive/latest/plots/pdr-vs-config
+# 
+# plotNumberOfPositionUpdatesVsConfig:
+# 	mkdir -p archive/latest/plots
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/numberOfPositionUpdates-vs-config.R \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
+# 		archive/latest/csv/scalars/VerifyDisUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonNGCP-sgp4Computations.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWLIP-sgp4Computations.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWNPP-sgp4Computations.csv \
+# 		archive/latest/csv/scalars/VerifyEnUpPosOnlyAboveHorizonWGCP-sgp4Computations.csv \
+# 		archive/latest/plots/numberOfPositionUpdates-vs-config
 
 # csv/packetSentCount.csv: runAll
 # 	mkdir -p csv
@@ -324,8 +338,8 @@ plotNumberOfPositionUpdatesVsConfig:
 # collectVectors: csv/endToEndDelay.csv
 # 	touch $@
 
-resultCollection: $(vectorCsvFiles) $(scalarCsvFiles)
-# resultCollection: $(scalarCsvFiles)
+# resultCollection: $(vectorCsvFiles) $(scalarCsvFiles)
+resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
 	touch $@
 
 # ../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def
@@ -341,16 +355,20 @@ plots: ../../lib/singularity-r-env/singularity-R-env.sif
 verificationExperiment:
 	mkdir -p archive/$(experimentId)
 	$(MAKE) -j1 experimentId=$(experimentId) runVerification
-	$(MAKE) resultCollection
-	mv $(experimentId)_runs.log archive/$(experimentId)
-	mv $(experimentId)_runs.txt archive/$(experimentId)
+	$(MAKE) -j8 experimentId=$(experimentId) resultCollection
+# 	ToDo: check packetReceptionHashs
+# 	$(MAKE) -j8 experimentId=$(experimentId)
+	mv $(experimentId)_VerificationRuns.log archive/$(experimentId)
+	mv $(experimentId)_VerificationRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
+	mv perfResults archive/$(experimentId)
 	mv csv archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
-	$(MAKE) gnuTimeResults.csv
-	$(MAKE) plots
-	rm runAll resultCollection plots simMachines.txt
+# 	$(MAKE) gnuTimeResults.csv
+# 	$(MAKE) plots
+	rm runVerification resultCollection
+# 	rm runAll resultCollection plots simMachines.txt
 
 runtimeExperiment:
 	mkdir -p archive/$(experimentId)

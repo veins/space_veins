@@ -15,7 +15,7 @@ con <- file(args[1], open = "r")
 stack <- list()
 lineNumber <- 0
 perfEventOnStack <- ""
-timestampOnStack <- -1
+timestampOnStack <- NULL
 
 # create result data.table
 results <- data.table(
@@ -26,7 +26,9 @@ results <- data.table(
 # Read and process lines one by one
 repeat {
     lineNumber <- lineNumber + 1
-    print(sprintf("Line number: %d -----------------------------------------", lineNumber))
+    print(sprintf("Begin line number: %d -----------------------------------------", lineNumber))
+    print("Call stack at the beginning of processing this line")
+    print(stack)
     line <- readLines(con, n = 1)
     if (identical(line, character(0))) {
         # End of file reached
@@ -36,15 +38,18 @@ repeat {
     # print(lineSplits)
     perfEvent <- paste(lineSplits[[1]][2], lineSplits[[1]][3], sep = "-")
     perfEvent <- trimws(perfEvent, which = "left")
-    # print(perfEvent)
+    print(perfEvent)
     timeSplits <- strsplit(lineSplits[[1]][1], split = " ")
     timestamp <- tail(timeSplits[[1]], 1)[[1]]
     timestamp <- as.numeric(timestamp)
-    # print(timestamp)
+    print(timestamp)
     isReturnCall <- substr(perfEvent, nchar(perfEvent) - 8 + 1, nchar(perfEvent))
     if (length(stack) > 0) {
         perfEventOnStack <- stack[[1]][[1]][1]
         timestampOnStack <- stack[[1]][[2]][1]
+    } else {
+        perfEventOnStack <- ""
+        timestampOnStack <- NULL
     }
     if (isReturnCall == "__return") {
         # current line is a return perf event
@@ -98,8 +103,11 @@ repeat {
             stack <- append(stack, list(call), after = 0)
         }
     }
+    print("Call stack at the end of processing this line")
+    print(stack)
+    print(sprintf("end line number: %d -----------------------------------------", lineNumber))
 }
-print(stack)
+write.csv(results, paste0(args[1],".R.results.csv"))
 
 # Close the connection
 close(con)

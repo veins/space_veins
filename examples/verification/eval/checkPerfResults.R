@@ -1,3 +1,6 @@
+# This script checks that for every function call and its corresponding return call
+# the same number occurences are in the perf data
+
 require(data.table)
 require(dplyr)
 require(tidyverse)
