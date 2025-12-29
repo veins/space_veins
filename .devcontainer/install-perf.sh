@@ -60,3 +60,6 @@ make -j8
 mkdir -p /usr/lib/linux-tools/"$KERNEL_FULL_VERSION"
 cp perf /usr/lib/linux-tools/"$KERNEL_FULL_VERSION"/
 ln -sf /usr/lib/linux-tools/"$KERNEL_FULL_VERSION"/perf /usr/bin/perf
+
+# add capabilities
+# setcap cap_perfmon+eip /usr/lib/linux-tools/"$KERNEL_FULL_VERSION"/perf

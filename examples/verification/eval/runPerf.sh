@@ -7,10 +7,18 @@ set -x
 # $4 location of the perf script output
 
 perf record \
--e probe_opp_run_dbg:main_dbg \
--e probe_opp_run_dbg:main_dbg__return \
+# -e probe_opp_run_dbg:main_dbg \
+# -e probe_opp_run_dbg:main_dbg__return \
+# -e probe_opp_run:main_rls \
+# -e probe_opp_run:main_rls__return \
+-e probe_libspace_veins_dbg:ngcp_init_dbg \
+-e probe_libspace_veins_dbg:ngcp_init_dbg__return \
 -e probe_libspace_veins_dbg:wgcp_init_dbg \
 -e probe_libspace_veins_dbg:wgcp_init_dbg__return \
+-e probe_libspace_veins_dbg:wlip_init_dbg \
+-e probe_libspace_veins_dbg:wlip_init_dbg__return \
+-e probe_libspace_veins_dbg:wnpp_init_dbg \
+-e probe_libspace_veins_dbg:wnpp_init_dbg__return \
 -e probe_libspace_veins_dbg:gcp_dbg \
 -e probe_libspace_veins_dbg:gcp_dbg__return \
 -e probe_libspace_veins_dbg:hsm_dbg \
@@ -25,7 +33,7 @@ $3
 perf script -i $1 --ns -F comm,time,event > $4
 
 # clean up
-rm $1
+# rm $1
 
 # $1: /ramdisk/perf.data
 # $2: fp

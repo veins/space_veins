@@ -47,7 +47,7 @@ foreach (@configs) {
 				if ($1 eq $ARGV[$j]) {
 					# check if configs match
 					# push(@runs,". $commandBegin$1_$i$commandEnd $1 -r $i\n");
-					push(@runs,". ./eval/runPerf.sh /ramdisk/$1_$i.perf.data $callGraphOption \"./run --debug -- -u Cmdenv -c $1 -r $i\" perfResults/$1_$i.perf\n");
+					push(@runs,". ./eval/runPerf.sh /ramdisk/$1_$i.perf.data $callGraphOption \"./run --mode debug -- -u Cmdenv -c $1 -r $i\" perfResults/$1_$i.perf\n");
 					# push(@runs,". $command $1 -r $i\n");
 				}
 			}

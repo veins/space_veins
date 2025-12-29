@@ -133,7 +133,7 @@ sed -i 's/WITH_OSGEARTH=yes/WITH_OSGEARTH=no/g' /opt/omnetpp/configure.user
 # disable parallel distributed simulation feature
 sed -i 's/WITH_PARSIM=yes/WITH_PARSIM=no/g' /opt/omnetpp/configure.user
 # enable -g for debugging information in the binary
-sed -i "s/#CXXFLAGS=-std=c++17/CXXFLAGS='-g'/g" /opt/omnetpp/configure.user
+sed -i "s/#CXXFLAGS=-std=c++17/CXXFLAGS='-g -fno-omit-frame-pointer'/g" /opt/omnetpp/configure.user
 # use gcc/g++
 sed -i 's/PREFER_CLANG=yes/PREFER_CLANG=no/g' /opt/omnetpp/configure.user
 
