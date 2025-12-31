@@ -33,6 +33,7 @@ import space_veins.nodes.SatCar;
 import space_veins.modules.SatelliteObservationPoint.SatelliteObservationPoint;
 import space_veins.modules.statistics.GlobalStatistics.GlobalStatistics;
 import space_veins.modules.mobility.SatelliteInserter.SatelliteInserter;
+import space_veins.modules.mac.OracleMac.GlobalOracleMac;
 
 // INET
 import inet.node.inet.INetworkNode;
@@ -86,6 +87,10 @@ network ManhattanBuildingShadowing
         // space_Veins
         globalStatistics: GlobalStatistics {
             @display("p=580, 425");
+        }
+
+        globalOracleMac: GlobalOracleMac {
+            @display("p=580, 375");
         }
 
         satelliteInserter : SatelliteInserter {
