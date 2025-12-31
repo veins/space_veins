@@ -48,3 +48,9 @@ export WORKSPACE=/workspace/space_veins
 
 # displayed in zsh prompt
 export HOST=space_VeinsContainer
+
+# encoding
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+export LC_CTYPE=C.UTF-8
+
