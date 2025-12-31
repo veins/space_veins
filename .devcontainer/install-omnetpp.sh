@@ -137,6 +137,8 @@ sed -i "s/#CXXFLAGS=-std=c++17/CXXFLAGS='-std=c++17 -g -O0 -no-pie -fno-plt -flt
 sed -i "s/#CFLAGS_DEBUG='-g -Wall'/CFLAGS_DEBUG='-g -O0 -no-pie -fno-plt -flto=1'/g" /opt/omnetpp/configure.user
 # use gcc/g++
 sed -i 's/PREFER_CLANG=yes/PREFER_CLANG=no/g' /opt/omnetpp/configure.user
+# use GNU linker
+sed -i 's/PREFER_LLD=yes/PREFER_LLD=no/g' /opt/omnetpp/configure.user
 
 # build OMNeT++
 cd /opt/omnetpp
