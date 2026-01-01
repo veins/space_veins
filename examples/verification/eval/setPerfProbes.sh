@@ -5,15 +5,15 @@
 # --add main_dbg__return=/opt/omnetpp-5.7/src/envir/main.cc:31 \
 # --no-demangle
 
+
 perf probe --exec /opt/omnetpp/bin/opp_run_dbg \
 --add main_dbg=main \
 --add main_dbg=main%return \
 --no-demangle
 
-# perf probe --exec /opt/omnetpp/bin/opp_run \
-# --add main_rls=main \
-# --add main_rls=main%return \
-# --no-demangle
+# perf probe -x /opt/omnetpp-5.7/bin/opp_run_dbg main:3
+sleep 1
+# perf probe -x /opt/omnetpp-5.7/bin/opp_run_dbg 'main%return'
 
 # SGP4Mobilities initialize
 # NoGetCurrentPostionUpdates
