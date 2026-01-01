@@ -12,6 +12,43 @@ set -x
 # -e probe_opp_run:main_rls__return \
 
 
+###############################
+#          set probes         #
+###############################
+
+# main
+perf probe --exec /opt/omnetpp/bin/opp_run_dbg \
+--add main_dbg=main \
+--add main_dbg=main%return \
+--no-demangle
+
+# SGP4Mobilities initialize
+# NoGetCurrentPostionUpdates
+perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add ngcp_init_dbg=_ZN11space_veins39SGP4MobilityNoGetCurrentPositionUpdates10initializeEi --add ngcp_init_dbg=_ZN11space_veins39SGP4MobilityNoGetCurrentPositionUpdates10initializeEi%return --no-demangle
+# perf probe --exec /workspace/space_veins/src/libspace_veins.so --add ngcp_init_rls=_ZN11space_veins39SGP4MobilityNoGetCurrentPositionUpdates10initializeEi --add ngcp_init_rls=_ZN11space_veins39SGP4MobilityNoGetCurrentPositionUpdates10initializeEi%return --no-demangle
+
+# WithGetCurrentPositionUpdate
+perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add wgcp_init_dbg=_ZN11space_veins41SGP4MobilityWithGetCurrentPositionUpdates10initializeEi --add wgcp_init_dbg=_ZN11space_veins41SGP4MobilityWithGetCurrentPositionUpdates10initializeEi%return --no-demangle
+# perf probe --exec /workspace/space_veins/src/libspace_veins.so --add wgcp_init_rls=_ZN11space_veins41SGP4MobilityWithGetCurrentPositionUpdates10initializeEi --add wgcp_init_rls=_ZN11space_veins41SGP4MobilityWithGetCurrentPositionUpdates10initializeEi%return --no-demangle
+
+# WithLinearInterpolationUpdate
+perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add wlip_init_dbg=_ZN11space_veins42SGP4MobilityWithLinearInterpolationUpdates10initializeEi --add wlip_init_dbg=_ZN11space_veins42SGP4MobilityWithLinearInterpolationUpdates10initializeEi%return --no-demangle
+# perf probe --exec /workspace/space_veins/src/libspace_veins.so --add wlip_init_rls=_ZN11space_veins42SGP4MobilityWithLinearInterpolationUpdates10initializeEi --add wlip_init_rls=_ZN11space_veins42SGP4MobilityWithLinearInterpolationUpdates10initializeEi%return --no-demangle
+
+# WithNearestPeriodicPositionUpdate
+perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add wnpp_init_dbg=_ZN11space_veins46SGP4MobilityWithNearestPeriodicPositionUpdates10initializeEi --add wnpp_init_dbg=_ZN11space_veins46SGP4MobilityWithNearestPeriodicPositionUpdates10initializeEi%return --no-demangle
+# perf probe --exec /workspace/space_veins/src/libspace_veins.so --add wnpp_init_rls=_ZN11space_veins46SGP4MobilityWithNearestPeriodicPositionUpdates10initializeEi --add wnpp_init_rls=_ZN11space_veins46SGP4MobilityWithNearestPeriodicPositionUpdates10initializeEi%return --no-demangle
+
+# SGP4MobilityBase getCurrentPosition() - for random time updates
+perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --no-inlines --add gcp_dbg=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv --add gcp_dbg=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv%return --no-demangle
+# perf probe --exec /workspace/space_veins/src/libspace_veins.so --no-inlines --add gcp_rls=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv --add gcp_rls=_ZN11space_veins16SGP4MobilityBase18getCurrentPositionEv%return --no-demangle
+
+# SGP4MobilityBase handleSelfMessage() - for periodic updates
+perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add hsm_dbg=_ZN11space_veins16SGP4MobilityBase17handleSelfMessageEPN7omnetpp8cMessageE --add hsm_dbg=_ZN11space_veins16SGP4MobilityBase17handleSelfMessageEPN7omnetpp8cMessageE%return --no-demangle
+
+###############################
+#           run perf          #
+###############################
 perf record \
 -e probe_opp_run_dbg:main_dbg \
 -e probe_opp_run_dbg:main_dbg__return \
@@ -36,8 +73,13 @@ $3
 # get results in a nice way
 perf script -i $1 --ns -F comm,time,event > $4
 
-# clean up
+###############################
+#           clean up          #
+###############################
 # rm $1
+
+echo "Deleting all perf probes!:"
+perf probe -d '*'
 
 # $1: /ramdisk/perf.data
 # $2: fp

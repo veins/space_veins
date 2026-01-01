@@ -36,10 +36,8 @@ scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), 
 runmakerJobs := 1
 runmakerLogLines := 50
 simMachines := nsm-sim05
-# perfMachines := nsm-lab08
-# compilationMachine := nsm-lab08
-perfMachines := debian13-on-grogu
-compilationMachine := debian13-on-grogu
+perfMachines := nsm-lab08
+compilationMachine := nsm-lab08
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
 vectorFiles := $(shell find results -name "*.vec")
@@ -161,7 +159,6 @@ runtimePerformanceConfigs.txt: eval/writeRuntimePerformanceConfigs.R
 runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_VerificationRuns.txt perfMachines.txt
 	mkdir -p results
 	mkdir -p perfResults
-# 	bash eval/setPerfProbes.sh
 	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_VerificationRuns.log --loglines $(runmakerLogLines) $(experimentId)_VerificationRuns.txt" || true
 	sleep 1
 	touch $@
