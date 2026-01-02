@@ -40,6 +40,8 @@ perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --no-inlines 
 # SGP4MobilityBase handleSelfMessage() - for periodic updates
 perf probe --exec /workspace/space_veins/src/libspace_veins_dbg.so --add hsm_dbg=_ZN11space_veins16SGP4MobilityBase17handleSelfMessageEPN7omnetpp8cMessageE --add hsm_dbg=_ZN11space_veins16SGP4MobilityBase17handleSelfMessageEPN7omnetpp8cMessageE%return --no-demangle
 
+sleep 1
+
 ###############################
 #           run perf          #
 ###############################
@@ -63,11 +65,14 @@ perf record \
 --verbose \
 $3
 
+sleep 1
+
 # get results in a nice way
 perf script -i $1 --ns -F comm,time,event > $4
 
 ###############################
 #           clean up          #
 ###############################
+sleep 1
 rm $1
 perf probe -d '*'

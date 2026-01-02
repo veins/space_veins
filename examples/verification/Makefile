@@ -20,6 +20,7 @@ experimentFolderName := verification
 # getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
 getCurrentPositionBehavior := NGCP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
+# experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
 # validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
 # validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
