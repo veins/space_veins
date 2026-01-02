@@ -62,6 +62,7 @@ repeat {
         if (nrow(counts) == 1) {
             print(sprintf("Error: there is a single row left in the counts data.table"))
             # quit(status = 1)
+            break
         } else {
             break
         }

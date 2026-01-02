@@ -17,8 +17,9 @@ experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst 
 experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
-# getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
-getCurrentPositionBehavior := NGCP
+getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
+# getCurrentPositionBehavior := NGCP WGCP
+# getCurrentPositionBehavior := NGCP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
@@ -26,13 +27,14 @@ experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
 # validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
 # vectorFiles := $(wildcard results/*.vec)
-verificationConfigs = $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
+verificationConfigs := $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
 # runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0360 RtpEnUpPosOnlyAboveHorizonNGCP0720 RtpEnUpPosOnlyAboveHorizonNGCP1080 RtpEnUpPosOnlyAboveHorizonNGCP1440 RtpEnUpPosOnlyAboveHorizonNGCP1800 RtpEnUpPosOnlyAboveHorizonNGCP2160 RtpEnUpPosOnlyAboveHorizonNGCP2520 RtpEnUpPosOnlyAboveHorizonNGCP2880 RtpEnUpPosOnlyAboveHorizonNGCP3240 RtpEnUpPosOnlyAboveHorizonNGCP3600 RtpEnUpPosOnlyAboveHorizonWGCP0360 RtpEnUpPosOnlyAboveHorizonWGCP0720 RtpEnUpPosOnlyAboveHorizonWGCP1080 RtpEnUpPosOnlyAboveHorizonWGCP1440 RtpEnUpPosOnlyAboveHorizonWGCP1800 RtpEnUpPosOnlyAboveHorizonWGCP2160 RtpEnUpPosOnlyAboveHorizonWGCP2520 RtpEnUpPosOnlyAboveHorizonWGCP2880 RtpEnUpPosOnlyAboveHorizonWGCP3240 RtpEnUpPosOnlyAboveHorizonWGCP3600 RtpEnUpPosOnlyAboveHorizonWLIP0360 RtpEnUpPosOnlyAboveHorizonWLIP0720 RtpEnUpPosOnlyAboveHorizonWLIP1080 RtpEnUpPosOnlyAboveHorizonWLIP1440 RtpEnUpPosOnlyAboveHorizonWLIP1800 RtpEnUpPosOnlyAboveHorizonWLIP2160 RtpEnUpPosOnlyAboveHorizonWLIP2520 RtpEnUpPosOnlyAboveHorizonWLIP2880 RtpEnUpPosOnlyAboveHorizonWLIP3240 RtpEnUpPosOnlyAboveHorizonWLIP3600 RtpEnUpPosOnlyAboveHorizonWNPP0360 RtpEnUpPosOnlyAboveHorizonWNPP0720 RtpEnUpPosOnlyAboveHorizonWNPP1080 RtpEnUpPosOnlyAboveHorizonWNPP1440 RtpEnUpPosOnlyAboveHorizonWNPP1800 RtpEnUpPosOnlyAboveHorizonWNPP2160 RtpEnUpPosOnlyAboveHorizonWNPP2520 RtpEnUpPosOnlyAboveHorizonWNPP2880 RtpEnUpPosOnlyAboveHorizonWNPP3240 RtpEnUpPosOnlyAboveHorizonWNPP3600 RtpDisUpPosOnlyAboveHorizonNGCP0360 RtpDisUpPosOnlyAboveHorizonNGCP0720 RtpDisUpPosOnlyAboveHorizonNGCP1080 RtpDisUpPosOnlyAboveHorizonNGCP1440 RtpDisUpPosOnlyAboveHorizonNGCP1800 RtpDisUpPosOnlyAboveHorizonNGCP2160 RtpDisUpPosOnlyAboveHorizonNGCP2520 RtpDisUpPosOnlyAboveHorizonNGCP2880 RtpDisUpPosOnlyAboveHorizonNGCP3240 RtpDisUpPosOnlyAboveHorizonNGCP3600 RtpDisUpPosOnlyAboveHorizonWGCP0360 RtpDisUpPosOnlyAboveHorizonWGCP0720 RtpDisUpPosOnlyAboveHorizonWGCP1080 RtpDisUpPosOnlyAboveHorizonWGCP1440 RtpDisUpPosOnlyAboveHorizonWGCP1800 RtpDisUpPosOnlyAboveHorizonWGCP2160 RtpDisUpPosOnlyAboveHorizonWGCP2520 RtpDisUpPosOnlyAboveHorizonWGCP2880 RtpDisUpPosOnlyAboveHorizonWGCP3240 RtpDisUpPosOnlyAboveHorizonWGCP3600 RtpDisUpPosOnlyAboveHorizonWLIP0360 RtpDisUpPosOnlyAboveHorizonWLIP0720 RtpDisUpPosOnlyAboveHorizonWLIP1080 RtpDisUpPosOnlyAboveHorizonWLIP1440 RtpDisUpPosOnlyAboveHorizonWLIP1800 RtpDisUpPosOnlyAboveHorizonWLIP2160 RtpDisUpPosOnlyAboveHorizonWLIP2520 RtpDisUpPosOnlyAboveHorizonWLIP2880 RtpDisUpPosOnlyAboveHorizonWLIP3240 RtpDisUpPosOnlyAboveHorizonWLIP3600 RtpDisUpPosOnlyAboveHorizonWNPP0360 RtpDisUpPosOnlyAboveHorizonWNPP0720 RtpDisUpPosOnlyAboveHorizonWNPP1080 RtpDisUpPosOnlyAboveHorizonWNPP1440 RtpDisUpPosOnlyAboveHorizonWNPP1800 RtpDisUpPosOnlyAboveHorizonWNPP2160 RtpDisUpPosOnlyAboveHorizonWNPP2520 RtpDisUpPosOnlyAboveHorizonWNPP2880 RtpDisUpPosOnlyAboveHorizonWNPP3240 RtpDisUpPosOnlyAboveHorizonWNPP3600
-runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030
-allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
-vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
+# runtimePerformanceConfigs := RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030
+# allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
+# vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
+vectors := lastElevationAngleToSop
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
-scalars := sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
+scalars := sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 runmakerJobs := 1
 runmakerLogLines := 50
@@ -167,7 +169,6 @@ runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_Verificati
 runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt perfMachines.txt
 	mkdir -p results
 	mkdir -p perfResults
-# 	bash eval/setPerfProbes.sh
 	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs 1 -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
 	touch $@
 
@@ -199,7 +200,6 @@ checkPerfResults: $(PERF_RESULTS:.perf=.perf.counts.csv)
 
 $(PERF_RESULTS:.perf=.perf.results.csv): %.perf.results.csv: %.perf
 	@echo "target: $@\nprereq: $^\nstem: $*"
-# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/perfResults.R $<
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/perfResults.pl $<
 
 collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
@@ -339,7 +339,8 @@ collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
 # 	touch $@
 
 # resultCollection: $(vectorCsvFiles) $(scalarCsvFiles)
-resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
+# resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
+resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv)
 	touch $@
 
 # ../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def

@@ -63,6 +63,7 @@ perf record \
 -o $1 \
 --call-graph $2 \
 --verbose \
+--no-bpf-event \
 $3
 
 sleep 1
@@ -74,5 +75,8 @@ perf script -i $1 --ns -F comm,time,event > $4
 #           clean up          #
 ###############################
 sleep 1
-rm $1
+# rm $1
+mv $1 perfResults/
 perf probe -d '*'
+
+sleep 1
