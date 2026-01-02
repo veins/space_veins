@@ -25,6 +25,7 @@
 
 #include "veins/base/utils/FindModule.h"
 #include "veins/base/utils/Coord.h"
+#include "veins/modules/utility/SignalManager.h"
 
 #include "space_veins/space_veins.h"
 #include "space_veins/modules/utility/WGS84Coord.h"
@@ -32,6 +33,10 @@
 using namespace omnetpp;
 
 namespace space_veins {
+
+class SGP4MobilityBase;
+class SGP4MobilityBaseAccess;
+
 class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
 {
     protected:
@@ -39,6 +44,8 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         virtual void finish() override;
         virtual void handleMessage(cMessage *msg) override;
         ~VehicleStatistics();
+        veins::SignalManager signalManager;
+        space_veins::SGP4MobilityBase* sgp4m;
 
         // Mobility
         static const simsignal_t omnetCoordX;
@@ -58,6 +65,7 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         static const simsignal_t sopRelativeCoordZ;
 
         // Application layer
+        static const simsignal_t sendSatellitePacketsOverMinElevationAngle;
 
         static const simsignal_t sendSatellitePackets;
         static const simsignal_t receivedSatellitePackets;

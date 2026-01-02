@@ -22,6 +22,7 @@
 //
 
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityBase.h"
+#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
 #include "inet/common/Units.h"
 #include "inet/mobility/base/MovingMobilityBase.h"
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4.h"
@@ -223,7 +224,7 @@ void SGP4MobilityBase::initialize(int stage)
         wgs84cartesian_to_topocentric_projection = proj_create(pj_ctx, ss_proj.str().c_str());
 
         // Statistics
-        // vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
+        vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
 
         // updatePositionOnlyAboveHorizon
         if (updatePositionOnlyAboveHorizon) {

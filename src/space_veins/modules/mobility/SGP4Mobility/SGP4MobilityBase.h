@@ -41,7 +41,6 @@
 #include "space_veins/modules/mobility/SGP4Mobility/TLE.h"
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4.h"
 #include "space_veins/modules/SatelliteObservationPoint/SatelliteObservationPoint.h"
-#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
 
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "veins/modules/mobility/traci/TraCIConnection.h"
@@ -52,6 +51,7 @@
 #include "veins/modules/world/traci/trafficLight/TraCITrafficLightProgram.h"
 
 namespace space_veins {
+class VehicleStatistics;
 
 class SPACE_VEINS_API SGP4MobilityBase : public inet::MovingMobilityBase {
 
@@ -152,6 +152,7 @@ public:
     virtual inet::Coord getCurrentVelocity() override { return inet::Coord::ZERO; }
     virtual inet::Quaternion getCurrentAngularPosition() override { return inet::Quaternion::IDENTITY; }
     virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
+    inet::deg getLastElevationAngleToSop() { return lastElevationAngleToSop; }
 
 protected:
     // methods
@@ -289,6 +290,7 @@ protected:
     VehicleStatistics* vehicleStatistics;
     int SGP4Calculations = 0;
     int SGP4CalculationsDuringPrecalculation = 0;
+};
 
 class SPACE_VEINS_API SGP4MobilityBaseAccess {
 public:
@@ -298,6 +300,5 @@ public:
         ASSERT(sgp4MobilityBase);
         return sgp4MobilityBase;
     };
-};
 };
 } // namespace space_veins
