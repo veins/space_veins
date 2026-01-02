@@ -72,13 +72,13 @@ void space_veins::VehicleStatistics::initialize(int stage)
     if (stage == 5) {
         // after initialization of the SGP4Mobility
         sgp4m = SGP4MobilityBaseAccess().get(getParentModule());
-        // TODO: get minElevationAngle from MediumLimitCache
-        if (sgp4m->getLastElevationAngleToSop().get() >= inet::deg(8).get()) {
-            emit(sendSatellitePacketsOverMinElevationAngle, 1);
-        }
 
         // listen for all packets that have been transmitted
         auto onTransmissionEndedSignal = [this](veins::SignalPayload<cObject*> payload) {
+            // TODO: get minElevationAngle from MediumLimitCache
+            if (sgp4m->getLastElevationAngleToSop().get() >= inet::deg(8).get()) {
+                emit(sendSatellitePacketsOverMinElevationAngle, 1);
+            }
         };
         signalManager.subscribeCallback(getParentModule(), inet::physicallayer::IRadio::transmissionEndedSignal, onTransmissionEndedSignal);
     }
