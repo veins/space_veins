@@ -18,7 +18,10 @@
 // 
 
 #include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
-#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityBase.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityNoGetCurrentPositionUpdates.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithGetCurrentPositionUpdates.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithLinearInterpolationUpdates.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithNearestPeriodicPositionUpdates.h"
 #include "inet/physicallayer/contract/packetlevel/IRadio.h"
 
 Define_Module(space_veins::VehicleStatistics);
@@ -71,16 +74,26 @@ void space_veins::VehicleStatistics::initialize(int stage)
     }
     if (stage == 5) {
         // after initialization of the SGP4Mobility
-        sgp4m = SGP4MobilityBaseAccess().get(getParentModule());
-
-        // listen for all packets that have been transmitted
-        auto onTransmissionEndedSignal = [this](veins::SignalPayload<cObject*> payload) {
-            // TODO: get minElevationAngle from MediumLimitCache
-            if (sgp4m->getLastElevationAngleToSop().get() >= inet::deg(8).get()) {
-                emit(sendSatellitePacketsOverMinElevationAngle, 1);
-            }
-        };
-        signalManager.subscribeCallback(getParentModule(), inet::physicallayer::IRadio::transmissionEndedSignal, onTransmissionEndedSignal);
+        // search for SGP4Mobility
+        sgp4m = SGP4MobilityNoGetCurrentPositionUpdatesAccess().get(getParentModule());
+        if (sgp4m == nullptr) {
+            sgp4m = SGP4MobilityWithGetCurrentPositionUpdatesAccess().get(getParentModule());
+        } else if (sgp4m == nullptr) {
+            sgp4m = SGP4MobilityWithLinearInterpolationUpdatesAccess().get(getParentModule());
+        } else if (sgp4m == nullptr) {
+            sgp4m = SGP4MobilityWithNearestPeriodicPositionUpdatesAccess().get(getParentModule());
+        }
+        if (sgp4m != nullptr) {
+            // SGP4Mobility found, if not: SatCars do not have a SGP4Mobility
+            // listen for all packets that have been transmitted
+            auto onTransmissionEndedSignal = [this](veins::SignalPayload<cObject*> payload) {
+                // TODO: get minElevationAngle from MediumLimitCache
+                if (sgp4m->getLastElevationAngleToSop().get() >= inet::deg(8).get()) {
+                    emit(sendSatellitePacketsOverMinElevationAngle, 1);
+                }
+            };
+            signalManager.subscribeCallback(getParentModule(), inet::physicallayer::IRadio::transmissionEndedSignal, onTransmissionEndedSignal);
+        }
     }
 }
 

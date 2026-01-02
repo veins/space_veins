@@ -60,15 +60,14 @@ protected:
     // Signals
     static const simsignal_t linearInterpolationSpeedMeterPerSecondSignal;
     static const simsignal_t linearInterpolationComputationsSignal;
+};
 
-    class SPACE_VEINS_API SGP4MobilityWithLinearInterpolationUpdatesAccess {
-    public:
-        SGP4MobilityWithLinearInterpolationUpdates* get(cModule* host)
-        {
-            SGP4MobilityWithLinearInterpolationUpdates* sgp4 = veins::FindModule<SGP4MobilityWithLinearInterpolationUpdates*>::findSubModule(host);
-            ASSERT(sgp4);
-            return sgp4;
-        };
+class SPACE_VEINS_API SGP4MobilityWithLinearInterpolationUpdatesAccess {
+public:
+    SGP4MobilityWithLinearInterpolationUpdates* get(cModule* host)
+    {
+        SGP4MobilityWithLinearInterpolationUpdates* sgp4 = veins::FindModule<SGP4MobilityWithLinearInterpolationUpdates*>::findSubModule(host);
+        return sgp4;
     };
 };
 } // namespace space_veins

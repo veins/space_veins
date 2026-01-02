@@ -48,15 +48,14 @@ protected:
     bool nextGetCurrentPositionUpdate() override;
 
     calculatedSgp4SatellitePositions_t linearInterpolationReference; // the satellite position used for returnNearestPeriodicPosition, it should always contain the satellite's position at lastPeriodicUpdate + updateInterval
+};
 
-    class SPACE_VEINS_API SGP4MobilityWithNearestPeriodicPositionUpdatesAccess {
-    public:
-        SGP4MobilityWithNearestPeriodicPositionUpdates* get(cModule* host)
-        {
-            SGP4MobilityWithNearestPeriodicPositionUpdates* sgp4 = veins::FindModule<SGP4MobilityWithNearestPeriodicPositionUpdates*>::findSubModule(host);
-            ASSERT(sgp4);
-            return sgp4;
-        };
+class SPACE_VEINS_API SGP4MobilityWithNearestPeriodicPositionUpdatesAccess {
+public:
+    SGP4MobilityWithNearestPeriodicPositionUpdates* get(cModule* host)
+    {
+        SGP4MobilityWithNearestPeriodicPositionUpdates* sgp4 = veins::FindModule<SGP4MobilityWithNearestPeriodicPositionUpdates*>::findSubModule(host);
+        return sgp4;
     };
 };
 } // namespace space_veins

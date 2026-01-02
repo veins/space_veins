@@ -41,6 +41,7 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
 {
     protected:
         virtual void initialize(int stage) override;
+        int numInitStages() const override { return std::max(cSimpleModule::numInitStages(), 6); }
         virtual void finish() override;
         virtual void handleMessage(cMessage *msg) override;
         ~VehicleStatistics();

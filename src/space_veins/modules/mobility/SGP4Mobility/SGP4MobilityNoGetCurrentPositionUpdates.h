@@ -47,14 +47,14 @@ protected:
     bool nextPeriodicPositionUpdate() override;
     bool nextGetCurrentPositionUpdate() override;
 
-    class SPACE_VEINS_API SGP4MobilityNoGetCurrentPositionUpdatesAccess {
-    public:
-        SGP4MobilityNoGetCurrentPositionUpdates* get(cModule* host)
-        {
-            SGP4MobilityNoGetCurrentPositionUpdates* sgp4 = veins::FindModule<SGP4MobilityNoGetCurrentPositionUpdates*>::findSubModule(host);
-            ASSERT(sgp4);
-            return sgp4;
-        };
+};
+
+class SPACE_VEINS_API SGP4MobilityNoGetCurrentPositionUpdatesAccess {
+public:
+    SGP4MobilityNoGetCurrentPositionUpdates* get(cModule* host)
+    {
+        SGP4MobilityNoGetCurrentPositionUpdates* sgp4 = veins::FindModule<SGP4MobilityNoGetCurrentPositionUpdates*>::findSubModule(host);
+        return sgp4;
     };
 };
 } // namespace space_veins
