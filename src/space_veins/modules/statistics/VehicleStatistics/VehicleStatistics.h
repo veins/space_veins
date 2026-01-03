@@ -45,8 +45,15 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         virtual void finish() override;
         virtual void handleMessage(cMessage *msg) override;
         ~VehicleStatistics();
+
         veins::SignalManager signalManager;
         space_veins::SGP4MobilityBase* sgp4m;
+        std::string moduleType;
+
+        // Age of Information (AoI)
+        simtime_t lastPacketReception = omnetpp::SimTime::ZERO;
+        simtime_t aoiAreaUnderTheCurveSum = omnetpp::SimTime::ZERO;
+        simtime_t beginAverageTimeDuration = omnetpp::SimTime::ZERO;
 
         // Mobility
         static const simsignal_t omnetCoordX;
@@ -67,6 +74,7 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
 
         // Application layer
         static const simsignal_t sendSatellitePacketsOverMinElevationAngle;
+        static const simsignal_t ageOfInformation;
 
         static const simsignal_t sendSatellitePackets;
         static const simsignal_t receivedSatellitePackets;

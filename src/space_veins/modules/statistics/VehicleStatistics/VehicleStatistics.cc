@@ -22,7 +22,9 @@
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithGetCurrentPositionUpdates.h"
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithLinearInterpolationUpdates.h"
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithNearestPeriodicPositionUpdates.h"
+
 #include "inet/physicallayer/contract/packetlevel/IRadio.h"
+#include "inet/common/Simsignals.h"
 
 Define_Module(space_veins::VehicleStatistics);
 
@@ -43,6 +45,7 @@ const simsignal_t space_veins::VehicleStatistics::sopRelativeCoordY = registerSi
 const simsignal_t space_veins::VehicleStatistics::sopRelativeCoordZ = registerSignal("space_veins_vehicleStatistics_sopRelativeCoordZ");
 
 const simsignal_t space_veins::VehicleStatistics::sendSatellitePacketsOverMinElevationAngle = registerSignal("space_veins_vehicleStatistics_sendSatellitePacketsOverMinElevationAngle");
+const simsignal_t space_veins::VehicleStatistics::ageOfInformation = registerSignal("space_veins_vehicleStatistics_ageOfInformation");
 
 const simsignal_t space_veins::VehicleStatistics::sendSatellitePackets = registerSignal("space_veins_vehicleStatistics_sendSatellitePackets");
 const simsignal_t space_veins::VehicleStatistics::receivedSatellitePackets = registerSignal("space_veins_vehicleStatistics_receivedSatellitePackets");
@@ -70,20 +73,24 @@ void space_veins::VehicleStatistics::initialize(int stage)
 {
     if (stage == 0) {
         EV_DEBUG << "space_veins::VehicleStatistics initialized." << std::endl;
-
+        moduleType = getParentModule()->getNedTypeName();
     }
     if (stage == 5) {
-        // after initialization of the SGP4Mobility
-        // search for SGP4Mobility
-        sgp4m = SGP4MobilityNoGetCurrentPositionUpdatesAccess().get(getParentModule());
-        if (sgp4m == nullptr) {
-            sgp4m = SGP4MobilityWithGetCurrentPositionUpdatesAccess().get(getParentModule());
-        } else if (sgp4m == nullptr) {
-            sgp4m = SGP4MobilityWithLinearInterpolationUpdatesAccess().get(getParentModule());
-        } else if (sgp4m == nullptr) {
-            sgp4m = SGP4MobilityWithNearestPeriodicPositionUpdatesAccess().get(getParentModule());
-        }
-        if (sgp4m != nullptr) {
+        if (moduleType == "space_veins.nodes.Satellite") {
+            // after initialization of the SGP4Mobility
+            // search for SGP4Mobility
+            sgp4m = SGP4MobilityNoGetCurrentPositionUpdatesAccess().get(getParentModule());
+            if (sgp4m == nullptr) {
+                sgp4m = SGP4MobilityWithGetCurrentPositionUpdatesAccess().get(getParentModule());
+            } else if (sgp4m == nullptr) {
+                sgp4m = SGP4MobilityWithLinearInterpolationUpdatesAccess().get(getParentModule());
+            } else if (sgp4m == nullptr) {
+                sgp4m = SGP4MobilityWithNearestPeriodicPositionUpdatesAccess().get(getParentModule());
+            }
+            if (sgp4m == nullptr) {
+                throw cRuntimeError("VehicleStatistics: Satellite has no mobility");
+            }
+            ASSERT(sgp4m);
             // SGP4Mobility found, if not: SatCars do not have a SGP4Mobility
             // listen for all packets that have been transmitted
             auto onTransmissionEndedSignal = [this](veins::SignalPayload<cObject*> payload) {
@@ -93,6 +100,38 @@ void space_veins::VehicleStatistics::initialize(int stage)
                 }
             };
             signalManager.subscribeCallback(getParentModule(), inet::physicallayer::IRadio::transmissionEndedSignal, onTransmissionEndedSignal);
+        } else if (moduleType == "space_veins.nodes.SatCar") {
+            auto onPacketReceivedSignal = [this](veins::SignalPayload<cObject*> payload) {
+                simtime_t now = simTime();
+                simtime_t warmupPeriod = getSimulation()->getWarmupPeriod();
+
+                if (now >= warmupPeriod) {
+                    if (beginAverageTimeDuration > omnetpp::SimTime::ZERO) {
+                        // if beginAverageTimeDuration > SimTime::ZERO means that we have
+                        // received a packet before outside of the warumup period. Such we
+                        // can calculate the time difference between the new and the old
+                        // packet.
+                        simtime_t timeSinceLastPacketReception = now - lastPacketReception;
+                        // In order to calculate the area under the curve we can simply
+                        // multiply with 0.5 as we want to calculate the area of a triangle
+                        // with sides equal to timeSinceLastPacketReception
+                        simtime_t aoiAreaUnderTheCurve = 0.5 * timeSinceLastPacketReception;
+                        // aoiAreaUnderCurveSum stores the total sum of the areas of all
+                        // triangles.
+                        aoiAreaUnderTheCurveSum += aoiAreaUnderTheCurve;
+                        // averageTimeDuration stores the time duration since we started to
+                        // measure the age of information
+                        simtime_t averageTimeDuration = now - beginAverageTimeDuration;
+                        simtime_t averageAoI = aoiAreaUnderTheCurveSum / averageTimeDuration;
+                        emit(ageOfInformation, averageAoI);
+                    }
+                    lastPacketReception = now;
+                    if (beginAverageTimeDuration == omnetpp::SimTime::ZERO) {
+                        beginAverageTimeDuration = now;
+                    }
+                }
+            };
+            signalManager.subscribeCallback(getParentModule(), inet::packetReceivedSignal, onPacketReceivedSignal);
         }
     }
 }

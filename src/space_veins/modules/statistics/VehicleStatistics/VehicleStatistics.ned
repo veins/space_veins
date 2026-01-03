@@ -58,6 +58,9 @@ simple VehicleStatistics
 
         @signal[space_veins_vehicleStatistics_sendSatellitePacketsOverMinElevationAngle](type=long);
         @statistic[sendSatellitePacketsOverMinElevationAngle](source=space_veins_vehicleStatistics_sendSatellitePacketsOverMinElevationAngle; record=count, vector);
+        @signal[space_veins_vehicleStatistics_ageOfInformation](type=long);
+        // provides the average age of information after every packet reception in the application layer.
+        @statistic[ageOfInformation](source=space_veins_vehicleStatistics_ageOfInformation; record=last, vector);
 
         @signal[space_veins_vehicleStatistics_sendSatellitePackets](type=long);
         @signal[space_veins_vehicleStatistics_receivedSatellitePackets](type=long);
