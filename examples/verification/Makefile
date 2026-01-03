@@ -17,9 +17,9 @@ experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst 
 experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
-getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
+# getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
 # getCurrentPositionBehavior := NGCP WGCP
-# getCurrentPositionBehavior := NGCP
+getCurrentPositionBehavior := NGCP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
@@ -32,9 +32,9 @@ verificationConfigs := $(foreach E, $(experiments), $(foreach G, $(getCurrentPos
 # runtimePerformanceConfigs := RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030
 # allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
 # vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
-vectors := lastElevationAngleToSop
+vectors := ageOfInformation lastElevationAngleToSop
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
-scalars := sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
+scalars := ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 runmakerJobs := 1
 runmakerLogLines := 50
@@ -338,7 +338,7 @@ collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
 # collectVectors: csv/endToEndDelay.csv
 # 	touch $@
 
-# resultCollection: $(vectorCsvFiles) $(scalarCsvFiles)
+resultCollection: $(scalarCsvFiles)
 # resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
 resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv)
 	touch $@
