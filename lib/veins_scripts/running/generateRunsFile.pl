@@ -31,7 +31,7 @@ my $command = "/usr/bin/time --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
 my $commandBegin = "/usr/bin/time -o GnuTimeResults_";
 my $commandEnd = ".csv --format \"%C,%U,%S,%e\" ./run -u Cmdenv -c";
 
-my $callGraphOption = "dwarf";
+my $callGraphOption = "fp";
 
 my @configs = `./run -a`;
 my @runs = ();
