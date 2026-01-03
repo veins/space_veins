@@ -113,16 +113,17 @@ void space_veins::VehicleStatistics::initialize(int stage)
                         // packet.
                         simtime_t timeSinceLastPacketReception = now - lastPacketReception;
                         // In order to calculate the area under the curve we can simply
-                        // multiply with 0.5 as we want to calculate the area of a triangle
+                        // multiply timeSinceLastPacketReception * timeSinceLastPacketReception
+                        // with 0.5 as we want to calculate the area of a triangle
                         // with sides equal to timeSinceLastPacketReception
-                        simtime_t aoiAreaUnderTheCurve = 0.5 * timeSinceLastPacketReception;
+                        double aoiAreaUnderTheCurve = 0.5 * timeSinceLastPacketReception.dbl() * timeSinceLastPacketReception.dbl();
                         // aoiAreaUnderCurveSum stores the total sum of the areas of all
                         // triangles.
                         aoiAreaUnderTheCurveSum += aoiAreaUnderTheCurve;
                         // averageTimeDuration stores the time duration since we started to
                         // measure the age of information
                         simtime_t averageTimeDuration = now - beginAverageTimeDuration;
-                        simtime_t averageAoI = aoiAreaUnderTheCurveSum / averageTimeDuration;
+                        double averageAoI = aoiAreaUnderTheCurveSum / averageTimeDuration.dbl();
                         emit(ageOfInformation, averageAoI);
                     }
                     lastPacketReception = now;

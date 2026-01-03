@@ -52,7 +52,7 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
 
         // Age of Information (AoI)
         simtime_t lastPacketReception = omnetpp::SimTime::ZERO;
-        simtime_t aoiAreaUnderTheCurveSum = omnetpp::SimTime::ZERO;
+        double aoiAreaUnderTheCurveSum = 0;
         simtime_t beginAverageTimeDuration = omnetpp::SimTime::ZERO;
 
         // Mobility
