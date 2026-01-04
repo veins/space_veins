@@ -290,6 +290,8 @@ protected:
     VehicleStatistics* vehicleStatistics;
     int SGP4Calculations = 0;
     int SGP4CalculationsDuringPrecalculation = 0;
+    unsigned long periodicUpdateCallsNoWarumupPeriod = 0;
+    unsigned long getCurrentPositionUpdateCallsNoWarumupPeriod = 0;
 };
 
 class SPACE_VEINS_API SGP4MobilityBaseAccess {

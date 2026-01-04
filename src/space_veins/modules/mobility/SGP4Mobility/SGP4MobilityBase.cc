@@ -498,6 +498,7 @@ inet::Coord SGP4MobilityBase::getCurrentPosition()
     Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
     updateType = getCurrentPositionUpdate;
     emit(getCurrentPositionUpdateCallSignal, 1);
+    getCurrentPositionUpdateCallsNoWarumupPeriod += 1;
     if (isRelevantInterval(simTime())) {
         SGP4MobilityBase::moveAndUpdate();
         return lastPosition;
@@ -518,6 +519,7 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
     SGP4MobilityBase::moveAndUpdate();
     SGP4MobilityBase::scheduleUpdate();
     emit(periodicUpdateCallSignal, 1);
+    periodicUpdateCallsNoWarumupPeriod += 1;
     emit(processedEventSignal, 1);
     return;
 }
@@ -580,6 +582,8 @@ void SGP4MobilityBase::finish()
     recordScalar("relevantPrecalculationIntervalsSize:count", relevantPrecalculationIntervalsSize);
     recordScalar("bordersOfRelevantIntervalsSize:count", bordersOfRelevantIntervalsSize);
     recordScalar("sgp4CalculationsDuringPrecalculation:count", SGP4CalculationsDuringPrecalculation);
+    recordScalar("getCurrentPositionUpdateCallsNoWarumupPeriod:count", getCurrentPositionUpdateCallsNoWarumupPeriod);
+    recordScalar("periodicUpdateCallsNoWarumupPeriod:count", periodicUpdateCallsNoWarumupPeriod);
 }
 
 
