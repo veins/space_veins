@@ -192,22 +192,33 @@ $(scalarCsvFiles): csv/scalars/%.csv : $(scalarFiles)
 	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
 
 PERF_RESULTS := $(shell find perfResults -name "*.perf")
-
 $(PERF_RESULTS:.perf=.perf.counts.csv): %.perf.counts.csv: %.perf
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/checkPerfResults.R $<
 
-checkPerfResults: $(PERF_RESULTS:.perf=.perf.counts.csv)
-$(PERF_RESULTS:.perf=.perf.results.csv): %.perf.results.csv: %.perf
-	@echo "target: $@\nprereq: $^\nstem: $*"
-	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/perfResults.pl $<
+# checkPerfResults: $(PERF_RESULTS:.perf=.perf.counts.csv)
+# $(PERF_RESULTS:.perf=.perf.results.csv): %.perf.results.csv: %.perf
+# 	@echo "target: $@\nprereq: $^\nstem: $*"
+# 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/perfResults.pl $<
 
-detectPerfScriptDuplicates: $(PERF_RESULTS:.perf=.unique.perl.perf)
-$(PERF_RESULTS:.perf=.unique.perl.perf): %.unique.perl.perf: %.perf
+detectPerfScriptDuplicates: $(PERF_RESULTS:.perf=.perf.unique.perl)
+$(PERF_RESULTS:.perf=.perf.unique.perl): %.perf.unique.perl: %.perf
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/detectPerfScriptDuplicates.pl $<
 
-collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
+UNIQUE_PERF_RESULTS := $(shell find perfResults -name "*.perf.unique.perl")
+$(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv): %.perf.unique.perl.counts.csv: %.perf.unique.perl
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/checkPerfResults.R $<
+
+$(PERF_RESULTS:.perf=.perf.unique.perl.results.csv): %.perf.unique.perl.results.csv: %.perf.unique.perl
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/perfResults.pl $<
+
+# resultCollection: $(scalarCsvFiles)
+# resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
+resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
+	touch $@
 
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
@@ -343,10 +354,6 @@ collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
 # collectVectors: csv/endToEndDelay.csv
 # 	touch $@
 
-# resultCollection: $(scalarCsvFiles)
-# resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
-resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.unique.perl.perf)
-	touch $@
 
 # ../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def
 # 	cd ../../lib/singularity-r-env && singularity build --force --fakeroot singularity-R-env.sif singularity-R-env.def
@@ -362,8 +369,6 @@ verificationExperiment:
 	mkdir -p archive/$(experimentId)
 	$(MAKE) -j1 experimentId=$(experimentId) runVerification
 	$(MAKE) -j8 experimentId=$(experimentId) resultCollection
-# 	ToDo: check packetReceptionHashs
-# 	$(MAKE) -j8 experimentId=$(experimentId)
 	mv $(experimentId)_VerificationRuns.log archive/$(experimentId)
 	mv $(experimentId)_VerificationRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)

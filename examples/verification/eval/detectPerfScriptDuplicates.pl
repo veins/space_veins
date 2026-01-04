@@ -16,8 +16,8 @@ my $input_file = $ARGV[0];
 my ($base_name) = $input_file =~ /^(.*)\.[^.]*$/;
 $base_name //= $input_file;
 
-my $unique_file = "$base_name.unique.perl.perf";
-my $removed_file = "$base_name.removed.perl.perf";
+my $unique_file = "$base_name.perf.unique.perl";
+my $removed_file = "$base_name.perf.removed.perl";
 
 die "Error: File '$input_file' not found.\n" unless -f $input_file;
 
