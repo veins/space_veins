@@ -20,8 +20,8 @@ experimentFolderName := verification
 # getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
 # getCurrentPositionBehavior := NGCP WGCP
 getCurrentPositionBehavior := NGCP
-experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
-# experiments := DisUpPosOnlyAboveHorizon
+# experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
+experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
 # validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
 # validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
@@ -34,7 +34,7 @@ verificationConfigs := $(foreach E, $(experiments), $(foreach G, $(getCurrentPos
 # vectors := lastElevationAngleToSop sgp4Computations linearInterpolationComputations getCurrentPositionUpdateCalls linearInterpolationSpeedMeterPerSecond sgp4SpeedMeterPerSecond
 vectors := ageOfInformation
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
-scalars := getCurrentPositionUpdateCallsNoWarumupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
+scalars := getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 runmakerJobs := 1
 runmakerLogLines := 50
@@ -192,15 +192,20 @@ $(scalarCsvFiles): csv/scalars/%.csv : $(scalarFiles)
 	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
 
 PERF_RESULTS := $(shell find perfResults -name "*.perf")
+
 $(PERF_RESULTS:.perf=.perf.counts.csv): %.perf.counts.csv: %.perf
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/checkPerfResults.R $<
 
 checkPerfResults: $(PERF_RESULTS:.perf=.perf.counts.csv)
-
 $(PERF_RESULTS:.perf=.perf.results.csv): %.perf.results.csv: %.perf
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/perfResults.pl $<
+
+detectPerfScriptDuplicates: $(PERF_RESULTS:.perf=.unique.perl.perf)
+$(PERF_RESULTS:.perf=.unique.perl.perf): %.unique.perl.perf: %.perf
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/detectPerfScriptDuplicates.pl $<
 
 collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
 
@@ -338,9 +343,9 @@ collectPerfResults: $(PERF_RESULTS:.perf=.perf.results.csv)
 # collectVectors: csv/endToEndDelay.csv
 # 	touch $@
 
-resultCollection: $(scalarCsvFiles)
+# resultCollection: $(scalarCsvFiles)
 # resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
-resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv)
+resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.unique.perl.perf)
 	touch $@
 
 # ../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def
