@@ -554,11 +554,12 @@ void SGP4MobilityBase::scheduleRelevantUpdate()
             scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
             EV_TRACE << "scheduleRelevantUpdate(): next periodic update is before the next relevant period, schedule it at the beginning of the next relevant period at: " << moveTimer->getArrivalTime() << "s." << std::endl;
         }
-    } else {
-        // there are no relevant intervals anymore, just fall back to normal scheduling
-        inet::MovingMobilityBase::scheduleUpdate();
-        EV_TRACE << "scheduleRelevantUpdate(): periodic update scheduled at: " << moveTimer->getArrivalTime() << "s." << std::endl;
     }
+    // } else {
+    //     // there are no relevant intervals anymore, just fall back to normal scheduling
+    //     inet::MovingMobilityBase::scheduleUpdate();
+    //     EV_TRACE << "scheduleRelevantUpdate(): periodic update scheduled at: " << moveTimer->getArrivalTime() << "s." << std::endl;
+    // }
 }
 
 void SGP4MobilityBase::scheduleUpdate()
