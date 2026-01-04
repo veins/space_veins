@@ -18,10 +18,10 @@ experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
 # getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
-# getCurrentPositionBehavior := NGCP WGCP
-getCurrentPositionBehavior := NGCP
-# experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
-experiments := DisUpPosOnlyAboveHorizon
+getCurrentPositionBehavior := NGCP WGCP
+# getCurrentPositionBehavior := NGCP
+experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
+# experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
 # validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
 # validationFilesNoEventNumbers := $(patsubst csv/%SatOmnetppPosition.csv,csv/%SatOmnetppPositionNoEventNumbers.csv, $(validationFiles))
