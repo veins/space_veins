@@ -65,7 +65,6 @@ perf record \
 --verbose \
 --no-bpf-event \
 --per-thread \
--F 99 \
 $3
 
 sleep 1
