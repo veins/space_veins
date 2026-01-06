@@ -27,6 +27,7 @@ import org.car2x.veins.modules.world.annotations.AnnotationManager;
 
 // Veins_INET
 import org.car2x.veins.subprojects.veins_inet.IVeinsInetManager;
+import org.car2x.veins.subprojects.veins_inet.VeinsInetTraCIVehicleInserter;
 
 // space_Veins
 import space_veins.nodes.SatCar;
@@ -69,6 +70,10 @@ network ManhattanBuildingShadowing
 
         // Veins INET
         manager: <default("VeinsInetManager")> like IVeinsInetManager if enableSumo {
+        }
+
+        vehicleInserter : VeinsInetTraCIVehicleInserter {
+            @display("p=64,612");
         }
 
         // INET

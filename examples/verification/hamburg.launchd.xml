@@ -35,7 +35,7 @@
 <!-- debug config -->
 <launch>
     <copy file="hamburg.net.xml" />
-    <!-- <copy file="Null-Island-5by5-grid.rou.xml" /> -->
+    <copy file="hamburg.rou.xml" />
     <copy file="hamburg.poly.xml" />
     <copy file="hamburg.sumo.cfg" type="config" />
 </launch>
