@@ -105,32 +105,39 @@ void space_veins::VehicleStatistics::initialize(int stage)
                 simtime_t now = simTime();
                 simtime_t warmupPeriod = getSimulation()->getWarmupPeriod();
 
-                if (now >= warmupPeriod) {
-                    if (beginAverageTimeDuration > omnetpp::SimTime::ZERO) {
-                        // if beginAverageTimeDuration > SimTime::ZERO means that we have
-                        // received a packet before outside of the warumup period. Such we
-                        // can calculate the time difference between the new and the old
-                        // packet.
-                        simtime_t timeSinceLastPacketReception = now - lastPacketReception;
-                        // In order to calculate the area under the curve we can simply
-                        // multiply timeSinceLastPacketReception * timeSinceLastPacketReception
-                        // with 0.5 as we want to calculate the area of a triangle
-                        // with sides equal to timeSinceLastPacketReception
-                        double aoiAreaUnderTheCurve = 0.5 * timeSinceLastPacketReception.dbl() * timeSinceLastPacketReception.dbl();
-                        // aoiAreaUnderCurveSum stores the total sum of the areas of all
-                        // triangles.
-                        aoiAreaUnderTheCurveSum += aoiAreaUnderTheCurve;
-                        // averageTimeDuration stores the time duration since we started to
-                        // measure the age of information
-                        simtime_t averageTimeDuration = now - beginAverageTimeDuration;
-                        double averageAoI = aoiAreaUnderTheCurveSum / averageTimeDuration.dbl();
-                        emit(ageOfInformation, averageAoI);
+                cMessage* payloadMsg = check_and_cast<omnetpp::cMessage*>(payload.p);
+                long newId = payloadMsg->getId();
+                std::set<long>::iterator it = uniqueIds.find(newId);
+                if (it == uniqueIds.end()) {
+                    // newId is not in the set, we have not seen this packet before
+                    uniqueIds.insert(newId);
+                    if (now >= warmupPeriod) {
+                        if (beginAverageTimeDuration > omnetpp::SimTime::ZERO) {
+                            // if beginAverageTimeDuration > SimTime::ZERO means that we have
+                            // received a packet before outside of the warumup period. Such we
+                            // can calculate the time difference between the new and the old
+                            // packet.
+                            simtime_t timeSinceLastPacketReception = now - lastPacketReception;
+                            // In order to calculate the area under the curve we can simply
+                            // multiply timeSinceLastPacketReception * timeSinceLastPacketReception
+                            // with 0.5 as we want to calculate the area of a triangle
+                            // with sides equal to timeSinceLastPacketReception
+                            double aoiAreaUnderTheCurve = 0.5 * timeSinceLastPacketReception.dbl() * timeSinceLastPacketReception.dbl();
+                            // aoiAreaUnderCurveSum stores the total sum of the areas of all
+                            // triangles.
+                            aoiAreaUnderTheCurveSum += aoiAreaUnderTheCurve;
+                            // averageTimeDuration stores the time duration since we started to
+                            // measure the age of information
+                            simtime_t averageTimeDuration = now - beginAverageTimeDuration;
+                            double averageAoI = aoiAreaUnderTheCurveSum / averageTimeDuration.dbl();
+                            emit(ageOfInformation, averageAoI);
+                        }
+                        lastPacketReception = now;
+                        if (beginAverageTimeDuration == omnetpp::SimTime::ZERO) {
+                            beginAverageTimeDuration = now;
+                        }
                     }
-                    lastPacketReception = now;
-                    if (beginAverageTimeDuration == omnetpp::SimTime::ZERO) {
-                        beginAverageTimeDuration = now;
-                    }
-                }
+                }   // else { do nothing because we already have seen this packet }
             };
             signalManager.subscribeCallback(getParentModule(), inet::packetReceivedSignal, onPacketReceivedSignal);
         }

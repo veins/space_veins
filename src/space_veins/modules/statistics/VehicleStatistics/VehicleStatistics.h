@@ -20,6 +20,7 @@
 #pragma once
 
 #include <proj.h>
+#include <set>
 
 #include "veins/veins.h"
 
@@ -51,6 +52,7 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         std::string moduleType;
 
         // Age of Information (AoI)
+        std::set<long> uniqueIds;    // as the UDP layer and the UdpSink application both emit the same signal
         simtime_t lastPacketReception = omnetpp::SimTime::ZERO;
         double aoiAreaUnderTheCurveSum = 0;
         simtime_t beginAverageTimeDuration = omnetpp::SimTime::ZERO;
