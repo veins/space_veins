@@ -3,7 +3,6 @@ name = "dependencies"
 version = "0.1.0"
 description = "Python dependencies for the scripts in this folder."
 authors = ["Mario Franke <research@m-franke.net>"]
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
