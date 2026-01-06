@@ -62,6 +62,6 @@ else:
 p.wait()
 
 # create route files
-# if (args.randomRoutes):
-#     p = subprocess.Popen(["bash", "randomRoutes4VehicleInserter.sh", args.scenarioName + ".net.xml", args.scenarioName + ".trips.xml", args.scenarioName + ".rou.xml"])
-#     p.wait()
+if (args.randomRoutes):
+    p = subprocess.Popen(["bash", "randomRoutes4VehicleInserter.sh", args.scenarioName + ".net.xml", args.scenarioName + ".trips.xml", args.scenarioName + ".rou.xml"])
+    p.wait()
