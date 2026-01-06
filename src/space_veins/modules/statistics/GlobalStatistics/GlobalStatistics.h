@@ -51,10 +51,6 @@ class SPACE_VEINS_API GlobalStatistics : public cSimpleModule
 
         veins::SignalManager signalManager;
 
-    public:
-
-        void incrementTotalCars();
-        void incrementRemovedCars();
 };
 }
 

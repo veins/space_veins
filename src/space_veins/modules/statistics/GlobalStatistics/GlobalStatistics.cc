@@ -18,6 +18,9 @@
 // 
 
 #include "space_veins/modules/statistics/GlobalStatistics/GlobalStatistics.h"
+
+#include "veins/modules/mobility/traci/TraCIScenarioManager.h"
+
 #include "inet/common/Simsignals.h"
 #include "inet/common/packet/Packet.h"
 
@@ -35,8 +38,9 @@ void GlobalStatistics::initialize(int stage)
         WATCH(numTotalCars);
         WATCH(numRemovedCars);
         WATCH(numCurrentCars);
+        WATCH(lastHash);
 
-        vecCurrentCars.setName("vecCurrentCars:vector");
+        vecCurrentCars.setName("activeTraciModules:vector");
 
         // listen for all packet receptions and calculate a hash
         auto onPacketReception = [this](veins::SignalPayload<cObject*> payload) {
@@ -44,13 +48,26 @@ void GlobalStatistics::initialize(int stage)
             emit(packetReceptionHash, lastHash);
         };
         signalManager.subscribeCallback(getSimulation()->getSystemModule(), inet::packetReceivedSignal, onPacketReception);
+        auto onTraciModuleAdded = [this](veins::SignalPayload<cObject*> payload) {
+            numTotalCars += 1;
+            numCurrentCars += 1;
+            vecCurrentCars.record(numCurrentCars);
+        };
+        signalManager.subscribeCallback(getSimulation()->getSystemModule(), veins::TraCIScenarioManager::traciModuleAddedSignal, onTraciModuleAdded);
+        auto onTraciModuleRemoved = [this](veins::SignalPayload<cObject*> payload) {
+            numRemovedCars += 1;
+            numCurrentCars -= 1;
+            vecCurrentCars.record(numCurrentCars);
+        };
+        signalManager.subscribeCallback(getSimulation()->getSystemModule(), veins::TraCIScenarioManager::traciModuleRemovedSignal, onTraciModuleRemoved);
     }
 }
 
 void GlobalStatistics::finish() {
-    recordScalar("numTotalCars:count", numTotalCars);
-    recordScalar("numRemovedCars:count", numRemovedCars);
-    recordScalar("numCurrentCars:count", numCurrentCars);
+    // do not use signals because of warmup period
+    recordScalar("totalAddedTraciModules:count", numTotalCars);
+    recordScalar("totalRemovedTraciModules:count", numRemovedCars);
+    recordScalar("activeTraciModules:last", numCurrentCars);
 }
 
 void GlobalStatistics::handleMessage(cMessage *msg)
@@ -59,18 +76,4 @@ void GlobalStatistics::handleMessage(cMessage *msg)
 }
 
 GlobalStatistics::~GlobalStatistics() {
-}
-
-void GlobalStatistics::incrementTotalCars()
-{
-    numTotalCars += 1;
-    numCurrentCars += 1;
-    vecCurrentCars.record(numCurrentCars);
-}
-
-void GlobalStatistics::incrementRemovedCars()
-{
-    numRemovedCars += 1;
-    numCurrentCars -= 1;
-    vecCurrentCars.record(numCurrentCars);
 }
