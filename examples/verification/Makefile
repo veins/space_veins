@@ -215,9 +215,8 @@ $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv): %.perf.unique.perl.results.
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- perl eval/perfResults.pl $<
 
-# resultCollection: $(scalarCsvFiles)
-# resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.results.csv)
-resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
+# resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
+resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
 	touch $@
 
 # gnuTimeResults.csv: eval/gnuTimeResults.R
