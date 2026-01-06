@@ -80,9 +80,9 @@ network ManhattanBuildingShadowing
             @display("p=580,275");
         }
 
-        // visualizer: IntegratedMultiVisualizer {
-        //     @display("p=580,125");
-        // }
+        visualizer: IntegratedMultiVisualizer {
+            @display("p=580,125");
+        }
 
         // space_Veins
         globalStatistics: GlobalStatistics {
