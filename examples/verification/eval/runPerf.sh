@@ -62,7 +62,6 @@ perf record \
 -e probe_libspace_veins_dbg:hsm_dbg__return \
 -o $1 \
 --call-graph $2 \
---verbose \
 --no-bpf-event \
 --per-thread \
 $3
