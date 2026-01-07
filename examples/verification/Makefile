@@ -162,14 +162,14 @@ runtimePerformanceConfigs.txt: eval/writeRuntimePerformanceConfigs.R
 runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_VerificationRuns.txt perfMachines.txt
 	mkdir -p results
 	mkdir -p perfResults
-	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_VerificationRuns.log --loglines $(runmakerLogLines) $(experimentId)_VerificationRuns.txt" || true
+	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_VerificationRuns.log --loglines $(runmakerLogLines) $(experimentId)_VerificationRuns.txt" || true
 	sleep 1
 	touch $@
 
 runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt perfMachines.txt
 	mkdir -p results
 	mkdir -p perfResults
-	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- python3 ../../lib/runmaker/runmaker4.py --jobs 1 -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
+	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs 1 -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
 	touch $@
 
 #########################################################################
