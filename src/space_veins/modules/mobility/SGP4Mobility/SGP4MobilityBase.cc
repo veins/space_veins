@@ -389,6 +389,7 @@ void SGP4MobilityBase::calculateBordersOfRelevantIntervals() {
         if (nxt == relevantPrecalculationIntervals.end()) {
             border_t end = {it->end, it->endPosition.wallClockTimeUtc};
             borders.second = end;
+            bordersOfRelevantIntervals.push_back(borders);
             // set it to relevantPrecalculationIntervals.end() to finish the while loop
             it = relevantPrecalculationIntervals.end();
         } else {
