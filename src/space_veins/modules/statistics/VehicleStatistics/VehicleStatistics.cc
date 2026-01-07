@@ -82,9 +82,11 @@ void space_veins::VehicleStatistics::initialize(int stage)
             sgp4m = SGP4MobilityNoGetCurrentPositionUpdatesAccess().get(getParentModule());
             if (sgp4m == nullptr) {
                 sgp4m = SGP4MobilityWithGetCurrentPositionUpdatesAccess().get(getParentModule());
-            } else if (sgp4m == nullptr) {
+            }
+            if (sgp4m == nullptr) {
                 sgp4m = SGP4MobilityWithLinearInterpolationUpdatesAccess().get(getParentModule());
-            } else if (sgp4m == nullptr) {
+            }
+            if (sgp4m == nullptr) {
                 sgp4m = SGP4MobilityWithNearestPeriodicPositionUpdatesAccess().get(getParentModule());
             }
             if (sgp4m == nullptr) {
