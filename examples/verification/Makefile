@@ -17,9 +17,9 @@ experimentCommitMessage := $(subst /,-,$(subst ',,$(subst :,,$(subst .,,$(subst 
 experimentId := $(experimentTime)_$(experimentCommitMessage)
 experimentFolderName := verification
 # scenarios := Iridium86Active20240304NullIsland
-# getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
+getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
 # getCurrentPositionBehavior := NGCP WGCP
-getCurrentPositionBehavior := NGCP
+# getCurrentPositionBehavior := NGCP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
