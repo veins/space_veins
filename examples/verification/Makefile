@@ -219,6 +219,45 @@ $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv): %.perf.unique.perl.results.
 resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
 	touch $@
 
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                          prepare plotting                             #
+#                                                                       #
+#                                                                       #
+#########################################################################
+
+ACCUMULATED_PERF_RESULTS := $(shell find perfResults/ -name "*.perf.unique.perl.perl.results.csv")
+plots/mobilityRunTimeShare.csv: eval/mobilityRunTimeShare.R $(ACCUMULATED_PERF_RESULTS)
+# 	echo $(ACCUMULATED_PERF_RESULTS)
+	mkdir -p plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< $(ACCUMULATED_PERF_RESULTS)
+
+AGE_OF_INFORMATION_RESULTS := $(shell find csv/scalars -name "*ageOfInformation.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                           .    plotting     .                         #
+#                                                                       #
+#                                                                       #
+#########################################################################
+plots/runTimeShareVsConfig.pdf: eval/runTimeShareVsConfig.R plots/mobilityRunTimeShare.csv
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< plots/mobilityRunTimeShare.csv
+
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
 # 
@@ -357,12 +396,12 @@ resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PER
 # ../../lib/singularity-r-env/singularity-R-env.sif: ../../lib/singularity-r-env/singularity-R-env.def
 # 	cd ../../lib/singularity-r-env && singularity build --force --fakeroot singularity-R-env.sif singularity-R-env.def
 
-plots: ../../lib/singularity-r-env/singularity-R-env.sif
-	$(MAKE) plotPositionUpdateBehavior
-	$(MAKE) plotUpdatePositionOnlyAboveHorizon
-	$(MAKE) speedUp-vs-precalculationInterval.pdf
-	$(MAKE) wallClockTime-vs-gcpb.pdf
-	touch plots
+# plots: ../../lib/singularity-r-env/singularity-R-env.sif
+# 	$(MAKE) plotPositionUpdateBehavior
+# 	$(MAKE) plotUpdatePositionOnlyAboveHorizon
+# 	$(MAKE) speedUp-vs-precalculationInterval.pdf
+# 	$(MAKE) wallClockTime-vs-gcpb.pdf
+# 	touch plots
 
 verificationExperiment:
 	mkdir -p archive/$(experimentId)
@@ -380,9 +419,9 @@ verificationExperiment:
 	rm runVerification resultCollection
 # 	rm runAll resultCollection plots simMachines.txt
 
-runtimeExperiment:
-	mkdir -p archive/$(experimentId)
-	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
+# runtimeExperiment:
+# 	mkdir -p archive/$(experimentId)
+# 	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
 
 debugInContainer: ../../src/libspace_veins.so
 	date +%Y-%m-%dT%H-%M-%S
