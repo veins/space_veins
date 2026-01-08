@@ -234,6 +234,10 @@ plots/mobilityRunTimeShare.csv: eval/mobilityRunTimeShare.R $(ACCUMULATED_PERF_R
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< $(ACCUMULATED_PERF_RESULTS)
 
 AGE_OF_INFORMATION_RESULTS := $(shell find csv/scalars -name "*ageOfInformation.csv")
+plots/ageOfInformation.csv: eval/ageOfInformation.R $(AGE_OF_INFORMATION_RESULTS)
+# 	echo $(AGE_OF_INFORMATION_RESULTS)
+	mkdir -p plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< $(AGE_OF_INFORMATION_RESULTS)
 
 
 
@@ -257,6 +261,16 @@ AGE_OF_INFORMATION_RESULTS := $(shell find csv/scalars -name "*ageOfInformation.
 #########################################################################
 plots/runTimeShareVsConfig.pdf: eval/runTimeShareVsConfig.R plots/mobilityRunTimeShare.csv
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< plots/mobilityRunTimeShare.csv
+
+plots/benchmarkSpeedUp.pdf: eval/benchmarkSpeedUp.R plots/mobilityRunTimeShare.csv
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< plots/mobilityRunTimeShare.csv
+
+plots/benchmarkAoiVsConfig.pdf: eval/benchmarkAoiVsConfig.R plots/ageOfInformation.csv
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< plots/ageOfInformation.csv
+
+perfBenchmarkPlots: plots/runTimeShareVsConfig.pdf plots/benchmarkSpeedUp.pdf plots/benchmarkAoiVsConfig.pdf
+	mkdir -p plots
+	touch $@
 
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
@@ -407,16 +421,17 @@ verificationExperiment:
 	mkdir -p archive/$(experimentId)
 	$(MAKE) -j1 experimentId=$(experimentId) runVerification
 	$(MAKE) -j8 experimentId=$(experimentId) resultCollection
+	$(MAKE) -j8 experimentId=$(experimentId) perfBenchmarkPlots
 	mv $(experimentId)_VerificationRuns.log archive/$(experimentId)
 	mv $(experimentId)_VerificationRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
 	mv perfResults archive/$(experimentId)
 	mv csv archive/$(experimentId)
+	mv plots archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 # 	$(MAKE) gnuTimeResults.csv
-# 	$(MAKE) plots
-	rm runVerification resultCollection
+	rm runVerification resultCollection perfBenchmarkPlots
 # 	rm runAll resultCollection plots simMachines.txt
 
 # runtimeExperiment:
