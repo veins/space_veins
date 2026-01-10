@@ -39,7 +39,7 @@ vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), 
 scalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 
-demoVectors := lastElevationAngleToSop
+demoVectors := lastElevationAngleToSop getCurrentPositionUpdateCalls
 demoVectorCsvFiles := $(foreach C, $(demoConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 demoScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
@@ -47,7 +47,7 @@ demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(scalars), csv/
 runmakerJobs := 1
 runmakerLogLines := 50
 
-demoRunmakerJobs := 4
+demoRunmakerJobs := 1
 demoRunmakerLogLines := 50
 
 simMachines := nsm-sim05
@@ -488,18 +488,17 @@ verificationExperiment:
 demoExperiment:
 	mkdir -p archive/$(experimentId)
 	$(MAKE) -j1 experimentId=$(experimentId) runDemo
-# 	$(MAKE) -j8 experimentId=$(experimentId) demoResultCollection
+	$(MAKE) -j8 experimentId=$(experimentId) demoResultCollection
 # 	$(MAKE) -j8 experimentId=$(experimentId) perfBenchmarkPlots
 	mv $(experimentId)_DemoRuns.log archive/$(experimentId)
 	mv $(experimentId)_DemoRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
-# 	mv csv archive/$(experimentId)
+	mv csv archive/$(experimentId)
 # 	mv plots archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 # 	$(MAKE) gnuTimeResults.csv
-# 	rm runDemo demoResultCollection
-	rm runDemo
+	rm runDemo demoResultCollection
 
 # runtimeExperiment:
 # 	mkdir -p archive/$(experimentId)
