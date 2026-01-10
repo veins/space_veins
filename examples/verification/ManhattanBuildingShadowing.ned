@@ -72,7 +72,7 @@ network ManhattanBuildingShadowing
         manager: <default("VeinsInetManager")> like IVeinsInetManager if enableSumo {
         }
 
-        vehicleInserter : VeinsInetTraCIVehicleInserter {
+        vehicleInserter : VeinsInetTraCIVehicleInserter if enableSumo {
             @display("p=64,612");
         }
 
