@@ -21,6 +21,7 @@ getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
 # getCurrentPositionBehavior := NGCP WGCP
 # getCurrentPositionBehavior := NGCP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
+demoExperiments := EnUpPosOnlyAboveHorizon
 # experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
 # validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
@@ -28,6 +29,7 @@ experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs := $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
+demoConfigs := $(foreach E, $(demoExperiments), $(foreach G, $(getCurrentPositionBehavior), Demo$E$G))
 # runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0360 RtpEnUpPosOnlyAboveHorizonNGCP0720 RtpEnUpPosOnlyAboveHorizonNGCP1080 RtpEnUpPosOnlyAboveHorizonNGCP1440 RtpEnUpPosOnlyAboveHorizonNGCP1800 RtpEnUpPosOnlyAboveHorizonNGCP2160 RtpEnUpPosOnlyAboveHorizonNGCP2520 RtpEnUpPosOnlyAboveHorizonNGCP2880 RtpEnUpPosOnlyAboveHorizonNGCP3240 RtpEnUpPosOnlyAboveHorizonNGCP3600 RtpEnUpPosOnlyAboveHorizonWGCP0360 RtpEnUpPosOnlyAboveHorizonWGCP0720 RtpEnUpPosOnlyAboveHorizonWGCP1080 RtpEnUpPosOnlyAboveHorizonWGCP1440 RtpEnUpPosOnlyAboveHorizonWGCP1800 RtpEnUpPosOnlyAboveHorizonWGCP2160 RtpEnUpPosOnlyAboveHorizonWGCP2520 RtpEnUpPosOnlyAboveHorizonWGCP2880 RtpEnUpPosOnlyAboveHorizonWGCP3240 RtpEnUpPosOnlyAboveHorizonWGCP3600 RtpEnUpPosOnlyAboveHorizonWLIP0360 RtpEnUpPosOnlyAboveHorizonWLIP0720 RtpEnUpPosOnlyAboveHorizonWLIP1080 RtpEnUpPosOnlyAboveHorizonWLIP1440 RtpEnUpPosOnlyAboveHorizonWLIP1800 RtpEnUpPosOnlyAboveHorizonWLIP2160 RtpEnUpPosOnlyAboveHorizonWLIP2520 RtpEnUpPosOnlyAboveHorizonWLIP2880 RtpEnUpPosOnlyAboveHorizonWLIP3240 RtpEnUpPosOnlyAboveHorizonWLIP3600 RtpEnUpPosOnlyAboveHorizonWNPP0360 RtpEnUpPosOnlyAboveHorizonWNPP0720 RtpEnUpPosOnlyAboveHorizonWNPP1080 RtpEnUpPosOnlyAboveHorizonWNPP1440 RtpEnUpPosOnlyAboveHorizonWNPP1800 RtpEnUpPosOnlyAboveHorizonWNPP2160 RtpEnUpPosOnlyAboveHorizonWNPP2520 RtpEnUpPosOnlyAboveHorizonWNPP2880 RtpEnUpPosOnlyAboveHorizonWNPP3240 RtpEnUpPosOnlyAboveHorizonWNPP3600 RtpDisUpPosOnlyAboveHorizonNGCP0360 RtpDisUpPosOnlyAboveHorizonNGCP0720 RtpDisUpPosOnlyAboveHorizonNGCP1080 RtpDisUpPosOnlyAboveHorizonNGCP1440 RtpDisUpPosOnlyAboveHorizonNGCP1800 RtpDisUpPosOnlyAboveHorizonNGCP2160 RtpDisUpPosOnlyAboveHorizonNGCP2520 RtpDisUpPosOnlyAboveHorizonNGCP2880 RtpDisUpPosOnlyAboveHorizonNGCP3240 RtpDisUpPosOnlyAboveHorizonNGCP3600 RtpDisUpPosOnlyAboveHorizonWGCP0360 RtpDisUpPosOnlyAboveHorizonWGCP0720 RtpDisUpPosOnlyAboveHorizonWGCP1080 RtpDisUpPosOnlyAboveHorizonWGCP1440 RtpDisUpPosOnlyAboveHorizonWGCP1800 RtpDisUpPosOnlyAboveHorizonWGCP2160 RtpDisUpPosOnlyAboveHorizonWGCP2520 RtpDisUpPosOnlyAboveHorizonWGCP2880 RtpDisUpPosOnlyAboveHorizonWGCP3240 RtpDisUpPosOnlyAboveHorizonWGCP3600 RtpDisUpPosOnlyAboveHorizonWLIP0360 RtpDisUpPosOnlyAboveHorizonWLIP0720 RtpDisUpPosOnlyAboveHorizonWLIP1080 RtpDisUpPosOnlyAboveHorizonWLIP1440 RtpDisUpPosOnlyAboveHorizonWLIP1800 RtpDisUpPosOnlyAboveHorizonWLIP2160 RtpDisUpPosOnlyAboveHorizonWLIP2520 RtpDisUpPosOnlyAboveHorizonWLIP2880 RtpDisUpPosOnlyAboveHorizonWLIP3240 RtpDisUpPosOnlyAboveHorizonWLIP3600 RtpDisUpPosOnlyAboveHorizonWNPP0360 RtpDisUpPosOnlyAboveHorizonWNPP0720 RtpDisUpPosOnlyAboveHorizonWNPP1080 RtpDisUpPosOnlyAboveHorizonWNPP1440 RtpDisUpPosOnlyAboveHorizonWNPP1800 RtpDisUpPosOnlyAboveHorizonWNPP2160 RtpDisUpPosOnlyAboveHorizonWNPP2520 RtpDisUpPosOnlyAboveHorizonWNPP2880 RtpDisUpPosOnlyAboveHorizonWNPP3240 RtpDisUpPosOnlyAboveHorizonWNPP3600
 # runtimePerformanceConfigs := RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030
 # allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
@@ -36,11 +38,26 @@ vectors := lastElevationAngleToSop
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
 scalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
+
+demoVectors := lastElevationAngleToSop
+demoVectorCsvFiles := $(foreach C, $(demoConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
+demoScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
+demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
+
 runmakerJobs := 1
 runmakerLogLines := 50
+
+demoRunmakerJobs := 4
+demoRunmakerLogLines := 50
+
 simMachines := nsm-sim05
+
 perfMachines := nsm-lab08
+demoMachines := nsm-lab08
+
 compilationMachine := nsm-lab08
+demoCompilationMachine := nsm-lab08
+
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
 vectorFiles := $(shell find results -name "*.vec")
@@ -53,6 +70,7 @@ debugVariables := space_veins_binaries \
 					experimentId \
 					experimentFolderName \
 					verificationConfigs \
+					demoConfigs \
 					runtimePerformanceConfigs \
 					vectors \
 					vectorCsvFiles \
@@ -124,13 +142,21 @@ $(experimentId)_VerificationRuns.txt: ../../lib/veins_scripts/running/generateRu
 
 verificationRunmakerFiles: $(experimentId)_VerificationRuns.log $(experimentId)_VerificationRuns.txt
 
-$(experimentId)_RuntimeRuns.log:
+$(experimentId)_DemoRuns.log:
 	@touch $@
 
-$(experimentId)_RuntimeRuns.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../src/libspace_veins.so
-	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(runtimePerformanceConfigs) > ../examples/$(experimentFolderName)/$@
+$(experimentId)_DemoRuns.txt: ../../lib/veins_scripts/running/generateDemoRunsFile.pl ../../src/libspace_veins.so
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(demoConfigs) > ../examples/$(experimentFolderName)/$@
 
-runtimeRunmakerFiles: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt
+demoRunmakerFiles: $(experimentId)_DemoRuns.log $(experimentId)_DemoRuns.txt
+
+# $(experimentId)_RuntimeRuns.log:
+# 	@touch $@
+
+# $(experimentId)_RuntimeRuns.txt: ../../lib/veins_scripts/running/generateRunsFile.pl ../../src/libspace_veins.so
+# 	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(runtimePerformanceConfigs) > ../examples/$(experimentFolderName)/$@
+
+# runtimeRunmakerFiles: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt
 
 simMachines.txt:
 	touch $@
@@ -141,6 +167,12 @@ simMachines.txt:
 perfMachines.txt:
 	touch $@
 	for m in $(perfMachines) ; do \
+		echo $$m >> $@ ; \
+	done
+
+demoMachines.txt:
+	touch $@
+	for m in $(demoMachines) ; do \
 		echo $$m >> $@ ; \
 	done
 
@@ -166,11 +198,18 @@ runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_Verificati
 	sleep 1
 	touch $@
 
-runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt perfMachines.txt
+runDemo: $(experimentId)_DemoRuns.log $(experimentId)_DemoRuns.txt demoMachines.txt
 	mkdir -p results
 	mkdir -p perfResults
-	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs 1 -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
+	parallel-ssh -i -h demoMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_DemoRuns.log --loglines $(runmakerLogLines) $(experimentId)_DemoRuns.txt" || true
+	sleep 1
 	touch $@
+
+# runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt perfMachines.txt
+# 	mkdir -p results
+# 	mkdir -p perfResults
+# 	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs 1 -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
+# 	touch $@
 
 #########################################################################
 #                                                                       #
@@ -217,6 +256,19 @@ $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv): %.perf.unique.perl.results.
 
 # resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
 resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
+	touch $@
+
+$(demoVectorCsvFiles): csv/vectors/%.csv : $(demoVectorFiles)
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	mkdir -p csv/vectors
+	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F $(word 2, $(subst -, ,$*)):vector=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.vec > $@
+
+$(demoScalarCsvFiles): csv/scalars/%.csv : $(demoScalarFiles)
+	@echo "target: $@\nprereq: $^\nstem: $*"
+	mkdir -p csv/scalars
+	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
+
+demoResultCollection: $(demoScalarCsvFiles) $(demoVectorCsvFiles)
 	touch $@
 
 #########################################################################
@@ -433,6 +485,22 @@ verificationExperiment:
 # 	$(MAKE) gnuTimeResults.csv
 	rm runVerification resultCollection perfBenchmarkPlots
 # 	rm runAll resultCollection plots simMachines.txt
+
+demoExperiment:
+	mkdir -p archive/$(experimentId)
+	$(MAKE) -j1 experimentId=$(experimentId) runDemo
+# 	$(MAKE) -j8 experimentId=$(experimentId) demoResultCollection
+# 	$(MAKE) -j8 experimentId=$(experimentId) perfBenchmarkPlots
+	mv $(experimentId)_DemoRuns.log archive/$(experimentId)
+	mv $(experimentId)_DemoRuns.txt archive/$(experimentId)
+	mv results archive/$(experimentId)
+# 	mv csv archive/$(experimentId)
+# 	mv plots archive/$(experimentId)
+	rm archive/latest
+	ln -s $(experimentId) archive/latest
+# 	$(MAKE) gnuTimeResults.csv
+# 	rm runDemo demoResultCollection
+	rm runDemo
 
 # runtimeExperiment:
 # 	mkdir -p archive/$(experimentId)
