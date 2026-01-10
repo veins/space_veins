@@ -200,7 +200,6 @@ runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_Verificati
 
 runDemo: $(experimentId)_DemoRuns.log $(experimentId)_DemoRuns.txt demoMachines.txt
 	mkdir -p results
-	mkdir -p perfResults
 	parallel-ssh -i -h demoMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_DemoRuns.log --loglines $(runmakerLogLines) $(experimentId)_DemoRuns.txt" || true
 	sleep 1
 	touch $@
