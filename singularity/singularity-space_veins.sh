@@ -26,10 +26,22 @@
 
 SCRIPTDIR=$(dirname "$0")
 SCRIPTSTEM=$(basename -s .sh "$0")
+host="$(hostname)"   # or use $HOSTNAME in many shells [web:84]
 
-if [ $1 == "shell" ]
-    then
-        singularity shell -H ../.containerHome:/home/containerHome --containall -B /ramdisk:/ramdisk -B /tmp:/tmp -B /sys/kernel/tracing:/sys/kernel/tracing -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif"
-    else
-        singularity run -H ../.containerHome:/home/containerHome --containall -B /ramdisk:/ramdisk -B /tmp:/tmp -B /sys/kernel/tracing:/sys/kernel/tracing -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
+if [[ "$host" == "nsm-lab08" ]]; then
+    if [ $1 == "shell" ]
+        then
+            singularity shell -H ../.containerHome:/home/containerHome --containall -B /ramdisk:/ramdisk -B /tmp:/tmp -B /sys/kernel/tracing:/sys/kernel/tracing -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif"
+        else
+            singularity run -H ../.containerHome:/home/containerHome --containall -B /ramdisk:/ramdisk -B /tmp:/tmp -B /sys/kernel/tracing:/sys/kernel/tracing -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
+    fi
+elif [[ "$host" == "nsm-sim05" ]]; then
+    if [ $1 == "shell" ]
+        then
+            singularity shell -H ../.containerHome:/home/containerHome --containall -B /tmp:/tmp -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif"
+        else
+            singularity run -H ../.containerHome:/home/containerHome --containall -B /tmp:/tmp -B ..:/workspace/space_veins -B ../.containerHome/omnetpp.workspace:/opt/omnetpp.workspace --network none "${SCRIPTDIR}/${SCRIPTSTEM}.sif" --chdir "$@"
+    fi
+else
+    echo "Unknown host: $host"
 fi
