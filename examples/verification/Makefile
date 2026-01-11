@@ -337,6 +337,15 @@ perfBenchmarkPlots: plots/runTimeShareVsConfig.pdf plots/benchmarkSpeedUp.pdf pl
 	mkdir -p plots
 	touch $@
 
+# ------------------------ demoExperiment -------------------------------------------------------------------------------------------------
+plotUpdatePositionOnlyAboveHorizon:
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonNGCP_1c0-lastElevationAngleToSop.csv \
+																																			  archive/latest/csv/vectors/DemoEnUpPosOnlyAboveHorizonNGCP_1c0-lastElevationAngleToSop.csv \
+																																			  archive/latest/plots/updatePositionOnlyAboveHorizon_1c0-elevationAngle-vs-time-NGCP
+
+demoPlots: plotUpdatePositionOnlyAboveHorizon
+	touch $@
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
 # 
@@ -512,8 +521,9 @@ demoExperiment:
 # 	mv plots archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
+	$(MAKE) -j8 experimentId=$(experimentId) demoPlots
 # 	$(MAKE) gnuTimeResults.csv
-	rm runDemo demoResultCollection
+	rm runDemo demoResultCollection demoPlots
 
 # runtimeExperiment:
 # 	mkdir -p archive/$(experimentId)

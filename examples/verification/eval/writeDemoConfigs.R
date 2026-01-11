@@ -12,7 +12,7 @@ for (e in experiments) {
     for (gcpb in getCurrentPositionBehavior) {
         for (u in updateInterval) {
             updateIntervalName <- gsub("\\.", "c", u)
-            configName <- paste0(paste0(paste0(e, gcpb), "-"), updateIntervalName)
+            configName <- paste0(paste0(paste0(e, gcpb), "_"), updateIntervalName)
             configNames <- append(configNames, configName)
             config <- paste0(paste0("[Config ", configName), "]\n")
             extends <- paste0("extends = ", paste0(e,gcpb))
