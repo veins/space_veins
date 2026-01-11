@@ -63,8 +63,8 @@ pchs = list(circle=1,
             cross=4,
             diamond=5,
             filledCircle=20)
-legends = list(dis=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["circle"]], col="black", label= expression("baseline")),
-               en=list(lty=ltys[["solid"]], lwd=lwds[["default"]], pch=pchs[["filledCircle"]], cex=0.1, col="black", label= expression("optimized")),
+legends = list(dis=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["circle"]], col="black", label= expression("unfiltered")),
+               en=list(lty=ltys[["solid"]], lwd=lwds[["default"]], pch=pchs[["filledCircle"]], cex=0.1, col="black", label= expression("filtered")),
                horizon=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], col="gray", label= expression("horizon")),
                com=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], col="red", label= expression("com. threshold"))
                )
@@ -104,5 +104,8 @@ legend(legendPosition,
        col=c(legends[["dis"]][["col"]], legends[["en"]][["col"]], legends[["horizon"]][["col"]], legends[["com"]][["col"]]),
        lty=c(legends[["dis"]][["lty"]], legends[["en"]][["lty"]], legends[["horizon"]][["lty"]], legends[["com"]][["lty"]]),
        bty="n",
+       x.intersp = 0.2,
+       cex = 0.9,
+       seg.len = 0.8,
        ncol=2)
 done()
