@@ -21,7 +21,7 @@ getCurrentPositionBehavior := NGCP WGCP WLIP WNPP
 # getCurrentPositionBehavior := NGCP WGCP
 # getCurrentPositionBehavior := NGCP
 experiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
-demoExperiments := EnUpPosOnlyAboveHorizon
+demoExperiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # experiments := DisUpPosOnlyAboveHorizon
 # # combinational expansion of scenarios and experiments
 # validationFiles := $(foreach C, $(validationConfigs), csv/$(C)SatOmnetppPosition.csv)
@@ -29,7 +29,8 @@ demoExperiments := EnUpPosOnlyAboveHorizon
 # validationOutputFiles := $(foreach S, $(scenarios), validation/$(S)Validation.txt)
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs := $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
-demoConfigs := $(foreach E, $(demoExperiments), $(foreach G, $(getCurrentPositionBehavior), Demo$E$G))
+# demoConfigs := $(foreach E, $(demoExperiments), $(foreach G, $(getCurrentPositionBehavior), Demo$E$G))
+demoConfigs := DemoEnUpPosOnlyAboveHorizonNGCP0.5 DemoEnUpPosOnlyAboveHorizonNGCP1.0 DemoEnUpPosOnlyAboveHorizonNGCP10.0 DemoEnUpPosOnlyAboveHorizonWGCP0.5 DemoEnUpPosOnlyAboveHorizonWGCP1.0 DemoEnUpPosOnlyAboveHorizonWGCP10.0 DemoEnUpPosOnlyAboveHorizonWLIP0.5 DemoEnUpPosOnlyAboveHorizonWLIP1.0 DemoEnUpPosOnlyAboveHorizonWLIP10.0 DemoEnUpPosOnlyAboveHorizonWNPP0.5 DemoEnUpPosOnlyAboveHorizonWNPP1.0 DemoEnUpPosOnlyAboveHorizonWNPP10.0 DemoDisUpPosOnlyAboveHorizonNGCP0.5 DemoDisUpPosOnlyAboveHorizonNGCP1.0 DemoDisUpPosOnlyAboveHorizonNGCP10.0 DemoDisUpPosOnlyAboveHorizonWGCP0.5 DemoDisUpPosOnlyAboveHorizonWGCP1.0 DemoDisUpPosOnlyAboveHorizonWGCP10.0 DemoDisUpPosOnlyAboveHorizonWLIP0.5 DemoDisUpPosOnlyAboveHorizonWLIP1.0 DemoDisUpPosOnlyAboveHorizonWLIP10.0 DemoDisUpPosOnlyAboveHorizonWNPP0.5 DemoDisUpPosOnlyAboveHorizonWNPP1.0 DemoDisUpPosOnlyAboveHorizonWNPP10.0
 # runtimePerformanceConfigs = RtpEnUpPosOnlyAboveHorizonNGCP0360 RtpEnUpPosOnlyAboveHorizonNGCP0720 RtpEnUpPosOnlyAboveHorizonNGCP1080 RtpEnUpPosOnlyAboveHorizonNGCP1440 RtpEnUpPosOnlyAboveHorizonNGCP1800 RtpEnUpPosOnlyAboveHorizonNGCP2160 RtpEnUpPosOnlyAboveHorizonNGCP2520 RtpEnUpPosOnlyAboveHorizonNGCP2880 RtpEnUpPosOnlyAboveHorizonNGCP3240 RtpEnUpPosOnlyAboveHorizonNGCP3600 RtpEnUpPosOnlyAboveHorizonWGCP0360 RtpEnUpPosOnlyAboveHorizonWGCP0720 RtpEnUpPosOnlyAboveHorizonWGCP1080 RtpEnUpPosOnlyAboveHorizonWGCP1440 RtpEnUpPosOnlyAboveHorizonWGCP1800 RtpEnUpPosOnlyAboveHorizonWGCP2160 RtpEnUpPosOnlyAboveHorizonWGCP2520 RtpEnUpPosOnlyAboveHorizonWGCP2880 RtpEnUpPosOnlyAboveHorizonWGCP3240 RtpEnUpPosOnlyAboveHorizonWGCP3600 RtpEnUpPosOnlyAboveHorizonWLIP0360 RtpEnUpPosOnlyAboveHorizonWLIP0720 RtpEnUpPosOnlyAboveHorizonWLIP1080 RtpEnUpPosOnlyAboveHorizonWLIP1440 RtpEnUpPosOnlyAboveHorizonWLIP1800 RtpEnUpPosOnlyAboveHorizonWLIP2160 RtpEnUpPosOnlyAboveHorizonWLIP2520 RtpEnUpPosOnlyAboveHorizonWLIP2880 RtpEnUpPosOnlyAboveHorizonWLIP3240 RtpEnUpPosOnlyAboveHorizonWLIP3600 RtpEnUpPosOnlyAboveHorizonWNPP0360 RtpEnUpPosOnlyAboveHorizonWNPP0720 RtpEnUpPosOnlyAboveHorizonWNPP1080 RtpEnUpPosOnlyAboveHorizonWNPP1440 RtpEnUpPosOnlyAboveHorizonWNPP1800 RtpEnUpPosOnlyAboveHorizonWNPP2160 RtpEnUpPosOnlyAboveHorizonWNPP2520 RtpEnUpPosOnlyAboveHorizonWNPP2880 RtpEnUpPosOnlyAboveHorizonWNPP3240 RtpEnUpPosOnlyAboveHorizonWNPP3600 RtpDisUpPosOnlyAboveHorizonNGCP0360 RtpDisUpPosOnlyAboveHorizonNGCP0720 RtpDisUpPosOnlyAboveHorizonNGCP1080 RtpDisUpPosOnlyAboveHorizonNGCP1440 RtpDisUpPosOnlyAboveHorizonNGCP1800 RtpDisUpPosOnlyAboveHorizonNGCP2160 RtpDisUpPosOnlyAboveHorizonNGCP2520 RtpDisUpPosOnlyAboveHorizonNGCP2880 RtpDisUpPosOnlyAboveHorizonNGCP3240 RtpDisUpPosOnlyAboveHorizonNGCP3600 RtpDisUpPosOnlyAboveHorizonWGCP0360 RtpDisUpPosOnlyAboveHorizonWGCP0720 RtpDisUpPosOnlyAboveHorizonWGCP1080 RtpDisUpPosOnlyAboveHorizonWGCP1440 RtpDisUpPosOnlyAboveHorizonWGCP1800 RtpDisUpPosOnlyAboveHorizonWGCP2160 RtpDisUpPosOnlyAboveHorizonWGCP2520 RtpDisUpPosOnlyAboveHorizonWGCP2880 RtpDisUpPosOnlyAboveHorizonWGCP3240 RtpDisUpPosOnlyAboveHorizonWGCP3600 RtpDisUpPosOnlyAboveHorizonWLIP0360 RtpDisUpPosOnlyAboveHorizonWLIP0720 RtpDisUpPosOnlyAboveHorizonWLIP1080 RtpDisUpPosOnlyAboveHorizonWLIP1440 RtpDisUpPosOnlyAboveHorizonWLIP1800 RtpDisUpPosOnlyAboveHorizonWLIP2160 RtpDisUpPosOnlyAboveHorizonWLIP2520 RtpDisUpPosOnlyAboveHorizonWLIP2880 RtpDisUpPosOnlyAboveHorizonWLIP3240 RtpDisUpPosOnlyAboveHorizonWLIP3600 RtpDisUpPosOnlyAboveHorizonWNPP0360 RtpDisUpPosOnlyAboveHorizonWNPP0720 RtpDisUpPosOnlyAboveHorizonWNPP1080 RtpDisUpPosOnlyAboveHorizonWNPP1440 RtpDisUpPosOnlyAboveHorizonWNPP1800 RtpDisUpPosOnlyAboveHorizonWNPP2160 RtpDisUpPosOnlyAboveHorizonWNPP2520 RtpDisUpPosOnlyAboveHorizonWNPP2880 RtpDisUpPosOnlyAboveHorizonWNPP3240 RtpDisUpPosOnlyAboveHorizonWNPP3600
 # runtimePerformanceConfigs := RtpEnUpPosOnlyAboveHorizonNGCP0010 RtpEnUpPosOnlyAboveHorizonNGCP0020 RtpEnUpPosOnlyAboveHorizonNGCP0030 RtpEnUpPosOnlyAboveHorizonWGCP0010 RtpEnUpPosOnlyAboveHorizonWGCP0020 RtpEnUpPosOnlyAboveHorizonWGCP0030 RtpEnUpPosOnlyAboveHorizonWLIP0010 RtpEnUpPosOnlyAboveHorizonWLIP0020 RtpEnUpPosOnlyAboveHorizonWLIP0030 RtpEnUpPosOnlyAboveHorizonWNPP0010 RtpEnUpPosOnlyAboveHorizonWNPP0020 RtpEnUpPosOnlyAboveHorizonWNPP0030 RtpDisUpPosOnlyAboveHorizonNGCP0010 RtpDisUpPosOnlyAboveHorizonNGCP0020 RtpDisUpPosOnlyAboveHorizonNGCP0030 RtpDisUpPosOnlyAboveHorizonWGCP0010 RtpDisUpPosOnlyAboveHorizonWGCP0020 RtpDisUpPosOnlyAboveHorizonWGCP0030 RtpDisUpPosOnlyAboveHorizonWLIP0010 RtpDisUpPosOnlyAboveHorizonWLIP0020 RtpDisUpPosOnlyAboveHorizonWLIP0030 RtpDisUpPosOnlyAboveHorizonWNPP0010 RtpDisUpPosOnlyAboveHorizonWNPP0020 RtpDisUpPosOnlyAboveHorizonWNPP0030
 # allConfigs := $(verificationConfigs) $(runtimePerformanceConfigs)
@@ -39,15 +40,15 @@ vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), 
 scalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 
-demoVectors := lastElevationAngleToSop getCurrentPositionUpdateCalls
-demoVectorCsvFiles := $(foreach C, $(demoConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
+demoVectors := lastElevationAngleToSop getCurrentPositionUpdateCalls getCurrentPositionUpdates
+demoVectorCsvFiles := $(foreach C, $(demoConfigs), $(foreach V, $(demoVectors), csv/vectors/$(C)-$(V).csv))
 demoScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 
 runmakerJobs := 1
 runmakerLogLines := 50
 
-demoRunmakerJobs := 1
+demoRunmakerJobs := 12
 demoRunmakerLogLines := 50
 
 simMachines := nsm-sim05
@@ -56,7 +57,7 @@ perfMachines := nsm-lab08
 demoMachines := nsm-lab08
 
 compilationMachine := nsm-lab08
-demoCompilationMachine := nsm-lab08
+demoCompilationMachine := nsm-sim05
 
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
@@ -82,6 +83,9 @@ debugVariables := space_veins_binaries \
 					hFiles \
 					vectorFiles \
 
+demoDebugVariables := demoVectors \
+						demoVectorCsvFiles
+
 # scenarios \
 # experiments \
 # validationConfigs \
@@ -94,6 +98,10 @@ debugVariables := space_veins_binaries \
 .SECONDEXPANSION:
 debugVariables:
 	$(foreach V, $(debugVariables), $(info $V: $($V)))
+
+.SECONDEXPANSION:
+demoDebugVariables:
+	$(foreach V, $(demoDebugVariables), $(info $V: $($V)))
 
 cleanAll:
 	rm *_runs.log *_runs.txt runAll collectScalars resultCollection plots
@@ -127,6 +135,8 @@ space_veins: $(ccFiles) $(hFiles) ../../src/Makefile
 ../../src/libspace_veins.so: ../../src/Makefile $(ccFiles) $(hFiles)
 	ssh $(compilationMachine) "cd $(mkfile_path) && cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 all"
 
+demo_space_veins: $(ccFiles) $(hFiles) ../../src/Makefile
+	ssh $(demoCompilationMachine) "cd $(mkfile_path) && cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 space_veins"
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -179,6 +189,8 @@ demoMachines.txt:
 runtimePerformanceConfigs.txt: eval/writeRuntimePerformanceConfigs.R
 	@singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^
 
+demoConfigs.txt: eval/writeDemoConfigs.R
+	@singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ > $@
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -256,6 +268,8 @@ $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv): %.perf.unique.perl.results.
 # resultCollection: $(vectorCsvFiles) $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
 resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl) $(PERF_RESULTS:.perf=.perf.unique.perl.counts.csv) $(PERF_RESULTS:.perf=.perf.unique.perl.results.csv)
 	touch $@
+
+# ------------------------ demoExperiment -------------------------------------------------------------------------------------------------
 
 $(demoVectorCsvFiles): csv/vectors/%.csv : $(demoVectorFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
@@ -487,6 +501,7 @@ verificationExperiment:
 
 demoExperiment:
 	mkdir -p archive/$(experimentId)
+	$(MAKE) -j12 experimentId=$(experimentId) demo_space_veins
 	$(MAKE) -j1 experimentId=$(experimentId) runDemo
 	$(MAKE) -j8 experimentId=$(experimentId) demoResultCollection
 # 	$(MAKE) -j8 experimentId=$(experimentId) perfBenchmarkPlots
