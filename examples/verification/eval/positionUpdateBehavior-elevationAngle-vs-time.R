@@ -75,7 +75,7 @@ pchs = list(circle=1,
             cross=4,
             diamond=5)
 legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("SGP4 update")),
-               liUpdate=list(pch=pchs[["cross"]], label= expression("linear interpolation update")))
+               gcpUpdate=list(lty=2, label= expression("gcp update")))
 
 done <- myps(file = args[4], width=paper.width, height=paper.height)
 plot.new()
@@ -91,7 +91,7 @@ for (i in 1:nrow(gcpuc)) {
 }
 
 box()
-axis(1, xaxp=c(minTime + 1, maxTime -1, 6))
+axis(1, xaxp=c(minTime + 1, maxTime -1, 4))
 yticks <- seq(eleWindowMin, eleWindowMax, length.out = 7)
 ylabels <- sprintf("%.2f", yticks)
 axis(2, at = yticks, labels = ylabels, las=1, tck = -0.05)
@@ -99,7 +99,7 @@ title(xlab="simulation time in s", line=2.2)
 title(ylab="elevation angle in deg", line=2)
 
 # legend position in the top middle
-legendPosition <- "bottom"
+legendPosition <- "bottomleft"
 insetValue <- c(0, 0)
 
 # if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition") {
@@ -110,8 +110,12 @@ insetValue <- c(0, 0)
 legend(legendPosition,
         # add a frame ``
        inset=insetValue,
-       legend=c(legends[["sgp4Update"]][["label"]], legends[["liUpdate"]][["label"]]),
-       pch=c(legends[["sgp4Update"]][["pch"]], legends[["liUpdate"]][["pch"]]),
+       legend=c(legends[["sgp4Update"]][["label"]], legends[["gcpUpdate"]][["label"]], expression("sim. state")),
+       pch=c(legends[["sgp4Update"]][["pch"]], NA, NA),
+       lty=c(NA, 2, 1),
        bty="o",
+    #    cex=0.9,
+       x.intersp = 0.15,
+       seg.len = 0.9,
        ncol=1)
 done()
