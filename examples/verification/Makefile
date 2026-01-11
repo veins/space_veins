@@ -274,7 +274,8 @@ resultCollection: $(scalarCsvFiles) $(PERF_RESULTS:.perf=.perf.counts.csv) $(PER
 $(demoVectorCsvFiles): csv/vectors/%.csv : $(demoVectorFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv/vectors
-	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F $(word 2, $(subst -, ,$*)):vector=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.vec > $@
+# 	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F $(word 2, $(subst -, ,$*)):vector=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.vec > $@
+	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):vector=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.vec > $@
 
 $(demoScalarCsvFiles): csv/scalars/%.csv : $(demoScalarFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
@@ -375,8 +376,8 @@ plotPositionUpdateBehavior: eval/positionUpdateBehavior-elevationAngle-vs-time.R
 
 # 																					archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-linearInterpolationComputations.csv \
 
-demoPlots: plotUpdatePositionOnlyAboveHorizon
-# demoPlots: plotUpdatePositionOnlyAboveHorizon plotPositionUpdateBehavior
+# demoPlots: plotUpdatePositionOnlyAboveHorizon
+demoPlots: plotUpdatePositionOnlyAboveHorizon plotPositionUpdateBehavior
 	touch $@
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
