@@ -10,8 +10,11 @@ args = commandArgs(trailingOnly=TRUE)
 # }
 print(args)
 
-minTime <- 1902.5
-maxTime <- 1906
+minTime <- 2804
+maxTime <- 2809
+
+eleWindowMin <- 7.85
+eleWindowMax <- 8.15
 
 # read in elevation angle data
 # filter based on simulation time
@@ -42,12 +45,12 @@ print(sgp4)
 
 # read time points and calculated elevationAngle relative to the SOP of linear interpolation updates
 # filter based on simulation time
-li <- fread(args[4])
-li <- subset(li, time >= minTime)
-li <- subset(li, time <= maxTime)
-li <- subset(li, select = -c(node, repetition))
-print("li:")
-print(li)
+# li <- fread(args[4])
+# li <- subset(li, time >= minTime)
+# li <- subset(li, time <= maxTime)
+# li <- subset(li, select = -c(node, repetition))
+# print("li:")
+# print(li)
 
 # ----------- plot
 
@@ -74,13 +77,13 @@ pchs = list(circle=1,
 legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("SGP4 update")),
                liUpdate=list(pch=pchs[["cross"]], label= expression("linear interpolation update")))
 
-done <- myps(file = args[5], width=paper.width, height=paper.height)
+done <- myps(file = args[4], width=paper.width, height=paper.height)
 plot.new()
 par(mar=c(3.25,3.0,.5,.75), mgp=c(3.0, 0.5, 0))
-plot.window(xlim=c(minTime + 1, maxTime - 0.9), ylim=c(7.8 ,8.2), xaxs="i", yaxs="i")
+plot.window(xlim=c(minTime + 1, maxTime - 1), ylim=c(eleWindowMin ,eleWindowMax), xaxs="i", yaxs="i")
 lines(eleAngle$time, eleAngle$lastElevationAngleToSop, type = "s", lwd = legends[["sgp4Update"]][["lwd"]])
 points(sgp4$time, sgp4$sgp4Computations, pch = legends[["sgp4Update"]][["pch"]])
-points(li$time, li$linearInterpolationComputations, pch = legends[["liUpdate"]][["pch"]])
+# points(li$time, li$linearInterpolationComputations, pch = legends[["liUpdate"]][["pch"]])
 
 # plot a vertical line for every value in gcp$time
 for (i in 1:nrow(gcpuc)) {
@@ -88,8 +91,10 @@ for (i in 1:nrow(gcpuc)) {
 }
 
 box()
-axis(1, xaxp=c(minTime + 1, maxTime - 1, 3))
-axis(2, las=1)
+axis(1, xaxp=c(minTime + 1, maxTime -1, 6))
+yticks <- seq(eleWindowMin, eleWindowMax, length.out = 7)
+ylabels <- sprintf("%.2f", yticks)
+axis(2, at = yticks, labels = ylabels, las=1, tck = -0.05)
 title(xlab="simulation time in s", line=2.2)
 title(ylab="elevation angle in deg", line=2)
 

@@ -40,7 +40,7 @@ vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), 
 scalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 
-demoVectors := lastElevationAngleToSop getCurrentPositionUpdateCalls getCurrentPositionUpdates
+demoVectors := lastElevationAngleToSop sgp4Computations getCurrentPositionUpdateCalls getCurrentPositionUpdates ageOfInformation
 demoVectorCsvFiles := $(foreach C, $(demoConfigs), $(foreach V, $(demoVectors), csv/vectors/$(C)-$(V).csv))
 demoScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
@@ -281,7 +281,8 @@ $(demoScalarCsvFiles): csv/scalars/%.csv : $(demoScalarFiles)
 	mkdir -p csv/scalars
 	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
 
-demoResultCollection: $(demoScalarCsvFiles) $(demoVectorCsvFiles)
+# demoResultCollection: $(demoScalarCsvFiles) $(demoVectorCsvFiles)
+demoResultCollection: $(demoVectorCsvFiles)
 	touch $@
 
 #########################################################################
@@ -344,7 +345,38 @@ plotUpdatePositionOnlyAboveHorizon:
 																																			  archive/latest/csv/vectors/DemoEnUpPosOnlyAboveHorizonNGCP_1c0-lastElevationAngleToSop.csv \
 																																			  archive/latest/plots/updatePositionOnlyAboveHorizon_1c0-elevationAngle-vs-time-NGCP
 
+plotPositionUpdateBehavior: eval/positionUpdateBehavior-elevationAngle-vs-time.R
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonNGCP_1c0-lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonNGCP_1c0-getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonNGCP_1c0-sgp4Computations.csv \
+																					archive/latest/plots/DemoDisUpPosOnlyAboveHorizonNGCP_1c0
+
+# 																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonNGCP_1c0-linearInterpolationComputations.csv \
+
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWLIP_1c0-lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWLIP_1c0-getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWLIP_1c0-sgp4Computations.csv \
+																					archive/latest/plots/DemoDisUpPosOnlyAboveHorizonWLIP_1c0
+
+# 																					archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWLIP-linearInterpolationComputations.csv \
+
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWNPP_1c0-lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWNPP_1c0-getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWNPP_1c0-sgp4Computations.csv \
+																					archive/latest/plots/DemoDisUpPosOnlyAboveHorizonWNPP_1c0
+
+# 																					archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWNPP-linearInterpolationComputations.csv \
+
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWGCP_1c0-lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWGCP_1c0-getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/DemoDisUpPosOnlyAboveHorizonWGCP_1c0-sgp4Computations.csv \
+																					archive/latest/plots/DemoDisUpPosOnlyAboveHorizonWGCP1_c0
+
+# 																					archive/latest/csv/vectors/VerifyDisUpPosOnlyAboveHorizonWGCP-linearInterpolationComputations.csv \
+
 demoPlots: plotUpdatePositionOnlyAboveHorizon
+# demoPlots: plotUpdatePositionOnlyAboveHorizon plotPositionUpdateBehavior
 	touch $@
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
