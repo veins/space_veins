@@ -556,11 +556,11 @@ demoExperiment:
 	mv $(experimentId)_DemoRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
 	mv csv archive/$(experimentId)
-	mkdir -p archive/$(experimentId)/csv/rawData
+	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
 	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
-# 	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 	$(MAKE) -j8 experimentId=$(experimentId) demoPlots
 	rm runDemo demoResultCollection demoPlots
 
