@@ -306,7 +306,10 @@ plots/ageOfInformation.csv: eval/ageOfInformation.R $(AGE_OF_INFORMATION_RESULTS
 	mkdir -p plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< $(AGE_OF_INFORMATION_RESULTS)
 
+# ------------------------ demoExperiment -------------------------------------------------------------------------------------------------
 
+archive/latest/csv/gnuTimeResults/gnuTimeResults.csv: eval/gnuTimeResults.R
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
 
 
 
@@ -379,6 +382,9 @@ plotPositionUpdateBehavior: eval/positionUpdateBehavior-elevationAngle-vs-time.R
 # demoPlots: plotUpdatePositionOnlyAboveHorizon
 demoPlots: plotUpdatePositionOnlyAboveHorizon plotPositionUpdateBehavior
 	touch $@
+
+
+
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
 # 
@@ -546,16 +552,16 @@ demoExperiment:
 	$(MAKE) -j8 experimentId=$(experimentId) demo_space_veins
 	$(MAKE) -j1 experimentId=$(experimentId) runDemo
 	$(MAKE) -j8 experimentId=$(experimentId) demoResultCollection
-# 	$(MAKE) -j8 experimentId=$(experimentId) perfBenchmarkPlots
 	mv $(experimentId)_DemoRuns.log archive/$(experimentId)
 	mv $(experimentId)_DemoRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
 	mv csv archive/$(experimentId)
-# 	mv plots archive/$(experimentId)
+	mkdir -p archive/$(experimentId)/csv/rawData
+	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
+# 	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 	$(MAKE) -j8 experimentId=$(experimentId) demoPlots
-# 	$(MAKE) gnuTimeResults.csv
 	rm runDemo demoResultCollection demoPlots
 
 # runtimeExperiment:
