@@ -13,8 +13,13 @@ perf_dt[, dis_over_en := ifelse(precalculation == "Dis" & .N > 1,
                                 NA_real_),
         by = gcpBehavior]
 # Then: Calculate average of those ratios by gcpBehavior
-speedUp <- perf_dt[!is.na(dis_over_en), .(avg_ratio = mean(dis_over_en, na.rm = TRUE)), 
-                      by = gcpBehavior]
+# speedUp <- perf_dt[!is.na(dis_over_en), .(avg_ratio = mean(dis_over_en, na.rm = TRUE)), 
+#                       by = gcpBehavior]
+speedUp <- perf_dt[!is.na(dis_over_en), 
+                        .(avg_ratio = mean(dis_over_en, na.rm = TRUE),
+                          sd_ratio = sd(dis_over_en, na.rm = TRUE)), 
+                        by = gcpBehavior]
+
 # ToDo: maybe calculate speedUp for hsm, too?
 setorder(speedUp, gcpBehavior)
 print(speedUp)
@@ -41,19 +46,24 @@ par(mar=c(2.0,3.0,1,1.0), mgp=c(3.0, 0.5, 0))
 # Create 4 grey shades (light → dark)
 greys <- gray.colors(4, start = 0.9, end = 0.1)  # 90% → 10% grey
 
-barplot(speedUp$avg_ratio,
+xpos <- barplot(speedUp$avg_ratio,
         names.arg = speedUp$gcpBehavior,
         col = greys,
         axes = FALSE,
         legend.text = TRUE,
+        xaxt = "n",
         ylim = c(0, 2.5))
+arrows(xpos, speedUp$avg_ratio + speedUp$sd_ratio,
+       xpos, speedUp$avg_ratio - speedUp$sd_ratio,
+       angle = 90, code = 3, length = 0.1, lwd = 1.5)
 box()
+axis(1, at = xpos, labels = c("baseline", "precise", "lin. interp.", "nearest neighbor"))
 axis(2, las=1, tck=-0.04)
 title(ylab="speed up", line=2)
 # Add value labels on top of bars
-text(x = seq_along(speedUp$avg_ratio),
+text(x = xpos,
      y = speedUp$avg_ratio + 0.02,
-     labels = round(speedUp$avg_ratio, 3),
+     labels = round(speedUp$avg_ratio, 2),
      pos = 3,
      cex = 0.8)
 

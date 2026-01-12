@@ -39,7 +39,7 @@ boxplot(ageOfInformation ~ group, data = data, at = pos,
         ylim = c(0, 10),
         xaxt = "n")
 title(ylab="age of information in s", line=2)
-axis(1, at = c(2.5, 7.5), labels = c("baseline", "improved"), tick = FALSE)
-legend(x = "bottomright", legend = c("NGCP", "WGCP", "WLIP", "WNPP"), fill=greys, ncol = 2, bty="n")
+axis(1, at = c(2.5, 7.5), labels = c("filtered", "unfiltered"), tick = FALSE)
+legend(x = "bottomright", legend = c("baseline", "precise", "lin. interp.", "nearest neighbor"), fill=greys, ncol = 2, bty="n")
 box()
 done()
