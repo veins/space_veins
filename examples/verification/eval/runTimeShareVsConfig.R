@@ -87,9 +87,9 @@ box()
 axis(2, las=1, tck=-0.04)
 title(ylab="mobility run time share in %", line=2)
 # Add value labels on top of bars
-# text(x = barplot(plot_matrix, beside = TRUE, plot = FALSE),
-#      y = plot_matrix + 0.02,
-#      labels = round(plot_matrix, 2),
+# text(x = group_mids,
+#      y = avg_matrix + sd_matrix + 0.02,
+#      labels = round(sd_matrix, 2),
 #      pos = 3)
 
 done()

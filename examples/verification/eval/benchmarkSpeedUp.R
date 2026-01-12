@@ -61,10 +61,10 @@ axis(1, at = xpos, labels = c("baseline", "precise", "lin. interp.", "nearest ne
 axis(2, las=1, tck=-0.04)
 title(ylab="speed up", line=2)
 # Add value labels on top of bars
-text(x = xpos,
-     y = speedUp$avg_ratio + 0.02,
-     labels = round(speedUp$avg_ratio, 2),
-     pos = 3,
-     cex = 0.8)
+# text(x = xpos,
+#      y = speedUp$avg_ratio + 0.02,
+#      labels = round(speedUp$avg_ratio, 2),
+#      pos = 3,
+#      cex = 0.8)
 
 done()
