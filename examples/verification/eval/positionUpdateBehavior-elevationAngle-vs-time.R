@@ -75,7 +75,7 @@ pchs = list(circle=1,
             cross=4,
             diamond=5)
 legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("SGP4 update")),
-               gcpUpdate=list(lty=2, label= expression("gcp update")))
+               gcpUpdate=list(lty=2, label= expression("gcp call")))
 
 done <- myps(file = args[4], width=paper.width, height=paper.height)
 plot.new()
@@ -91,7 +91,10 @@ for (i in 1:nrow(gcpuc)) {
 }
 
 box()
-axis(1, xaxp=c(minTime + 1, maxTime -1, 4))
+xticks <- seq(minTime + 1, maxTime -1, length.out = 7)
+xlabels <- sprintf("%.1f", xticks)
+axis(1, at = xticks, labels = xlabels)
+
 yticks <- seq(eleWindowMin, eleWindowMax, length.out = 7)
 ylabels <- sprintf("%.2f", yticks)
 axis(2, at = yticks, labels = ylabels, las=1, tck = -0.05)
