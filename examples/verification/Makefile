@@ -236,7 +236,7 @@ runDemo: $(experimentId)_DemoRuns.log $(experimentId)_DemoRuns.txt demoMachines.
 	sleep 1
 	touch $@
 
-runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt perfMachines.txt
+runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt runtimeMachines.txt
 	mkdir -p results
 	parallel-ssh -i -h runtimeMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runtimeRunmakerJobs) -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
 	touch $@
@@ -604,7 +604,7 @@ runtimeExperiment:
 	mkdir -p archive/$(experimentId)
 	$(MAKE) -j8 experimentId=$(experimentId) runtime_space_veins
 	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
-	$(MAKE) -j8 experimentId=$(experimentId) runtimeResultCollection
+	$(MAKE) -j48 experimentId=$(experimentId) runtimeResultCollection
 	mv $(experimentId)_RuntimeRuns.log archive/$(experimentId)
 	mv $(experimentId)_RuntimeRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
