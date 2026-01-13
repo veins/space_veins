@@ -294,8 +294,7 @@ $(demoScalarCsvFiles): csv/scalars/%.csv : $(demoScalarFiles)
 	mkdir -p csv/scalars
 	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
 
-# demoResultCollection: $(demoScalarCsvFiles) $(demoVectorCsvFiles)
-demoResultCollection: $(demoVectorCsvFiles)
+demoResultCollection: $(demoScalarCsvFiles) $(demoVectorCsvFiles)
 	touch $@
 
 # ------------------------ runtimeExperiment -------------------------------------------------------------------------------------------------
