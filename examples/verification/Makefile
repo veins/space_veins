@@ -412,9 +412,12 @@ archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf: eval/runtimeU
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 
-runtimePlots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf
-	touch $@
+archive/latest/plots/runtimeAoiEcdf.pdf: eval/runtimeAoiEcdf.R archive/latest/plots/ageOfInformation.csv
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/plots/ageOfInformation.csv
 
+runtimePlots: archive/latest/plots/runtimeAoiEcdf.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf
+	touch $@
 
 #########################################################################
 #                                                                       #
