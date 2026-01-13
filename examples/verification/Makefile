@@ -335,9 +335,15 @@ plots/ageOfInformation.csv: eval/ageOfInformation.R $(AGE_OF_INFORMATION_RESULTS
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< $(AGE_OF_INFORMATION_RESULTS)
 
 # ------------------------ demoExperiment/runtimeExperiment -------------------------------------------------------------------------------------------------
-
 archive/latest/csv/gnuTimeResults/gnuTimeResults.csv: eval/gnuTimeResults.R
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
+
+# ------------------------ runtimeExperiment -------------------------------------------------------------------------------------------------
+RUNTIME_AGE_OF_INFORMATION_RESULTS := $(shell find archive/latest/csv/scalars -name "*ageOfInformation.csv")
+archive/latest/plots/ageOfInformation.csv: eval/ageOfInformation.R $(RUNTIME_AGE_OF_INFORMATION_RESULTS)
+	echo $(RUNTIME_AGE_OF_INFORMATION_RESULTS)
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< $(RUNTIME_AGE_OF_INFORMATION_RESULTS)
 
 #########################################################################
 #                                                                       #
@@ -408,6 +414,80 @@ archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf: eval/runtimeU
 
 runtimePlots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf
 	touch $@
+
+
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                          run experiments                              #
+#                                                                       #
+#                                                                       #
+#########################################################################
+verificationExperiment:
+	mkdir -p archive/$(experimentId)
+	$(MAKE) -j1 experimentId=$(experimentId) runVerification
+	$(MAKE) -j8 experimentId=$(experimentId) resultCollection
+	$(MAKE) -j8 experimentId=$(experimentId) perfBenchmarkPlots
+	mv $(experimentId)_VerificationRuns.log archive/$(experimentId)
+	mv $(experimentId)_VerificationRuns.txt archive/$(experimentId)
+	mv results archive/$(experimentId)
+	mv perfResults archive/$(experimentId)
+	mv csv archive/$(experimentId)
+	mv plots archive/$(experimentId)
+	rm archive/latest
+	ln -s $(experimentId) archive/latest
+# 	$(MAKE) gnuTimeResults.csv
+	rm runVerification resultCollection perfBenchmarkPlots
+# 	rm runAll resultCollection plots simMachines.txt
+
+demoExperiment:
+	mkdir -p archive/$(experimentId)
+	$(MAKE) -j8 experimentId=$(experimentId) demo_space_veins
+	$(MAKE) -j1 experimentId=$(experimentId) runDemo
+	$(MAKE) -j8 experimentId=$(experimentId) demoResultCollection
+	mv $(experimentId)_DemoRuns.log archive/$(experimentId)
+	mv $(experimentId)_DemoRuns.txt archive/$(experimentId)
+	mv results archive/$(experimentId)
+	mv csv archive/$(experimentId)
+	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
+	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
+	rm archive/latest
+	ln -s $(experimentId) archive/latest
+	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+	$(MAKE) -j8 experimentId=$(experimentId) demoPlots
+	rm runDemo demoResultCollection demoPlots
+
+runtimeExperiment:
+	mkdir -p archive/$(experimentId)
+	$(MAKE) -j8 experimentId=$(experimentId) runtime_space_veins
+	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
+	$(MAKE) -j48 experimentId=$(experimentId) runtimeResultCollection
+	mv $(experimentId)_RuntimeRuns.log archive/$(experimentId)
+	mv $(experimentId)_RuntimeRuns.txt archive/$(experimentId)
+	mv results archive/$(experimentId)
+	mv csv archive/$(experimentId)
+	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
+	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
+	rm archive/latest
+	ln -s $(experimentId) archive/latest
+	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/plots/ageOfInformation.csv
+	$(MAKE) -j8 experimentId=$(experimentId) runtimePlots
+	rm runRuntime runtimeResultCollection runtimePlots
+
+debugInContainer: ../../src/libspace_veins.so
+	date +%Y-%m-%dT%H-%M-%S
+	/usr/bin/time -o testEn.csv --format "%C,%U,%S,%e" ./run --mode release -- -u Cmdenv -c Debug -r 0
+	date +%Y-%m-%dT%H-%M-%S
+
+time = $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
+test:
+	echo $(time)
+
+parentTarget:
+	echo $(time)
+	sleep 3
+	$(MAKE) time=$(time) test
 
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
@@ -553,68 +633,3 @@ runtimePlots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf
 # 	$(MAKE) speedUp-vs-precalculationInterval.pdf
 # 	$(MAKE) wallClockTime-vs-gcpb.pdf
 # 	touch plots
-
-verificationExperiment:
-	mkdir -p archive/$(experimentId)
-	$(MAKE) -j1 experimentId=$(experimentId) runVerification
-	$(MAKE) -j8 experimentId=$(experimentId) resultCollection
-	$(MAKE) -j8 experimentId=$(experimentId) perfBenchmarkPlots
-	mv $(experimentId)_VerificationRuns.log archive/$(experimentId)
-	mv $(experimentId)_VerificationRuns.txt archive/$(experimentId)
-	mv results archive/$(experimentId)
-	mv perfResults archive/$(experimentId)
-	mv csv archive/$(experimentId)
-	mv plots archive/$(experimentId)
-	rm archive/latest
-	ln -s $(experimentId) archive/latest
-# 	$(MAKE) gnuTimeResults.csv
-	rm runVerification resultCollection perfBenchmarkPlots
-# 	rm runAll resultCollection plots simMachines.txt
-
-demoExperiment:
-	mkdir -p archive/$(experimentId)
-	$(MAKE) -j8 experimentId=$(experimentId) demo_space_veins
-	$(MAKE) -j1 experimentId=$(experimentId) runDemo
-	$(MAKE) -j8 experimentId=$(experimentId) demoResultCollection
-	mv $(experimentId)_DemoRuns.log archive/$(experimentId)
-	mv $(experimentId)_DemoRuns.txt archive/$(experimentId)
-	mv results archive/$(experimentId)
-	mv csv archive/$(experimentId)
-	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
-	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
-	rm archive/latest
-	ln -s $(experimentId) archive/latest
-	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
-	$(MAKE) -j8 experimentId=$(experimentId) demoPlots
-	rm runDemo demoResultCollection demoPlots
-
-runtimeExperiment:
-	mkdir -p archive/$(experimentId)
-	$(MAKE) -j8 experimentId=$(experimentId) runtime_space_veins
-	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
-	$(MAKE) -j48 experimentId=$(experimentId) runtimeResultCollection
-	mv $(experimentId)_RuntimeRuns.log archive/$(experimentId)
-	mv $(experimentId)_RuntimeRuns.txt archive/$(experimentId)
-	mv results archive/$(experimentId)
-	mv csv archive/$(experimentId)
-	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
-	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
-	rm archive/latest
-	ln -s $(experimentId) archive/latest
-	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
-	$(MAKE) -j8 experimentId=$(experimentId) runtimePlots
-	rm runRuntime runtimeResultCollection runtimePlots
-
-debugInContainer: ../../src/libspace_veins.so
-	date +%Y-%m-%dT%H-%M-%S
-	/usr/bin/time -o testEn.csv --format "%C,%U,%S,%e" ./run --mode release -- -u Cmdenv -c Debug -r 0
-	date +%Y-%m-%dT%H-%M-%S
-
-time = $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
-test:
-	echo $(time)
-
-parentTarget:
-	echo $(time)
-	sleep 3
-	$(MAKE) time=$(time) test

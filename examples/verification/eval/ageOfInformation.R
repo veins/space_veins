@@ -36,8 +36,14 @@ extract_meta_data <- function(filename) {
   # Extract basename first (ignore path)
   basename_only <- basename(filename)
 
-  # Pattern: Verify(CAPTURE1)Up.*Horizon(CAPTURE2)-ageOfInformation\.csv
-  pattern <- "Verify([^U]+)Up[^H]*Horizon([^_]+)-ageOfInformation\\.csv"
+  pattern <- ""
+  if (grepl("Verify", filename)) {
+    pattern <- "Verify([^U]+)Up[^H]*Horizon([^_]+)-ageOfInformation\\.csv"
+    isVerificationExperiment <- TRUE
+  } else {
+    pattern <- "Runtime([^U]+)Up[^H]*Horizon([^_]+)_\\d+c\\d+-ageOfInformation\\.csv"
+    isVerificationExperiment <- FALSE
+  }
 
   matches <- regexec(pattern, basename_only, perl = TRUE)
   extracted <- regmatches(basename_only, matches)
@@ -52,5 +58,10 @@ extract_meta_data <- function(filename) {
   ))
 }
 
+isVerificationExperiment <- FALSE
 aoi_data <- create_complete_data_table(args)
-fwrite(aoi_data, "plots/ageOfInformation.csv")
+if (isVerificationExperiment) {
+  fwrite(aoi_data, "plots/ageOfInformation.csv")
+} else {
+  fwrite(aoi_data, "archive/latest/plots/ageOfInformation.csv")
+}
