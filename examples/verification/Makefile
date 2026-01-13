@@ -334,21 +334,10 @@ plots/ageOfInformation.csv: eval/ageOfInformation.R $(AGE_OF_INFORMATION_RESULTS
 	mkdir -p plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< $(AGE_OF_INFORMATION_RESULTS)
 
-# ------------------------ demoExperiment -------------------------------------------------------------------------------------------------
+# ------------------------ demoExperiment/runtimeExperiment -------------------------------------------------------------------------------------------------
 
 archive/latest/csv/gnuTimeResults/gnuTimeResults.csv: eval/gnuTimeResults.R
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
-
-
-
-
-
-
-
-
-
-
-
 
 #########################################################################
 #                                                                       #
@@ -412,6 +401,14 @@ demoPlots: plotUpdatePositionOnlyAboveHorizon plotPositionUpdateBehavior
 	touch $@
 
 # ------------------------ runtimeExperiment -------------------------------------------------------------------------------------------------
+
+runtimeUserTimeVsUpdateInterval.pdf: eval/runtimeUserTimeVsUpdateInterval.R
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+
+runtimePlots:
+	touch $@
+
 
 
 # gnuTimeResults.csv: eval/gnuTimeResults.R
