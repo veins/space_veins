@@ -309,7 +309,7 @@ $(runtimeVectorCsvFiles): csv/vectors/%.csv : $(runtimeVectorFiles)
 $(runtimeScalarCsvFiles): csv/scalars/%.csv : $(runtimeScalarFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv/scalars
-	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition -P "*.leo*[*].mobility.updateInterval"=updateInterval results/$(word 1, $(subst -, ,$*))*.sca > $@
+	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition -I "updateInterval"=updateInterval results/$(word 1, $(subst -, ,$*))*.sca > $@
 
 runtimeResultCollection: $(runtimeScalarCsvFiles)
 	touch $@

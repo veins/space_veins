@@ -14,7 +14,7 @@ for (e in experiments) {
             config <- paste0(paste0("[Config ", configName), "]\n")
             extends <- paste0("extends = ", paste0(e,gcpb))
             config <- paste0(config,paste0(extends, "\n"))
-            config <- paste0(paste0(paste0(config, "*.leo*[*].mobility.updateInterval = "), u), "s\n\n")
+            config <- paste0(paste0(paste0(config, "*.leo*[*].mobility.updateInterval = ${updateInterval="), u), "}s\n\n")
             cat(config)
         }
     }
