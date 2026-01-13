@@ -46,7 +46,7 @@ demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(demoScalars), 
 runtimeVectors := ageOfInformation
 runtimeVectorCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach V, $(runtimeVectors), csv/vectors/$(C)-$(V).csv))
 runtimeScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
-runtimeScalarCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach S, $(runtimescalars), csv/scalars/$(C)-$(S).csv))
+runtimeScalarCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach S, $(runtimeScalars), csv/scalars/$(C)-$(S).csv))
 
 runmakerJobs := 1
 runmakerLogLines := 50
@@ -54,7 +54,7 @@ runmakerLogLines := 50
 demoRunmakerJobs := 8
 demoRunmakerLogLines := 50
 
-runtimeRunmakerJobs := 240
+runtimeRunmakerJobs := 128
 runtimeRunmakerLogLines := 50
 
 perfMachines := nsm-lab08
@@ -92,8 +92,10 @@ debugVariables := space_veins_binaries \
 demoDebugVariables := demoVectors \
 						demoVectorCsvFiles
 
-runtimeDebugVariables := demoVectors \
-						demoVectorCsvFiles
+runtimeDebugVariables := runtimeVectors \
+						runtimeVectorCsvFiles \
+						runtimeScalars \
+						runtimeScalarCsvFiles
 
 .SECONDEXPANSION:
 debugVariables:
@@ -105,7 +107,7 @@ demoDebugVariables:
 
 .SECONDEXPANSION:
 runtimeDebugVariables:
-	$(foreach V, $(demoDebugVariables), $(info $V: $($V)))
+	$(foreach V, $(runtimeDebugVariables), $(info $V: $($V)))
 
 cleanAll:
 	rm *_runs.log *_runs.txt runAll collectScalars resultCollection plots
@@ -307,7 +309,7 @@ $(runtimeVectorCsvFiles): csv/vectors/%.csv : $(runtimeVectorFiles)
 $(runtimeScalarCsvFiles): csv/scalars/%.csv : $(runtimeScalarFiles)
 	@echo "target: $@\nprereq: $^\nstem: $*"
 	mkdir -p csv/scalars
-	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
+	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition -P "*.leo*[*].mobility.updateInterval"=updateInterval results/$(word 1, $(subst -, ,$*))*.sca > $@
 
 runtimeResultCollection: $(runtimeScalarCsvFiles)
 	touch $@
