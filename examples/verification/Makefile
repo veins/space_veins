@@ -402,14 +402,12 @@ demoPlots: plotUpdatePositionOnlyAboveHorizon plotPositionUpdateBehavior
 
 # ------------------------ runtimeExperiment -------------------------------------------------------------------------------------------------
 
-runtimeUserTimeVsUpdateInterval.pdf: eval/runtimeUserTimeVsUpdateInterval.R
+archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf: eval/runtimeUserTimeVsUpdateInterval.R
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 
-runtimePlots:
+runtimePlots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf
 	touch $@
-
-
 
 # gnuTimeResults.csv: eval/gnuTimeResults.R
 # 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
@@ -604,10 +602,8 @@ runtimeExperiment:
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
-# 	$(MAKE) -j8 experimentId=$(experimentId) runtimePlots
-# 	rm runRuntime runtimeResultCollection runtimePlots
-	rm runRuntime runtimeResultCollection
-
+	$(MAKE) -j8 experimentId=$(experimentId) runtimePlots
+	rm runRuntime runtimeResultCollection runtimePlots
 
 debugInContainer: ../../src/libspace_veins.so
 	date +%Y-%m-%dT%H-%M-%S
