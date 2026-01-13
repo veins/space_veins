@@ -31,7 +31,7 @@ runtimeExperiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs := $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
 demoConfigs := DemoEnUpPosOnlyAboveHorizonNGCP_1c0 DemoEnUpPosOnlyAboveHorizonWGCP_1c0 DemoEnUpPosOnlyAboveHorizonWLIP_1c0 DemoEnUpPosOnlyAboveHorizonWNPP_1c0 DemoDisUpPosOnlyAboveHorizonNGCP_1c0 DemoDisUpPosOnlyAboveHorizonWGCP_1c0 DemoDisUpPosOnlyAboveHorizonWLIP_1c0 DemoDisUpPosOnlyAboveHorizonWNPP_1c0
-# runtimeConfigs := 
+runtimeConfigs := RuntimeEnUpPosOnlyAboveHorizonNGCP_0c5 RuntimeEnUpPosOnlyAboveHorizonNGCP_1c0 RuntimeEnUpPosOnlyAboveHorizonNGCP_10c0 RuntimeEnUpPosOnlyAboveHorizonWGCP_0c5 RuntimeEnUpPosOnlyAboveHorizonWGCP_1c0 RuntimeEnUpPosOnlyAboveHorizonWGCP_10c0 RuntimeEnUpPosOnlyAboveHorizonWLIP_0c5 RuntimeEnUpPosOnlyAboveHorizonWLIP_1c0 RuntimeEnUpPosOnlyAboveHorizonWLIP_10c0 RuntimeEnUpPosOnlyAboveHorizonWNPP_0c5 RuntimeEnUpPosOnlyAboveHorizonWNPP_1c0 RuntimeEnUpPosOnlyAboveHorizonWNPP_10c0 RuntimeDisUpPosOnlyAboveHorizonNGCP_0c5 RuntimeDisUpPosOnlyAboveHorizonNGCP_1c0 RuntimeDisUpPosOnlyAboveHorizonNGCP_10c0 RuntimeDisUpPosOnlyAboveHorizonWGCP_0c5 RuntimeDisUpPosOnlyAboveHorizonWGCP_1c0 RuntimeDisUpPosOnlyAboveHorizonWGCP_10c0 RuntimeDisUpPosOnlyAboveHorizonWLIP_0c5 RuntimeDisUpPosOnlyAboveHorizonWLIP_1c0 RuntimeDisUpPosOnlyAboveHorizonWLIP_10c0 RuntimeDisUpPosOnlyAboveHorizonWNPP_0c5 RuntimeDisUpPosOnlyAboveHorizonWNPP_1c0 RuntimeDisUpPosOnlyAboveHorizonWNPP_10c0
 
 vectors := lastElevationAngleToSop
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
@@ -202,8 +202,8 @@ $(experimentId)_RuntimeRuns.txt: ../../lib/veins_scripts/running/generateRunTime
 
 runtimeRunmakerFiles: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt
 
-runtimeConfigs.txt: eval/writeRuntimePerformanceConfigs.R
-	@singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^
+runtimeConfigs.txt: eval/writeRuntimeConfigs.R
+	@singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ > $@
 
 runtimeMachines.txt:
 	touch $@
