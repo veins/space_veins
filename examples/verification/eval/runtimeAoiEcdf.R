@@ -56,7 +56,7 @@ colors <- rainbow(length(unique_behaviors))
 i <- 1  # Index counter
 for(behavior in unique_behaviors) {
 #   subset_dt <- data[updateInterval == 10 & precalculation == "Dis" & gcpBehavior == behavior & repetition == 0]
-  subset_dt <- data[updateInterval == 10 & precalculation == "Dis" & gcpBehavior == behavior]
+  subset_dt <- data[updateInterval == 60 & precalculation == "Dis" & gcpBehavior == behavior]
   subset_ecdf <- ecdf(subset_dt$ageOfInformation)
   lines(subset_ecdf, col=colors[i], do.points = FALSE)
 #   points(subset_dt$updateInterval, subset_dt$avg, pch=i)
