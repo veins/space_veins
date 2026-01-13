@@ -43,7 +43,7 @@ demoVectorCsvFiles := $(foreach C, $(demoConfigs), $(foreach V, $(demoVectors), 
 demoScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(demoScalars), csv/scalars/$(C)-$(S).csv))
 
-runtimeVectors := lastElevationAngleToSop sgp4Computations getCurrentPositionUpdateCalls getCurrentPositionUpdates ageOfInformation
+runtimeVectors := ageOfInformation
 runtimeVectorCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach V, $(runtimeVectors), csv/vectors/$(C)-$(V).csv))
 runtimeScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
 runtimeScalarCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach S, $(runtimescalars), csv/scalars/$(C)-$(S).csv))
@@ -54,7 +54,7 @@ runmakerLogLines := 50
 demoRunmakerJobs := 8
 demoRunmakerLogLines := 50
 
-runtimeRunmakerJobs := 24
+runtimeRunmakerJobs := 240
 runtimeRunmakerLogLines := 50
 
 perfMachines := nsm-lab08
@@ -94,15 +94,6 @@ demoDebugVariables := demoVectors \
 
 runtimeDebugVariables := demoVectors \
 						demoVectorCsvFiles
-
-# scenarios \
-# experiments \
-# validationConfigs \
-# allConfigs \
-# validationFiles \
-# validationFilesNoEventNumbers \
-# validationOutputFiles \
-# vectorFiles \
 
 .SECONDEXPANSION:
 debugVariables:
@@ -318,7 +309,7 @@ $(runtimeScalarCsvFiles): csv/scalars/%.csv : $(runtimeScalarFiles)
 	mkdir -p csv/scalars
 	../../lib/veins_scripts/eval/opp_sca2csv.pl -v -M 'ManhattanBuildingShadowing\.*' -F $(word 2, $(subst -, ,$*)):count=$(word 2, $(subst -, ,$*)) -F $(word 2, $(subst -, ,$*)):last=$(word 2, $(subst -, ,$*)) -A repetition results/$(word 1, $(subst -, ,$*))*.sca > $@
 
-runtimeResultCollection: $(runtimeVectorCsvFiles)
+runtimeResultCollection: $(runtimeScalarCsvFiles)
 	touch $@
 
 #########################################################################
@@ -613,8 +604,8 @@ runtimeExperiment:
 	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
-# 	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
-# 	$(MAKE) -j8 experimentId=$(experimentId) demoPlots
+	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
+# 	$(MAKE) -j8 experimentId=$(experimentId) runtimePlots
 # 	rm runRuntime runtimeResultCollection runtimePlots
 	rm runRuntime runtimeResultCollection
 

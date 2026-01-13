@@ -38,7 +38,13 @@ for (filename in files) {
     print(filename)
 
     # 1. Characters between "Demo" and "Up" (only after GnuTimeResults_Demo)
-    precalculation <- sub(".*Demo(.*?)Up.*", "\\1", filename)  # "Dis"
+    precalculation <- ""
+    if (grepl("Demo", filename)) {
+      precalculation <- sub(".*Demo(.*?)Up.*", "\\1", filename)  # "Dis" if filename contains "Demo"
+    } else {
+      precalculation <- sub(".*Runtime(.*?)Up.*", "\\1", filename)
+    }
+
 
     # 2. Characters between "Horizon" and first subsequent "_" 
     gcpBehavior <- sub(".*Horizon(.*?)_.*", "\\1", filename)  # "NGCP"
