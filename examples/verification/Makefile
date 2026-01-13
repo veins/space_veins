@@ -54,7 +54,7 @@ runmakerLogLines := 50
 demoRunmakerJobs := 8
 demoRunmakerLogLines := 50
 
-runtimeRunmakerJobs := 8
+runtimeRunmakerJobs := 24
 runtimeRunmakerLogLines := 50
 
 perfMachines := nsm-lab08
@@ -197,7 +197,7 @@ demoMachines.txt:
 $(experimentId)_RuntimeRuns.log:
 	@touch $@
 
-$(experimentId)_RuntimeRuns.txt: ../../lib/veins_scripts/running/generateRunTimeRunsFile.pl ../../src/libspace_veins.so
+$(experimentId)_RuntimeRuns.txt: ../../lib/veins_scripts/running/generateRuntimeRunsFile.pl ../../src/libspace_veins.so
 	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< $(runtimeConfigs) > ../examples/$(experimentFolderName)/$@
 
 runtimeRunmakerFiles: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt
