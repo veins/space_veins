@@ -54,7 +54,7 @@ runmakerLogLines := 50
 demoRunmakerJobs := 8
 demoRunmakerLogLines := 50
 
-runtimeRunmakerJobs := 80
+runtimeRunmakerJobs := 40
 runtimeRunmakerLogLines := 50
 
 perfMachines := nsm-lab08
@@ -463,7 +463,7 @@ runtimeExperiment:
 	mkdir -p archive/$(experimentId)
 	$(MAKE) -j48 experimentId=$(experimentId) runtime_space_veins
 	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
-	$(MAKE) -j24 experimentId=$(experimentId) runtimeResultCollection
+	$(MAKE) -j12 experimentId=$(experimentId) runtimeResultCollection
 	mv $(experimentId)_RuntimeRuns.log archive/$(experimentId)
 	mv $(experimentId)_RuntimeRuns.txt archive/$(experimentId)
 	mv results archive/$(experimentId)
