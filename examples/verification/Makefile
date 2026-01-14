@@ -54,7 +54,7 @@ runmakerLogLines := 50
 demoRunmakerJobs := 8
 demoRunmakerLogLines := 50
 
-runtimeRunmakerJobs := 40
+runtimeRunmakerJobs := 120
 runtimeRunmakerLogLines := 50
 
 perfMachines := nsm-lab08
