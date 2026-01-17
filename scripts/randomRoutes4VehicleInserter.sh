@@ -15,7 +15,9 @@ fi
 
 echo "Generating random trips file $2"
 # --end 255 creates 255 routes
-python3 $SUMO_HOME/tools/randomTrips.py -n $1 -o $2 -i 3100 --fringe-factor 100 --end 255
+python3 $SUMO_HOME/tools/randomTrips.py -n $1 -o $2 -i 3100 --fringe-factor 100 -b 0 --end 10 --period 0.118 --binomial 10
+# python3 $SUMO_HOME/tools/randomTrips.py -n $1 -o $2 -i 3100 --fringe-factor 100 --end 255 --period 10
 echo "Building routes file $3"
-$SUMO_HOME/bin/duarouter -n $1 --route-files $2 -o $3 --named-routes true
-sed -i '/^    <vehicle/d' $3
+# $SUMO_HOME/bin/duarouter -n $1 --route-files $2 -o $3 --named-routes true
+$SUMO_HOME/bin/duarouter -n $1 --route-files $2 -o $3
+# sed -i '/^    <vehicle/d' $3
