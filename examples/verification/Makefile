@@ -131,7 +131,8 @@ shell:
 #                                                                       #
 #########################################################################
 # touch ../../src/Makefile to make sure that its timestep is newer than singularity-space_veins.sif after running this target
-../../src/Makefile: ../../Makefile ../../singularity/singularity-space_veins.sif
+# ../../src/Makefile: ../../Makefile ../../singularity/singularity-space_veins.sif
+../../src/Makefile: ../../Makefile
 	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make makefiles
 	touch ../../src/Makefile
 
