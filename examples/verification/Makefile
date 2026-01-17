@@ -54,16 +54,16 @@ runmakerLogLines := 50
 demoRunmakerJobs := 8
 demoRunmakerLogLines := 50
 
-runtimeRunmakerJobs := 200
+runtimeRunmakerJobs := 1
 runtimeRunmakerLogLines := 50
 
 perfMachines := nsm-lab08
 demoMachines := nsm-lab08
-runtimeMachines := nsm-sim05
+runtimeMachines := nsm-lab08
 
 compilationMachine := nsm-lab08
 demoCompilationMachine := nsm-lab08
-runtimeCompilationMachine := nsm-sim05
+runtimeCompilationMachine := nsm-lab08
 
 ccFiles := $(shell find ../../src -name "*.cc")
 hFiles := $(shell find ../../src -name "*.h")
