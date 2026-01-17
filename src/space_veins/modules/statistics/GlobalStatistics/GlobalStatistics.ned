@@ -27,6 +27,8 @@ simple GlobalStatistics
 {
     parameters:
         @class(space_veins::GlobalStatistics);
+        bool recordReceptions = default(false); // record a map tracks which receiver received which transmission
+        bool oneLinePerReception = default(true); // if true: write a single line for every reception, if false: write a single line for every transmission
         @signal[space_veins_globalStatistics_packetReceptionHash];
         @statistic[packetReceptionHash](source=space_veins_globalStatistics_packetReceptionHash; record=last,vector);
 }

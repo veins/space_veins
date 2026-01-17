@@ -20,6 +20,9 @@
 #pragma once
 
 #include <functional>
+#include <vector>
+#include <map>
+#include <string>
 
 #include "veins/veins.h"
 #include "veins/base/utils/FindModule.h"
@@ -50,6 +53,21 @@ class SPACE_VEINS_API GlobalStatistics : public cSimpleModule
         size_t lastHash = 0;
 
         veins::SignalManager signalManager;
+
+        bool recordReceptions = false;
+        bool oneLinePerReception = true;
+        struct ReceptionCounter_t {
+            std::pair<unsigned short, unsigned int> packetNumber;
+            simtime_t transmissionEndTime;
+            std::vector<short> receptionArray;
+
+            ReceptionCounter_t(unsigned short pSenderId, unsigned int pSendersPacketId, simtime_t pTransmissionEndTime, int pNumberOfRecepients) :
+                packetNumber(pSenderId, pSendersPacketId), transmissionEndTime(pTransmissionEndTime), receptionArray(pNumberOfRecepients, 0) {}
+        };
+        std::map<std::pair<unsigned short, unsigned int>, ReceptionCounter_t> receptionsMap;
+
+        std::string receptionsMapToString();
+        std::string receptionCounterToString(ReceptionCounter_t rc, bool oneLinePerReception);
 
 };
 }
