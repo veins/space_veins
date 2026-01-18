@@ -45,6 +45,7 @@ void GlobalStatistics::initialize(int stage)
 
         recordReceptions = par("recordReceptions");
         oneLinePerReception = par("oneLinePerReception");
+        receptionsMapPath = par("receptionsMapPath").stringValue();
 
         WATCH(numTotalCars);
         WATCH(numRemovedCars);
@@ -247,12 +248,13 @@ void GlobalStatistics::finish() {
         const char* configName = getEnvir()->getConfigEx()->getActiveConfigName();
         int repetition = getEnvir()->getConfigEx()->getActiveRunNumber();
         std::string fileName;
-        fileName.append("/dev/shm/ReceptionsMap_");
+        fileName.append(receptionsMapPath);
+        fileName.append("/ReceptionsMap_");
         fileName.append(std::string(configName));
         fileName.append("_");
         fileName.append(std::to_string(repetition));
         fileName.append(".csv");
-        FILE* file = fopen(fileName.c_str(), "wb");
+        FILE* file = fopen(fileName.c_str(), "w");
         if (file) {
             fwrite(receptionsMapString.data(), 1, receptionsMapString.size(), file);
             fclose(file);

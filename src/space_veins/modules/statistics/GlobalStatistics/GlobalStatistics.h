@@ -56,6 +56,8 @@ class SPACE_VEINS_API GlobalStatistics : public cSimpleModule
 
         bool recordReceptions = false;
         bool oneLinePerReception = true;
+        std::string receptionsMapPath;
+
         struct ReceptionCounter_t {
             std::pair<unsigned short, unsigned int> packetNumber;
             simtime_t transmissionEndTime;
