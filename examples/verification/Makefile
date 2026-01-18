@@ -475,7 +475,7 @@ runtimeExperiment:
 	$(MAKE) -j6 experimentId=$(experimentId) runtime_space_veins
 	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
 	rm -r results
-	ln -s /archive/latest/results results
+	ln -s archive/latest/results results
 	$(MAKE) -j5 experimentId=$(experimentId) runtimeResultCollection
 	mv $(experimentId)_RuntimeRuns.log archive/$(experimentId)
 	mv $(experimentId)_RuntimeRuns.txt archive/$(experimentId)
