@@ -58,7 +58,13 @@ extract_meta_data <- function(filename) {
   ))
 }
 
-isVerificationExperiment <- FALSE
+# todo use retrun value of extrat_meta_data
+isVerificationExperiment <- TRUE
+if (grepl("Verify", args[[1]])) {
+  isVerificationExperiment <- TRUE
+} else {
+  isVerificationExperiment <- FALSE
+}
 aoi_data <- create_complete_data_table(args)
 if (isVerificationExperiment) {
   fwrite(aoi_data, "plots/ageOfInformation.csv")
