@@ -477,15 +477,16 @@ runtimeExperiment:
 	$(MAKE) -j1 experimentId=$(experimentId) runRuntime
 	rm -r results
 	ln -s archive/latest/results results
+	rm -r results
 	$(MAKE) -j5 experimentId=$(experimentId) runtimeResultCollection
 	mv $(experimentId)_RuntimeRuns.log archive/$(experimentId)
 	mv $(experimentId)_RuntimeRuns.txt archive/$(experimentId)
 # 	mv results archive/$(experimentId)
-	mv csv archive/$(experimentId)
+	rsync csv/scalars archive/$(experimentId)/csv/
 	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
 	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
-	mkdir -p archive/$(experimentId)/csv/receptionsMap/rawData
-	mv /ramdisk/ReceptionsMap_* archive/$(experimentId)/csv/receptionsMap/rawData
+# 	mkdir -p archive/$(experimentId)/csv/receptionsMap/rawData
+# 	mv /ramdisk/ReceptionsMap_* archive/$(experimentId)/csv/receptionsMap/rawData
 	$(MAKE) -j8 experimentId=$(experimentId) archive/latest/csv/receptionsMap/classification.csv
 	$(MAKE) -j8 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 	$(MAKE) -j8 experimentId=$(experimentId) archive/latest/plots/ageOfInformation.csv
