@@ -23,6 +23,7 @@
 #include "space_veins/modules/statistics/GlobalStatistics/GlobalStatistics.h"
 
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
+#include "veins/modules/mobility/traci/TraCIMobility.h"
 
 #include "inet/common/Simsignals.h"
 #include "inet/common/packet/Packet.h"
@@ -142,12 +143,22 @@ void GlobalStatistics::initialize(int stage)
                     if (it != receptionsMap.end()) {
                         // we found the transmission of the satellite in our map
                         const inet::physicallayer::Radio* receiverRadioModule = check_and_cast<const inet::physicallayer::Radio*>(reception->getReceiver());
-                        const cModule* receiverModule = receiverRadioModule->getParentModule()->getParentModule();
+                        cModule* receiverModule = receiverRadioModule->getParentModule()->getParentModule();
                         EV_DEBUG << "GlobalStatistics - onReceptionEndedSignal; receiverModule: " << receiverModule->getFullPath() << std::endl;
                         // get vector index of receiver, 0 if receiver is not in a vector
                         long unsigned int receiverVectorIndex = 0;
-                        if (receiverModule->isVector()) receiverVectorIndex = receiverModule->getIndex();
-                        // get the reception array of the reception counter
+                        // if receiver has TraCIMobility use externalId, otherwise vector index
+                        veins::TraCIMobility* tm = veins::TraCIMobilityAccess().get(receiverModule);
+                        if (tm == nullptr) {
+                            // receiver module has no traci mobility, use vector index
+                            if (receiverModule->isVector()) receiverVectorIndex = receiverModule->getIndex();
+                        } else {
+                            // use externalId, assuming that it is a string containing an integer number
+                            // externalId should be equal to routeId in this setup
+                            std::string externalId = tm->getExternalId();
+                            // cast string to long
+                            receiverVectorIndex = std::stoul(externalId);
+                        }
                         if (it->second.receptionArray.size() <= receiverVectorIndex) {
                             throw cRuntimeError("GlobalStatistics receiverArray is too small.");
                         }
