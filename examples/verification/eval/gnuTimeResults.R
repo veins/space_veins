@@ -85,11 +85,11 @@ for (filename in files) {
                         repetition = repetition,
                         userTime = lineSplits[[1]][2],
                         kernelTime = lineSplits[[1]][3],
-                        wallClockTime = lineSplits[[1]][4]
+                        wallClockTime = lineSplits[[1]][4],
                         maximumResidentSetSize = lineSplits[[1]][5],
                         majorPageFaults = lineSplits[[1]][6],
                         numberSwappedOutOfMainMemory = lineSplits[[1]][7],
-                        cpuUsage = gsub("%", "", lineSplits[[1]][7])
+                        cpuUsage = gsub("%", "", lineSplits[[1]][8])
           )
         rawData <- rbind(rawData, dataRow)
     }
