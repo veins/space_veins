@@ -44,7 +44,8 @@ foreach (@configs) {
 				# $i is the repetition
 				if ($1 eq $ARGV[$j]) {
 					# check if configs match
-					push(@runs,". $commandBegin$1_$i$commandEnd $1 -r $i\n");
+					# push(@runs,". $commandBegin$1_$i$commandEnd $1 -r $i\n");
+					push(@runs,". ./eval/runGnuTime.sh GnuTimeResults_$1_$i.csv ./run --mode release -- -u Cmdenv -c $1 -r $i\n");
 					# push(@runs,". ./eval/runPerf.sh /ramdisk/$1_$i.perf.data $callGraphOption \"./run --mode debug -- -u Cmdenv -c $1 -r $i\" perfResults/$1_$i.perf\n");
 					# push(@runs,". $command $1 -r $i\n");
 				}

@@ -1,0 +1,22 @@
+#!/bin/bash
+set -x
+
+# $1 location where to store gnu time results
+# $2 command to be measured
+
+/usr/bin/time \
+-o $1 \
+--format "%C,%U,%S,%e,%M,%F,%W,%P" \
+$2
+
+sleep 1
+###############################
+#           clean up          #
+###############################
+mkdir -p archive/latest/results
+mkdir -p archive/latest/csv/receptionsMap/rawData
+
+mv /ramdisk/results/* archive/latest/results
+mv /ramdisk/ReceptionsMap* archive/latest/csv/receptionsMap/rawData
+
+sleep 1
