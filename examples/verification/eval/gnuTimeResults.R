@@ -14,7 +14,11 @@ rawData <- DT <- data.table(
   repetition = integer(),
   userTime = numeric(),
   kernelTime = numeric(),
-  wallClockTime = numeric()
+  wallClockTime = numeric(),
+  maximumResidentSetSize = numeric(),
+  majorPageFaults = numeric(),
+  numberSwappedOutOfMainMemory = numeric(),
+  cpuUsage = numeric()
 )
 
 convert_c_to_float <- function(str) {
@@ -82,7 +86,11 @@ for (filename in files) {
                         userTime = lineSplits[[1]][2],
                         kernelTime = lineSplits[[1]][3],
                         wallClockTime = lineSplits[[1]][4]
-        )
+                        maximumResidentSetSize = lineSplits[[1]][5],
+                        majorPageFaults = lineSplits[[1]][6],
+                        numberSwappedOutOfMainMemory = lineSplits[[1]][7],
+                        cpuUsage = gsub("%", "", lineSplits[[1]][7])
+          )
         rawData <- rbind(rawData, dataRow)
     }
 
