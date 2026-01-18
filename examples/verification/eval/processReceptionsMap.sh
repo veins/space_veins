@@ -9,7 +9,7 @@ output="filter,updateInterval,repetition,gcpBehavior,fp,fn,tp,tn"$'\n'
 for filter in $filters
 do
     filter_files=$(ls "$folder_path" | grep "$filter")
-    echo "Matching dis files:"
+    echo "Matching filter files:"
     echo "$filter_files"
 
     unique_updateIntervals=$(echo "$filter_files" | tr ' ' '\n' | awk -F'_' '{print $(NF-1)}' | sort -u)
@@ -25,11 +25,12 @@ do
         matching_updateInterval_files=$(echo "$filter_files" | tr ' ' '\n' | grep "$ui" | tr '\n' ' ')
         for r in $unique_repetitions
         do
-            matching_repetition_files=$(echo "$matching_updateInterval_files" | tr ' ' '\n' | grep "$r" | tr '\n' ' ')
-            groundTruthFile=$(echo "$matching_repetition_files" | tr ' ' '\n' | grep "WGCP" | tr '\n' ' ')
-            # remove trailing whitespace
-            groundTruthFile=$(echo "$groundTruthFile" | sed 's/[[:space:]]*$//')
-            allOtherFiles=$(echo "$matching_repetition_files" | tr ' ' '\n' | grep -v "WGCP" | tr '\n' ' ')
+            # matching_repetition_files=$(echo "$matching_updateInterval_files" | tr ' ' '\n' | grep "$r" | tr '\n' ' ')
+            groundTruthFile="ReceptionsMap_Runtime${filter}UpPosOnlyAboveHorizonWGCP_${ui}_${r}.csv"
+            ngcpFile="ReceptionsMap_Runtime${filter}UpPosOnlyAboveHorizonNGCP_${ui}_${r}.csv"
+            wlipFile="ReceptionsMap_Runtime${filter}UpPosOnlyAboveHorizonWLIP_${ui}_${r}.csv"
+            wnppFile="ReceptionsMap_Runtime${filter}UpPosOnlyAboveHorizonWNPP_${ui}_${r}.csv"
+            allOtherFiles="${ngcpFile} ${wlipFile} ${wnppFile}"
             for f in $allOtherFiles
             do
                 gcpBehavior=$(echo "$f" | sed 's/.*Horizon\([^_]*\)_\([^_]*\)_[^.]*\.csv/\1/')
@@ -64,4 +65,6 @@ do
         done
     done
 done
+#remove last line break
+output=${output%?}
 echo "$output" > classification.csv
