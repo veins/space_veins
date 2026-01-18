@@ -51,7 +51,7 @@ runtimeScalarCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach S, $(runtimeS
 runmakerJobs := 1
 runmakerLogLines := 50
 
-demoRunmakerJobs := 8
+demoRunmakerJobs := 1
 demoRunmakerLogLines := 50
 
 runtimeRunmakerJobs := 1
@@ -454,6 +454,8 @@ demoExperiment:
 	mv csv archive/$(experimentId)
 	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
 	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
+	mkdir -p archive/$(experimentId)/csv/receptionsMap/rawData
+	mv ReceptionsMap_* archive/$(experimentId)/csv/receptionsMap/rawData
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
