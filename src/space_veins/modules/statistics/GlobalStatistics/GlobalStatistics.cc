@@ -247,7 +247,7 @@ void GlobalStatistics::finish() {
         const char* configName = getEnvir()->getConfigEx()->getActiveConfigName();
         int repetition = getEnvir()->getConfigEx()->getActiveRunNumber();
         std::string fileName;
-        fileName.append("ReceptionsMap_");
+        fileName.append("/dev/shm/ReceptionsMap_");
         fileName.append(std::string(configName));
         fileName.append("_");
         fileName.append(std::to_string(repetition));
