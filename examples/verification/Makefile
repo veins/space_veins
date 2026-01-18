@@ -225,13 +225,15 @@ runVerification: $(experimentId)_VerificationRuns.log $(experimentId)_Verificati
 	touch $@
 
 runDemo: $(experimentId)_DemoRuns.log $(experimentId)_DemoRuns.txt demoMachines.txt
-	mkdir -p results
+	mkdir -p /ramdisk/results
+	ln -s /ramdisk/results results
 	parallel-ssh -i -h demoMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(demoRunmakerJobs) -l $(experimentId)_DemoRuns.log --loglines $(runmakerLogLines) $(experimentId)_DemoRuns.txt" || true
 	sleep 1
 	touch $@
 
 runRuntime: $(experimentId)_RuntimeRuns.log $(experimentId)_RuntimeRuns.txt runtimeMachines.txt
-	mkdir -p results
+	mkdir -p /ramdisk/results
+	ln -s /ramdisk/results results
 	parallel-ssh -i -h runtimeMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runtimeRunmakerJobs) -l $(experimentId)_RuntimeRuns.log --loglines $(runmakerLogLines) $(experimentId)_RuntimeRuns.txt" || true
 	touch $@
 
