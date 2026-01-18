@@ -340,6 +340,9 @@ plots/ageOfInformation.csv: eval/ageOfInformation.R $(AGE_OF_INFORMATION_RESULTS
 archive/latest/csv/gnuTimeResults/gnuTimeResults.csv: eval/gnuTimeResults.R
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $^ archive/latest/csv/gnuTimeResults/rawData
 
+archive/latest/csv/receptionsMap/classification.csv: eval/processReceptionsMap.sh
+	cd archive/latest/csv/receptionsMap && bash ../../../../$^
+
 # ------------------------ runtimeExperiment -------------------------------------------------------------------------------------------------
 RUNTIME_AGE_OF_INFORMATION_RESULTS := $(shell find archive/latest/csv/scalars -name "*ageOfInformation.csv")
 archive/latest/plots/ageOfInformation.csv: eval/ageOfInformation.R $(RUNTIME_AGE_OF_INFORMATION_RESULTS)
@@ -457,9 +460,10 @@ demoExperiment:
 	mkdir -p archive/$(experimentId)/csv/gnuTimeResults/rawData
 	mv GnuTimeResults_* archive/$(experimentId)/csv/gnuTimeResults/rawData
 	mkdir -p archive/$(experimentId)/csv/receptionsMap/rawData
-	mv ReceptionsMap_* archive/$(experimentId)/csv/receptionsMap/rawData
+	mv /ramdisk/ReceptionsMap_* archive/$(experimentId)/csv/receptionsMap/rawData
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
+	$(MAKE) -j8 experimentId=$(experimentId) archive/latest/csv/receptionsMap/classification.csv
 	$(MAKE) -j1 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 	$(MAKE) -j8 experimentId=$(experimentId) demoPlots
 	rm runDemo demoResultCollection demoPlots
