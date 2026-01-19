@@ -417,6 +417,10 @@ archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf: eval/runtimeU
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 
+archive/latest/plots/runtimeAccuracyVsUpdateInterval.filtered.pdf: eval/runtimeAccuracyVsUpdateInterval.R archive/latest/csv/receptionsMap/classification.csv
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/receptionsMap/classification.csv
+
 archive/latest/plots/runtimeAoiEcdf.pdf: eval/runtimeAoiEcdf.R archive/latest/plots/ageOfInformation.csv
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/plots/ageOfInformation.csv
