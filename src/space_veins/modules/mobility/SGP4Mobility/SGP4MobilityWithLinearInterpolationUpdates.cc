@@ -32,7 +32,7 @@ const simsignal_t SGP4MobilityWithLinearInterpolationUpdates::linearInterpolatio
 
 void SGP4MobilityWithLinearInterpolationUpdates::initialize(int stage)
 {
-    EV_DEBUG << "SGP4MobilityWithLinearInterpolationUpdates stage: " << stage << std::endl;
+    // EV_DEBUG << "SGP4MobilityWithLinearInterpolationUpdates stage: " << stage << std::endl;
     SGP4MobilityBase::initialize(stage);
     if (stage == 0) {
         WATCH(linearInterpolationVector);

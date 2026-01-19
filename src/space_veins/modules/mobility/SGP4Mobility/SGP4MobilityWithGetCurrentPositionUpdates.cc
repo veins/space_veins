@@ -29,7 +29,7 @@ Define_Module(space_veins::SGP4MobilityWithGetCurrentPositionUpdates);
 
 void SGP4MobilityWithGetCurrentPositionUpdates::initialize(int stage)
 {
-    EV_DEBUG << "SGP4MobilityWithGetCurrentPositionUpdates stage: " << stage << std::endl;
+    // EV_DEBUG << "SGP4MobilityWithGetCurrentPositionUpdates stage: " << stage << std::endl;
     SGP4MobilityBase::initialize(stage);
     return;
 }

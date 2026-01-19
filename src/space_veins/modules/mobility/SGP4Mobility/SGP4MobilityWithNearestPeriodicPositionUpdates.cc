@@ -29,7 +29,7 @@ Define_Module(space_veins::SGP4MobilityWithNearestPeriodicPositionUpdates);
 
 void SGP4MobilityWithNearestPeriodicPositionUpdates::initialize(int stage)
 {
-    EV_DEBUG << "SGP4MobilityWithNearestPeriodicPositionUpdates stage: " << stage << std::endl;
+    // EV_DEBUG << "SGP4MobilityWithNearestPeriodicPositionUpdates stage: " << stage << std::endl;
     SGP4MobilityBase::initialize(stage);
 }
 

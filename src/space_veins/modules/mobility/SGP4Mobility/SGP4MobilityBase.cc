@@ -67,20 +67,20 @@ const simsignal_t SGP4MobilityBase::sgp4ComputationsSignal = registerSignal("spa
 
 void SGP4MobilityBase::setInitialPosition()
 {
-    EV_DEBUG << "SGP4Mobility setInitialPosition()" << std::endl;
+    // EV_DEBUG << "SGP4Mobility setInitialPosition()" << std::endl;
     nextPeriodicPositionUpdate();
 }
 
 void SGP4MobilityBase::initializePosition()
 {
-    EV_DEBUG << "SGP4Mobility initializePosition()" << std::endl;
+    // EV_DEBUG << "SGP4Mobility initializePosition()" << std::endl;
     setInitialPosition();
     scheduleUpdate();
 }
 
 void SGP4MobilityBase::preInitialize(TLE pTle, std::string pWall_clock_sim_start_time_utc)
 {
-    EV_DEBUG << "SGP4Mobility preInitialize()" << std::endl;
+    // EV_DEBUG << "SGP4Mobility preInitialize()" << std::endl;
     tle = pTle;
     wall_clock_sim_start_time_utc = pWall_clock_sim_start_time_utc;
     isPreInitialized = true;
@@ -88,11 +88,11 @@ void SGP4MobilityBase::preInitialize(TLE pTle, std::string pWall_clock_sim_start
 
 void SGP4MobilityBase::initialize(int stage)
 {
-    EV_DEBUG << "SGP4Mobility stage: " << stage << std::endl;
+    // EV_DEBUG << "SGP4Mobility stage: " << stage << std::endl;
     if (stage == inet::INITSTAGE_LOCAL) {
         MovingMobilityBase::initialize(stage);
-        EV_DEBUG << "Initializing SGP4Mobility module." << std::endl;
-        EV_DEBUG << "isPreInitialized: " << isPreInitialized << std::endl;
+        // EV_DEBUG << "Initializing SGP4Mobility module." << std::endl;
+        // EV_DEBUG << "isPreInitialized: " << isPreInitialized << std::endl;
         ASSERT(isPreInitialized);
         WATCH(tle.satellite_name);
         WATCH(tle.tle_line1);
@@ -165,7 +165,7 @@ void SGP4MobilityBase::initialize(int stage)
 
         std::stringstream ss2;
         ss2 << tle_epoch.year << "-" << std::setfill('0') << std::setw(2) << tle_epoch.mon << "-" << tle_epoch.day << "-" << tle_epoch.hour << "-" << tle_epoch.min << "-" << tle_epoch.sec;
-        EV_DEBUG << "tle_epoch: " << ss2.str() << std::endl;
+        // EV_DEBUG << "tle_epoch: " << ss2.str() << std::endl;
         SGP4Funcs::jday_SGP4(tle_epoch.year,
                              tle_epoch.mon,
                              tle_epoch.day,
@@ -174,10 +174,10 @@ void SGP4MobilityBase::initialize(int stage)
                              tle_epoch.sec,
                              tle_epoch_jd,
                              tle_epoch_frac);
-        EV_DEBUG << std::fixed << "tle_epoch_jd: " << tle_epoch_jd << "; frac: " << tle_epoch_frac << std::endl;
+        // EV_DEBUG << std::fixed << "tle_epoch_jd: " << tle_epoch_jd << "; frac: " << tle_epoch_frac << std::endl;
 
         // 2. Calculate wall clock time as julian date
-        EV_DEBUG << "SGP4 model wall_clock_sim_start_time_utc: " << wall_clock_sim_start_time_utc << std::endl;
+        // EV_DEBUG << "SGP4 model wall_clock_sim_start_time_utc: " << wall_clock_sim_start_time_utc << std::endl;
         std::istringstream iss(wall_clock_sim_start_time_utc);
         std::tm tmp;    // helper struct to read in the wall_clock_sim_start_time_utc
         iss >> std::get_time(&tmp, "%Y-%m-%d-%H-%M-%S");
@@ -188,13 +188,13 @@ void SGP4MobilityBase::initialize(int stage)
         wall_clock_start_time.min = tmp.tm_min;
         wall_clock_start_time.sec = tmp.tm_sec;
 
-        EV_DEBUG << "SGP4 model time initialized to: year: " << wall_clock_start_time.year
-                 << " month: " << wall_clock_start_time.mon
-                 << " day: " << wall_clock_start_time.day
-                 << " hour: " << wall_clock_start_time.hour
-                 << " minute: " << wall_clock_start_time.min
-                 << " second: " << wall_clock_start_time.sec
-                 << std::endl;
+        // EV_DEBUG << "SGP4 model time initialized to: year: " << wall_clock_start_time.year
+        //          << " month: " << wall_clock_start_time.mon
+        //          << " day: " << wall_clock_start_time.day
+        //          << " hour: " << wall_clock_start_time.hour
+        //          << " minute: " << wall_clock_start_time.min
+        //          << " second: " << wall_clock_start_time.sec
+        //          << std::endl;
 
         SGP4Funcs::jday_SGP4(wall_clock_start_time.year,
                              wall_clock_start_time.mon,
@@ -204,11 +204,11 @@ void SGP4MobilityBase::initialize(int stage)
                              wall_clock_start_time.sec,
                              wall_clock_sim_start_time_jd,
                              wall_clock_sim_start_time_frac);
-        EV_DEBUG << std::fixed << "wall_clock_sim_start_time_jd: " << wall_clock_sim_start_time_jd << "; frac: " << wall_clock_sim_start_time_frac << std::endl;
+        // EV_DEBUG << std::fixed << "wall_clock_sim_start_time_jd: " << wall_clock_sim_start_time_jd << "; frac: " << wall_clock_sim_start_time_frac << std::endl;
 
         // 3. Calculate elapsed time in minutes
         diffTleEpochWctMin = (wall_clock_sim_start_time_jd - tle_epoch_jd) * 1440 + (wall_clock_sim_start_time_frac - tle_epoch_frac) * 1440;
-        EV_DEBUG << "diffTleEpochWctMin: " << diffTleEpochWctMin << " min" << std::endl;
+        // EV_DEBUG << "diffTleEpochWctMin: " << diffTleEpochWctMin << " min" << std::endl;
     }
     if (stage == 4) {
         // has to be done after the SOP stage in which the sop_omnet_coord is retrieved from its mobility
@@ -219,7 +219,7 @@ void SGP4MobilityBase::initialize(int stage)
         // create geocentric to topocentric projection (requires sop_wgs84 as Cartesian coordinate)
         std::stringstream ss_proj;
         ss_proj << "+proj=topocentric +ellps=WGS84 +X_0=" << sop_wgs84_proj_cart.xyz.x << " +Y_0=" << sop_wgs84_proj_cart.xyz.y << " +Z_0=" << sop_wgs84_proj_cart.xyz.z;
-        EV_DEBUG << "SGP4Mobility: ss_proj: " << ss_proj.str() << std::endl;
+        // EV_DEBUG << "SGP4Mobility: ss_proj: " << ss_proj.str() << std::endl;
         // geocentric to topocentric projection
         wgs84cartesian_to_topocentric_projection = proj_create(pj_ctx, ss_proj.str().c_str());
 
@@ -296,7 +296,7 @@ void SGP4MobilityBase::setUpPrecalculationIntervals(simtime_t pUpperTimeLimit)
         }
         precalculationIntervals.push_back(lastInterval);
         // print all precalculation intervals for debugging
-        EV_DEBUG << "All precalculattion intervals:" << std::endl << vectorOfPrecalculationIntervalsToString(precalculationIntervals) << std::endl;
+        // EV_DEBUG << "All precalculattion intervals:" << std::endl << vectorOfPrecalculationIntervalsToString(precalculationIntervals) << std::endl;
     }
 }
 
@@ -337,7 +337,7 @@ void SGP4MobilityBase::calculateIntervalPositions() {
         }
     }
     // print all precalculation intervals for debugging
-    EV_DEBUG << "All precalculation intervals: " << std::endl << vectorOfPrecalculationIntervalsToString(precalculationIntervals) << std::endl;
+    // EV_DEBUG << "All precalculation intervals: " << std::endl << vectorOfPrecalculationIntervalsToString(precalculationIntervals) << std::endl;
 }
 
 void SGP4MobilityBase::identifyRelevantIntervals() {
@@ -374,7 +374,7 @@ void SGP4MobilityBase::identifyRelevantIntervals() {
         }
     }
     // print all relevant precalculation intervals for debugging
-    EV_DEBUG << "All relevant precalculation intervals: " << std::endl << vectorOfPrecalculationIntervalsToString(relevantPrecalculationIntervals) << std::endl;
+    // EV_DEBUG << "All relevant precalculation intervals: " << std::endl << vectorOfPrecalculationIntervalsToString(relevantPrecalculationIntervals) << std::endl;
 }
 
 void SGP4MobilityBase::calculateBordersOfRelevantIntervals() {
@@ -410,7 +410,7 @@ void SGP4MobilityBase::calculateBordersOfRelevantIntervals() {
     // sort relevant intervals in ascending order according to the start simulation time of every relevant period
     std::sort(bordersOfRelevantIntervals.begin(), bordersOfRelevantIntervals.end(), isSmallerStartBorder);
     // print all borders for debugging
-    EV_DEBUG << bordersOfRelevantIntervalsToString();
+    // EV_DEBUG << bordersOfRelevantIntervalsToString();
 }
 
 bool SGP4MobilityBase::isRelevantInterval(simtime_t t) {
@@ -473,7 +473,7 @@ void SGP4MobilityBase::move()
         throw cException(this, "updateSatellitePosition with unknown updateType!");
     }
     if (updated) {
-        EV_DEBUG << "SGP4Mobility moved to position: " << lastPosition << ", at t: " << now << std::endl;
+        // EV_DEBUG << "SGP4Mobility moved to position: " << lastPosition << ", at t: " << now << std::endl;
     }
 }
 
