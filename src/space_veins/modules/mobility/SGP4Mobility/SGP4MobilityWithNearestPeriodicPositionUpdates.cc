@@ -34,7 +34,7 @@ void SGP4MobilityWithNearestPeriodicPositionUpdates::initialize(int stage)
 }
 
 bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextGetCurrentPositionUpdate() {
-    EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextGetCurrentPositionUpdate() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextGetCurrentPositionUpdate() called" << std::endl;
     bool updated = false;
     simtime_t now = simTime();
     simtime_t timeSinceLastPeriodicUpdate = now - lastPeriodicUpdate;
@@ -64,12 +64,12 @@ bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextGetCurrentPositionUpdat
 }
 
 bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate() {
-    EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate() called" << std::endl;
     bool updated = false;
     simtime_t now = simTime();
     if (now == linearInterpolationReference.simulationTime) {
         if (lastPosition != linearInterpolationReference.omnetppCoord) {
-            EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(): now == linearInterpolationReference.simulationTime -> we can simply copy the reference." << std::endl;
+            // EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(): now == linearInterpolationReference.simulationTime -> we can simply copy the reference." << std::endl;
             // we can update the lastCalculatedSgp4SatellitePosition by overwriting it with linearInterpolationReference.
             // lastCalculatedSgp4SatellitePosition is the satellite's position at t=tau and linearInterpolationReference is always the satellite's position at t=tau+updateInterval
             lastCalculatedSgp4SatellitePosition = linearInterpolationReference;
@@ -84,7 +84,7 @@ bool SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(
             lastPeriodicUpdate = now;
         }
     } else {
-        EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(): now != linearInterpolationReference.simulationTime -> reference is outdated!" << std::endl;
+        // EV_TRACE << "SGP4MobilityWithNearestPeriodicPositionUpdates::nextPeriodicPositionUpdate(): now != linearInterpolationReference.simulationTime -> reference is outdated!" << std::endl;
         SGP4PositionUpdate(now);
         updated = true;
     }

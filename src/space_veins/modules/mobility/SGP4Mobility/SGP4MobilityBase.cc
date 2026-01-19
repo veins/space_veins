@@ -302,7 +302,7 @@ void SGP4MobilityBase::setUpPrecalculationIntervals(simtime_t pUpperTimeLimit)
 
 void SGP4MobilityBase::calculateIntervalPositions() {
     inet::deg zeroDegree = inet::deg(0);
-    EV_TRACE << "setPrecalculationIntervalRisingOrFallingFlags: zeroDegree: " << zeroDegree << std::endl;
+    // EV_TRACE << "setPrecalculationIntervalRisingOrFallingFlags: zeroDegree: " << zeroDegree << std::endl;
     for (auto it = precalculationIntervals.begin(); it != precalculationIntervals.end(); ++it) {
         // calculate start position
         it->startPosition = calculateSgp4SatellitePosition(it->start);
@@ -464,7 +464,7 @@ void SGP4MobilityBase::move()
 {
     simtime_t now = simTime();
     bool updated = false;
-    EV_TRACE << "SGP4MobilityBase::move() now: " << now << ", now - updateInterval: " << now - updateInterval << ", lastPeriodicUpdate: " << lastPeriodicUpdate << std::endl;
+    // EV_TRACE << "SGP4MobilityBase::move() now: " << now << ", now - updateInterval: " << now - updateInterval << ", lastPeriodicUpdate: " << lastPeriodicUpdate << std::endl;
     if (updateType == periodicUpdate) {
         updated = nextPeriodicPositionUpdate();
     } else if (updateType == getCurrentPositionUpdate) {
@@ -479,7 +479,7 @@ void SGP4MobilityBase::move()
 
 void SGP4MobilityBase::moveAndUpdate()
 {
-    EV_TRACE << "SGP4MobilityBase::moveAndUpdate() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityBase::moveAndUpdate() called" << std::endl;
     emit(moveAndUpdateCallSignal, 1);
     simtime_t now = simTime();
     // check if lastPosition is outdated
@@ -515,7 +515,7 @@ inet::Coord SGP4MobilityBase::getCurrentPosition()
 // for periodic updates
 void SGP4MobilityBase::handleSelfMessage(cMessage* message)
 {
-    EV_TRACE << "SGP4MobilityBase::handleSelfMessage() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityBase::handleSelfMessage() called" << std::endl;
     updateType = periodicUpdate;
     SGP4MobilityBase::moveAndUpdate();
     SGP4MobilityBase::scheduleUpdate();
@@ -527,7 +527,7 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
 
 void SGP4MobilityBase::scheduleRelevantUpdate()
 {
-    EV_TRACE << "SGP4MobilityBase::scheduleRelevantUpdate() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityBase::scheduleRelevantUpdate() called" << std::endl;
     // calculate time of next periodic update
     simtime_t nextPeriodicUpdate = simTime() + updateInterval;
     if (!bordersOfRelevantIntervals.empty()) {
@@ -539,7 +539,7 @@ void SGP4MobilityBase::scheduleRelevantUpdate()
                 // schedule next update to the start simulation time of the new leading relevant period
                 cancelEvent(moveTimer);
                 scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
-                EV_TRACE << "scheduleRelevantUpdate(): next periodic update after current relevant period, schedule it at the beginning of the next relevant period at: " << moveTimer->getArrivalTime() << "s." << std::endl;
+                // EV_TRACE << "scheduleRelevantUpdate(): next periodic update after current relevant period, schedule it at the beginning of the next relevant period at: " << moveTimer->getArrivalTime() << "s." << std::endl;
                 // TODO: maybe park the satellite at (DOUBLE_MAX, DOUBLE_MAX, DOUBLE_MAX)?
                 // otherwise all satellites will be crowded around the horizon
             }
@@ -547,13 +547,13 @@ void SGP4MobilityBase::scheduleRelevantUpdate()
         if (nextPeriodicUpdate >= bordersOfRelevantIntervals.front().first.simulationTime && nextPeriodicUpdate <= bordersOfRelevantIntervals.front().second.simulationTime) {
             // next periodic update is inside a relevant period -> update its position
             inet::MovingMobilityBase::scheduleUpdate();
-            EV_TRACE << "scheduleRelevantUpdate(): periodic update scheduled at: " << moveTimer->getArrivalTime() << "s." << std::endl;
+            // EV_TRACE << "scheduleRelevantUpdate(): periodic update scheduled at: " << moveTimer->getArrivalTime() << "s." << std::endl;
         }
         if (nextPeriodicUpdate < bordersOfRelevantIntervals.front().first.simulationTime) {
             // next periodic update is before the next leading relevant period -> schedule next event to the start of this period
             cancelEvent(moveTimer);
             scheduleAt(bordersOfRelevantIntervals.front().first.simulationTime, moveTimer);
-            EV_TRACE << "scheduleRelevantUpdate(): next periodic update is before the next relevant period, schedule it at the beginning of the next relevant period at: " << moveTimer->getArrivalTime() << "s." << std::endl;
+            // EV_TRACE << "scheduleRelevantUpdate(): next periodic update is before the next relevant period, schedule it at the beginning of the next relevant period at: " << moveTimer->getArrivalTime() << "s." << std::endl;
         }
     }
     // } else {
@@ -565,7 +565,7 @@ void SGP4MobilityBase::scheduleRelevantUpdate()
 
 void SGP4MobilityBase::scheduleUpdate()
 {
-    EV_TRACE << "SGP4MobilityBase::scheduleUpdate() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityBase::scheduleUpdate() called" << std::endl;
     if (!updatePositionOnlyAboveHorizon) {
         // we do NOT only update the position when the satellite is above the horizon
         // we update its position according to updateInterval
@@ -593,12 +593,12 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
 {
     calculatedSgp4SatellitePositions_t returnValues;
     returnValues.simulationTime = simulationTime;
-    EV_TRACE << "------- begin trace log caculateSatellitePosition -------" << std::endl;
-    EV_TRACE << "calculateSgp4SatellitePosition for simulationTime: " << simulationTime << std::endl;
+    // EV_TRACE << "------- begin trace log caculateSatellitePosition -------" << std::endl;
+    // EV_TRACE << "calculateSgp4SatellitePosition for simulationTime: " << simulationTime << std::endl;
     // add simulationTime to diffTleEpochWctMin to calculate the satellite position according to the current simulation time
-    EV_TRACE << "simulationTime in minutes: " << simulationTime.dbl() / 60 << " min" << std::endl;
+    // EV_TRACE << "simulationTime in minutes: " << simulationTime.dbl() / 60 << " min" << std::endl;
     double t = diffTleEpochWctMin + simulationTime.dbl() / 60;
-    EV_TRACE << "passed time since TLE epoch: " << t << " min" << std::endl;
+    // EV_TRACE << "passed time since TLE epoch: " << t << " min" << std::endl;
 
     // Calculate satellite position using SGP4 in TEME coodinate system
     double r_array[3];
@@ -611,11 +611,11 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     int n = sizeof(r_array) / sizeof(r_array[0]);
     std::vector<double> r_TEME(r_array, r_array + n);
     std::vector<double> v_TEME(v_array, v_array + n);
-    EV_TRACE << "TEME x: " << r_TEME[0] << ", y: " << r_TEME[1] << ", z: " << r_TEME[2] << std::endl;
+    // EV_TRACE << "TEME x: " << r_TEME[0] << ", y: " << r_TEME[1] << ", z: " << r_TEME[2] << std::endl;
     returnValues.teme = inet::Coord(r_TEME[0], r_TEME[1], r_TEME[2]);
-    EV_TRACE << "TEME speed x: " << v_TEME[0] << ", y: " << v_TEME[1] << ", z: " << v_TEME[2] << std::endl;
+    // EV_TRACE << "TEME speed x: " << v_TEME[0] << ", y: " << v_TEME[1] << ", z: " << v_TEME[2] << std::endl;
     returnValues.sgp4SpeedMeterPerSecond = std::sqrt(std::pow(v_TEME[0], 2) + std::pow(v_TEME[1], 2) + std::pow(v_TEME[2], 2)) * 1000;  // * 1000 for conversion from km/s in m/s
-    EV_TRACE << "TEME speed scalar values: " << returnValues.sgp4SpeedMeterPerSecond << "m/s" << std::endl;
+    // EV_TRACE << "TEME speed scalar values: " << returnValues.sgp4SpeedMeterPerSecond << "m/s" << std::endl;
 
     // Calculate the current wall clock time as julian date for TEME to ITRF conversion
     // ignore leap seconds for now
@@ -624,32 +624,32 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     current_wall_clock_time_frac = wall_clock_sim_start_time_frac + (simulationTime.dbl() / 86400.0);
     // decompose current_wall_clock_time_frac into integral part (whole days) and fractional part (time)
     current_wall_clock_time_frac = std::modf(current_wall_clock_time_frac, &daysToAdd);
-    EV_TRACE << "daysToAdd: " << daysToAdd << std::endl;
+    // EV_TRACE << "daysToAdd: " << daysToAdd << std::endl;
     current_wall_clock_time_jd = wall_clock_sim_start_time_jd + daysToAdd;
-    EV_TRACE << std::fixed << "current_wall_clock_time_jd: " << current_wall_clock_time_jd << ", current_wall_clock_time_frac: " << current_wall_clock_time_frac << std::endl;
+    // EV_TRACE << std::fixed << "current_wall_clock_time_jd: " << current_wall_clock_time_jd << ", current_wall_clock_time_frac: " << current_wall_clock_time_frac << std::endl;
     // do inverse calculation to utc time for debug purposes
     date_time_t debugWallClockTimeUtc;
     SGP4Funcs::invjday_SGP4(current_wall_clock_time_jd, current_wall_clock_time_frac, debugWallClockTimeUtc.year, debugWallClockTimeUtc.mon, debugWallClockTimeUtc.day, debugWallClockTimeUtc.hour, debugWallClockTimeUtc.min, debugWallClockTimeUtc.sec);
-    EV_TRACE << "debugWallClockTimeUtc: " << dateTimeTToString(debugWallClockTimeUtc) << std::endl;
+    // EV_TRACE << "debugWallClockTimeUtc: " << dateTimeTToString(debugWallClockTimeUtc) << std::endl;
     returnValues.wallClockTimeUtc = debugWallClockTimeUtc;
 
     // Coordinate transformation TEME -> ITRF
     std::pair<std::vector<double>, std::vector<double>> itrf = TEME_to_ITRF(current_wall_clock_time_jd, r_TEME, v_TEME, 0.0, 0.0, current_wall_clock_time_frac);
-    EV_TRACE << "SGP4Mobility itrf: x: " << itrf.first[0] << ", y: " << itrf.first[1] << ", z: " << itrf.first[2] << std::endl;
+    // EV_TRACE << "SGP4Mobility itrf: x: " << itrf.first[0] << ", y: " << itrf.first[1] << ", z: " << itrf.first[2] << std::endl;
     returnValues.itrf2008 = inet::Coord(itrf.first[0] * 1000, itrf.first[1] * 1000, itrf.first[2] * 1000); // conversion km -> m!
     // Coordinate transformation ITRF -> WGS84
     PJ_COORD toTransfer = proj_coord(itrf.first[0] * 1000, itrf.first[1] * 1000, itrf.first[2] * 1000, 0); // conversion km -> m!
     PJ_COORD geo = proj_trans(itrf2008_to_wgs84_projection, PJ_FWD, toTransfer);
     WGS84Coord sat_pos_wgs84 = WGS84Coord(geo.lpz.phi, geo.lpz.lam, geo.lpz.z);
     returnValues.wgs84 = sat_pos_wgs84;
-    EV_TRACE << "SGP4Mobility sat_pos_wgs84: " << sat_pos_wgs84 << std::endl;
+    // EV_TRACE << "SGP4Mobility sat_pos_wgs84: " << sat_pos_wgs84 << std::endl;
 
     // Transform satellite's WGS84 coordinate from geodetic to cartesian representation, proj needs Radians for an unknown reason
     // see https://proj.org/operations/conversions/cart.html
     toTransfer = proj_coord(sat_pos_wgs84.lon * (PI/180), sat_pos_wgs84.lat * (PI/180), sat_pos_wgs84.alt, 0);
     PJ_COORD geo_cart = proj_trans(wgs84_to_wgs84cartesian_projection, PJ_FWD, toTransfer);
     returnValues.wgs84CartesianGeocentric = geo_cart;
-    EV_TRACE << "SGP4Mobility sat_pos_wgs84 cartesian: x: " << geo_cart.xyz.x << ", y: " << geo_cart.xyz.y << ", z: " << geo_cart.xyz.z << std::endl;
+    // EV_TRACE << "SGP4Mobility sat_pos_wgs84 cartesian: x: " << geo_cart.xyz.x << ", y: " << geo_cart.xyz.y << ", z: " << geo_cart.xyz.z << std::endl;
 
     // Geocentric to topocentric, see https://proj.org/operations/conversions/topocentric.html
     PJ_COORD topo_cart = proj_trans(wgs84cartesian_to_topocentric_projection, PJ_FWD, geo_cart);
@@ -660,7 +660,7 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     // According to the figure at https://proj.org/operations/conversions/topocentric.html the enu.n-axis needs to be inverted.
     topo_cart_omnetpp.enu.n = topo_cart.enu.n * -1;
     returnValues.omnetppCoordRelativeToSOP = inet::Coord(topo_cart_omnetpp.enu.e, topo_cart_omnetpp.enu.n, topo_cart_omnetpp.enu.u);
-    EV_TRACE << "SGP4Mobility topo as cartesian coordinates: e: " << topo_cart.enu.e << ", n:" << topo_cart.enu.n << ", u: " << topo_cart.enu.u << std::endl;
+    // EV_TRACE << "SGP4Mobility topo as cartesian coordinates: e: " << topo_cart.enu.e << ", n:" << topo_cart.enu.n << ", u: " << topo_cart.enu.u << std::endl;
 
     // Note the minus operator at the northing: The reason is OMNeT++'s coordinate system. The origin is in the upper left corner,
     // the x-axis goes from west to east in the positiv direction and the y-axis goes from north to south in the positiv direction.
@@ -670,8 +670,8 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     auto sop_omnet_coord = sop->get_sop_omnet_coord();
     inet::Coord satellitePosition(topo_cart.enu.e + sop_omnet_coord.x, -topo_cart.enu.n + sop_omnet_coord.y, topo_cart.enu.u + sop_omnet_coord.z);
     returnValues.omnetppCoord = satellitePosition;
-    EV_TRACE << "SGP4Mobility satellite position at simulation time " << simulationTime << ": " << satellitePosition << std::endl;
-    EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
+    // EV_TRACE << "SGP4Mobility satellite position at simulation time " << simulationTime << ": " << satellitePosition << std::endl;
+    // EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
     SGP4Calculations++;
     recordSgp4Computation(calculateElevationAngleRelativeToSop(returnValues.omnetppCoord));
@@ -695,7 +695,7 @@ inet::deg SGP4MobilityBase::calculateElevationAngleRelativeToSop(inet::Coord pos
 }
 
 void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool updated) {
-    EV_TRACE << "SGP4MobilityBase::updateManagementDataAndStatistics: updateType_t: " << type << ", updated: " << updated << std::endl;
+    // EV_TRACE << "SGP4MobilityBase::updateManagementDataAndStatistics: updateType_t: " << type << ", updated: " << updated << std::endl;
     simtime_t now = simTime();
     if (updated) {
         if (lastPosition.z > 0) {

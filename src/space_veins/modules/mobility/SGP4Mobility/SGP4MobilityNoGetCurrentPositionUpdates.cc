@@ -35,14 +35,14 @@ void SGP4MobilityNoGetCurrentPositionUpdates::initialize(int stage)
 }
 
 bool SGP4MobilityNoGetCurrentPositionUpdates::nextGetCurrentPositionUpdate() {
-    EV_TRACE << "SGP4MobilityNoGetCurrentPositionUpdates::nextGetCurrentPositionUpdate() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityNoGetCurrentPositionUpdates::nextGetCurrentPositionUpdate() called" << std::endl;
     bool updated = false;
     updateManagementDataAndStatistics(getCurrentPositionUpdate, updated);
     return updated;
 }
 
 bool SGP4MobilityNoGetCurrentPositionUpdates::nextPeriodicPositionUpdate() {
-    EV_TRACE << "SGP4MobilityNoGetCurrentPositionUpdates::nextPeriodicPositionUpdate() called" << std::endl;
+    // EV_TRACE << "SGP4MobilityNoGetCurrentPositionUpdates::nextPeriodicPositionUpdate() called" << std::endl;
     simtime_t now = simTime();
     SGP4PositionUpdate(now);
     // Management
