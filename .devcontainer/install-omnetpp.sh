@@ -134,7 +134,7 @@ sed -i 's/WITH_OSGEARTH=yes/WITH_OSGEARTH=no/g' /opt/omnetpp/configure.user
 sed -i 's/WITH_PARSIM=yes/WITH_PARSIM=no/g' /opt/omnetpp/configure.user
 # enable -g for debugging information in the binary
 sed -i "s/#CXXFLAGS=-std=c++17/CXXFLAGS='-std=c++17 -g'/g" /opt/omnetpp/configure.user
-sed -i "s/#CFLAGS_DEBUG='-g -Wall'/CFLAGS_DEBUG='-g -Wall'/g" /opt/omnetpp/configure.user
+sed -i "s/#CFLAGS_DEBUG='-g -Wall'/CFLAGS_DEBUG='-g -Wall -O0'/g" /opt/omnetpp/configure.user
 # use gcc/g++
 sed -i 's/PREFER_CLANG=yes/PREFER_CLANG=no/g' /opt/omnetpp/configure.user
 # use GNU linker
