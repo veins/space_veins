@@ -35,7 +35,7 @@ runtimeConfigs := RuntimeEnUpPosOnlyAboveHorizonNGCP_1c0 RuntimeEnUpPosOnlyAbove
 
 vectors := lastElevationAngleToSop
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
-scalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
+scalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4ComputationsDuringPrecalculation packetReceptionHash
 scalarCsvFiles := $(foreach C, $(verificationConfigs), $(foreach S, $(scalars), csv/scalars/$(C)-$(S).csv))
 
 demoVectors := lastElevationAngleToSop sgp4Computations getCurrentPositionUpdateCalls getCurrentPositionUpdates ageOfInformation
@@ -45,7 +45,7 @@ demoScalarCsvFiles := $(foreach C, $(demoConfigs), $(foreach S, $(demoScalars), 
 
 runtimeVectors := ageOfInformation
 runtimeVectorCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach V, $(runtimeVectors), csv/vectors/$(C)-$(V).csv))
-runtimeScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4CalculationsDuringPrecalculation packetReceptionHash
+runtimeScalars := totalAddedTraciModules totalRemovedTraciModules getCurrentPositionUpdateCallsNoWarmupPeriod periodicUpdateCallsNoWarmupPeriod ageOfInformation sendSatellitePacketsOverMinElevationAngle periodicUpdateCalls getCurrentPositionUpdateCalls sgp4Computations linearInterpolationComputations packetSent packetReceived precalculationIntervalsSize relevantPrecalculationIntervalsSize bordersOfRelevantIntervalsSize sgp4ComputationsDuringPrecalculation packetReceptionHash
 runtimeScalarCsvFiles := $(foreach C, $(runtimeConfigs), $(foreach S, $(runtimeScalars), csv/scalars/$(C)-$(S).csv))
 
 runmakerJobs := 1
