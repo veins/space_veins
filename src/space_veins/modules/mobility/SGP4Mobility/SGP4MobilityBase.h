@@ -187,6 +187,7 @@ protected:
     static bool isSmallerStartBorder(std::pair<border_t, border_t> i, std::pair<border_t, border_t> j);
 
     // statistics helper functions
+    void setVectorNames();
     void recordOmnetCoord(const inet::Coord c);
     void recordWGS84Coord(const space_veins::WGS84Coord c);
     void recordWGS84CartCoord(const PJ_COORD c);
@@ -252,46 +253,66 @@ protected:
     // Difference Tle epoch current wall clock time in minutes
     double diffTleEpochWctMin;                  // difference between the TLE's epoch and the wall clock start time in minutes
 
-    /* Signals */
-    static const simsignal_t processedEventSignal;
-    static const simsignal_t periodicUpdateSignal;
-    static const simsignal_t periodicUpdateCallSignal;
-    static const simsignal_t getCurrentPositionUpdateSignal;
-    static const simsignal_t getCurrentPositionUpdateCallSignal;
-    static const simsignal_t moveAndUpdateCallSignal;
-    static const simsignal_t moveAndUpdateLastUpdateNowCallSignal;
-    static const simsignal_t moveAndUpdateLastUpdateNotNowCallSignal;
-    static const simsignal_t lastElevationAngleToSopSignal;
-    static const simsignal_t satelliteRisesAboveHorizonSignal;
-    static const simsignal_t satelliteSetsBelowHorizonSignal;
-    static const simsignal_t periodAboveHorizonSignal;
-
-    static const simsignal_t omnetCoordX;
-    static const simsignal_t omnetCoordY;
-    static const simsignal_t omnetCoordZ;
-
-    static const simsignal_t wgs84CoordLat;
-    static const simsignal_t wgs84CoordLon;
-    static const simsignal_t wgs84CoordAlt;
-
-    static const simsignal_t wgs84CartCoordX;
-    static const simsignal_t wgs84CartCoordY;
-    static const simsignal_t wgs84CartCoordZ;
-
-    static const simsignal_t sopRelativeCoordX;
-    static const simsignal_t sopRelativeCoordY;
-    static const simsignal_t sopRelativeCoordZ;
-
-    static const simsignal_t sgp4SpeedMeterPerSecondSignal;
-
-    static const simsignal_t sgp4ComputationsSignal;
-
     /* Statistics */
     VehicleStatistics* vehicleStatistics;
-    int SGP4Calculations = 0;
-    int SGP4CalculationsDuringPrecalculation = 0;
+    // OMNeT++ events/calls statistics
+    unsigned long positionUpdates = 0;
+    cOutVector vecPositionUpdates;
+    unsigned long processedEvents = 0;
+    cOutVector vecProcessedEvents;
+    //      periodic updates, done by handleSelfMessage()
+    unsigned long periodicUpdates = 0;
+    cOutVector vecPeriodicUpdates;
+    unsigned long periodicUpdateCalls = 0;
+    cOutVector vecPeriodicUpdateCalls;
     unsigned long periodicUpdateCallsNoWarmupPeriod = 0;
+    cOutVector vecPeriodicUpdateCallsNoWarmupPeriod;
+    //      random updates, done by getCurrentPosition()
+    unsigned long getCurrentPositionUpdates = 0;
+    cOutVector vecGetCurrentPositionUpdates;
+    unsigned long getCurrentPositionUpdateCalls = 0;
+    cOutVector vecGetCurrentPositionUpdateCalls;
     unsigned long getCurrentPositionUpdateCallsNoWarmupPeriod = 0;
+    cOutVector vecGetCurrentPositionUpdateCallsNoWarmupPeriod;
+    //      moveAndUpdate() calls
+    unsigned long moveAndUpdateCalls = 0;
+    cOutVector vecMoveAndUpdateCalls;
+    unsigned long moveAndUpdateLastUpdateNowCalls = 0;
+    cOutVector vecMoveAndUpdateLastUpdateNowCalls;
+    unsigned long moveAndUpdateLastUpdateNotNowCalls = 0;
+    cOutVector vecMoveAndUpdateLastUpdateNotNowCalls;
+    //      SGP4 computations
+    unsigned long sgp4Computations = 0;
+    cOutVector vecSgp4Computations;
+    unsigned long sgp4ComputationsDuringPrecalculation = 0;
+    // SGP4Mobility statistics
+    unsigned long horizonRises = 0;
+    cOutVector vecHorizonRises;
+    unsigned long horizonSets = 0;
+    cOutVector vecHorizonSets;
+    unsigned long periodsAboveHorizon = 0;
+    cOutVector vecPeriodsAboveHorizon;
+    simtime_t totalTimeAboveHorizon;
+
+    cOutVector vecLastElevationAngleToSop;
+    cOutVector vecSgp4SpeedMeterPerSecond;
+
+    cOutVector vecOmnetCoordX;
+    cOutVector vecOmnetCoordY;
+    cOutVector vecOmnetCoordZ;
+
+    cOutVector vecWgs84CoordLat;
+    cOutVector vecWgs84CoordLon;
+    cOutVector vecWgs84CoordAlt;
+
+    cOutVector vecWgs84CartCoordX;
+    cOutVector vecWgs84CartCoordY;
+    cOutVector vecWgs84CartCoordZ;
+
+    cOutVector vecSopRelativeCoordX;
+    cOutVector vecSopRelativeCoordY;
+    cOutVector vecSopRelativeCoordZ;
+
 };
 
 class SPACE_VEINS_API SGP4MobilityBaseAccess {

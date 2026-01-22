@@ -38,33 +38,6 @@ using namespace space_veins;
 
 Define_Module(space_veins::SGP4MobilityBase);
 
-const simsignal_t SGP4MobilityBase::processedEventSignal = registerSignal("space_veins_sgp4mobilitybase_processedEventSignal");
-const simsignal_t SGP4MobilityBase::periodicUpdateSignal = registerSignal("space_veins_sgp4mobilitybase_periodicUpdateSignal");
-const simsignal_t SGP4MobilityBase::periodicUpdateCallSignal = registerSignal("space_veins_sgp4mobilitybase_periodicUpdateCallSignal");
-const simsignal_t SGP4MobilityBase::getCurrentPositionUpdateSignal = registerSignal("space_veins_sgp4mobilitybase_getCurrentPositionUpdateSignal");
-const simsignal_t SGP4MobilityBase::getCurrentPositionUpdateCallSignal = registerSignal("space_veins_sgp4mobilitybase_getCurrentPositionUpdateCallSignal");
-const simsignal_t SGP4MobilityBase::moveAndUpdateCallSignal = registerSignal("space_veins_sgp4mobilitybase_moveAndUpdateCallSignal");
-const simsignal_t SGP4MobilityBase::moveAndUpdateLastUpdateNowCallSignal = registerSignal("space_veins_sgp4mobilitybase_moveAndUpdateLastUpdateNowCallSignal");
-const simsignal_t SGP4MobilityBase::moveAndUpdateLastUpdateNotNowCallSignal = registerSignal("space_veins_sgp4mobilitybase_moveAndUpdateLastUpdateNotNowCallSignal");
-const simsignal_t SGP4MobilityBase::lastElevationAngleToSopSignal = registerSignal("space_veins_sgp4mobilitybase_lastElevationAngleToSopSignal");
-const simsignal_t SGP4MobilityBase::satelliteRisesAboveHorizonSignal = registerSignal("space_veins_sgp4mobilitybase_satelliteRisesAboveHorizonSignal");
-const simsignal_t SGP4MobilityBase::satelliteSetsBelowHorizonSignal = registerSignal("space_veins_sgp4mobilitybase_satelliteSetsBelowHorizonSignal");
-const simsignal_t SGP4MobilityBase::periodAboveHorizonSignal = registerSignal("space_veins_sgp4mobilitybase_periodAboveHorizonSignal");
-const simsignal_t SGP4MobilityBase::omnetCoordX = registerSignal("space_veins_sgp4mobilitybase_omnetCoordX");
-const simsignal_t SGP4MobilityBase::omnetCoordY = registerSignal("space_veins_sgp4mobilitybase_omnetCoordY");
-const simsignal_t SGP4MobilityBase::omnetCoordZ = registerSignal("space_veins_sgp4mobilitybase_omnetCoordZ");
-const simsignal_t SGP4MobilityBase::wgs84CoordLat = registerSignal("space_veins_sgp4mobilitybase_wgs84CoordLat");
-const simsignal_t SGP4MobilityBase::wgs84CoordLon = registerSignal("space_veins_sgp4mobilitybase_wgs84CoordLon");
-const simsignal_t SGP4MobilityBase::wgs84CoordAlt = registerSignal("space_veins_sgp4mobilitybase_wgs84CoordAlt");
-const simsignal_t SGP4MobilityBase::wgs84CartCoordX = registerSignal("space_veins_sgp4mobilitybase_wgs84CartCoordX");
-const simsignal_t SGP4MobilityBase::wgs84CartCoordY = registerSignal("space_veins_sgp4mobilitybase_wgs84CartCoordY");
-const simsignal_t SGP4MobilityBase::wgs84CartCoordZ = registerSignal("space_veins_sgp4mobilitybase_wgs84CartCoordZ");
-const simsignal_t SGP4MobilityBase::sopRelativeCoordX = registerSignal("space_veins_sgp4mobilitybase_sopRelativeCoordX");
-const simsignal_t SGP4MobilityBase::sopRelativeCoordY = registerSignal("space_veins_sgp4mobilitybase_sopRelativeCoordY");
-const simsignal_t SGP4MobilityBase::sopRelativeCoordZ = registerSignal("space_veins_sgp4mobilitybase_sopRelativeCoordZ");
-const simsignal_t SGP4MobilityBase::sgp4SpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4mobilitybase_sgp4SpeedMeterPerSecondSignal");
-const simsignal_t SGP4MobilityBase::sgp4ComputationsSignal = registerSignal("space_veins_sgp4mobilitybase_sgp4ComputationsSignal");
-
 void SGP4MobilityBase::setInitialPosition()
 {
     // EV_DEBUG << "SGP4Mobility setInitialPosition()" << std::endl;
@@ -107,12 +80,16 @@ void SGP4MobilityBase::initialize(int stage)
         WATCH(precalculationIntervalsSize);
         WATCH(relevantPrecalculationIntervalsSize);
         WATCH(bordersOfRelevantIntervalsSize);
-        WATCH(SGP4CalculationsDuringPrecalculation);
+        WATCH(sgp4Computations);
+        WATCH(sgp4ComputationsDuringPrecalculation);
 
         // parse ned parameters
         updatePositionOnlyAboveHorizon = par("updatePositionOnlyAboveHorizon").boolValue();
         precalculationInterval_s = par("precalculationInterval_s");
         precalculationUpperTimeLimit_s = par("precalculationUpperTimeLimit_s");
+
+        // set vector names for statistics
+        setVectorNames();
 
         // create projection context
         pj_ctx = proj_context_create();
@@ -246,7 +223,7 @@ void SGP4MobilityBase::initialize(int stage)
                 updatePositionOnlyAboveHorizon = false;
             }
         }
-        SGP4CalculationsDuringPrecalculation = SGP4Calculations;
+        sgp4ComputationsDuringPrecalculation = sgp4Computations;
 
         // initialize position
         initializePosition();
@@ -480,16 +457,19 @@ void SGP4MobilityBase::move()
 void SGP4MobilityBase::moveAndUpdate()
 {
     // EV_TRACE << "SGP4MobilityBase::moveAndUpdate() called" << std::endl;
-    emit(moveAndUpdateCallSignal, 1);
+    moveAndUpdateCalls += 1;
+    vecMoveAndUpdateCalls.record(1);
     simtime_t now = simTime();
     // check if lastPosition is outdated
     if (lastUpdate != now) {
         // only update the position if it is outdated
-        emit(moveAndUpdateLastUpdateNotNowCallSignal, 1);
+        moveAndUpdateLastUpdateNotNowCalls += 1;
+        vecMoveAndUpdateLastUpdateNotNowCalls.record(1);
         SGP4MobilityBase::move();
         // orient();
     } else {
-        emit(moveAndUpdateLastUpdateNowCallSignal, 1);
+        moveAndUpdateLastUpdateNowCalls += 1;
+        vecMoveAndUpdateLastUpdateNowCalls.record(1);
     }
 }
 
@@ -498,8 +478,10 @@ inet::Coord SGP4MobilityBase::getCurrentPosition()
 {
     Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
     updateType = getCurrentPositionUpdate;
-    emit(getCurrentPositionUpdateCallSignal, 1);
+    getCurrentPositionUpdates += 1;
+    vecGetCurrentPositionUpdates.record(1);
     getCurrentPositionUpdateCallsNoWarmupPeriod += 1;
+    vecGetCurrentPositionUpdateCallsNoWarmupPeriod.record(1);
     if (isRelevantInterval(simTime())) {
         SGP4MobilityBase::moveAndUpdate();
         return lastPosition;
@@ -519,9 +501,12 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
     updateType = periodicUpdate;
     SGP4MobilityBase::moveAndUpdate();
     SGP4MobilityBase::scheduleUpdate();
-    emit(periodicUpdateCallSignal, 1);
+    periodicUpdateCalls += 1;
+    vecPeriodicUpdateCalls.record(1);
     periodicUpdateCallsNoWarmupPeriod += 1;
-    emit(processedEventSignal, 1);
+    vecPeriodicUpdateCallsNoWarmupPeriod.record(1);
+    processedEvents += 1;
+    vecProcessedEvents.record(1);
     return;
 }
 
@@ -580,12 +565,33 @@ void SGP4MobilityBase::scheduleUpdate()
 void SGP4MobilityBase::finish()
 {
     MovingMobilityBase::finish();
+    // OMNeT++ events/calls statistics
+    recordScalar("positionUpdates:count", positionUpdates);
+    recordScalar("processedEvents:count", processedEvents);
+    //      precalculations
     recordScalar("precalculationIntervalsSize:count", precalculationIntervalsSize);
     recordScalar("relevantPrecalculationIntervalsSize:count", relevantPrecalculationIntervalsSize);
     recordScalar("bordersOfRelevantIntervalsSize:count", bordersOfRelevantIntervalsSize);
-    recordScalar("sgp4CalculationsDuringPrecalculation:count", SGP4CalculationsDuringPrecalculation);
-    recordScalar("getCurrentPositionUpdateCallsNoWarmupPeriod:count", getCurrentPositionUpdateCallsNoWarmupPeriod);
+    //      periodic updates, done by handleSelfMessage()
+    recordScalar("periodicUpdates:count", periodicUpdates);
+    recordScalar("periodicUpdateCalls:count", periodicUpdateCalls);
     recordScalar("periodicUpdateCallsNoWarmupPeriod:count", periodicUpdateCallsNoWarmupPeriod);
+    //      random updates, done by getCurrentPosition()
+    recordScalar("getCurrentPositionUpdates:count", getCurrentPositionUpdates);
+    recordScalar("getCurrentPositionUpdateCalls:count", getCurrentPositionUpdateCalls);
+    recordScalar("getCurrentPositionUpdateCallsNoWarmupPeriod:count", getCurrentPositionUpdateCallsNoWarmupPeriod);
+    //      moveAndUpdate() calls
+    recordScalar("moveAndUpdateCalls:count", moveAndUpdateCalls);
+    recordScalar("moveAndUpdateLastUpdateNowCalls:count", moveAndUpdateLastUpdateNowCalls);
+    recordScalar("moveAndUpdateLastUpdateNotNowCalls:count", moveAndUpdateLastUpdateNotNowCalls);
+    //      SGP4 computations
+    recordScalar("sgp4Computations:count", sgp4Computations);
+    recordScalar("sgp4ComputationsDuringPrecalculation:count", sgp4ComputationsDuringPrecalculation);
+    // SGP4Mobility statistics
+    recordScalar("horizonRises:count", horizonRises);
+    recordScalar("horizonSets:count", horizonSets);
+    recordScalar("periodsAboveHorizon:count", periodsAboveHorizon);
+    recordScalar("totalTimeAboveHorizon:last", totalTimeAboveHorizon);
 }
 
 
@@ -673,7 +679,7 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     // EV_TRACE << "SGP4Mobility satellite position at simulation time " << simulationTime << ": " << satellitePosition << std::endl;
     // EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
-    SGP4Calculations++;
+    sgp4Computations++;
     recordSgp4Computation(calculateElevationAngleRelativeToSop(returnValues.omnetppCoord));
     recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
@@ -702,7 +708,8 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
             // satellite is above the horizon
             if (isAboveHorizon == false) {
                 // satellite rises ABOVE the horizon because according the last position update the satelltite was below the horizon (isAboveHorizon == false) but now it rised above the horizon because lastPosition.z > 0.
-                emit(satelliteRisesAboveHorizonSignal, now);
+                horizonRises += 1;
+                vecHorizonRises.record(1);
                 lastRisingAboveHorizon = now;
             } else {
                 // another position update while the satellite is ABOVE the horizon because isAboveHorizon is already equal to TRUE.
@@ -714,18 +721,23 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
                 // another position update while the satellite is BELOW the horizon because isAboveHorizon is already equal to FALSE.
             } else {
                 // satellite sets BELOW the horizon because according the last position update the satelltite was above the horizon (isAboveHorizon == true) but now it sets below the horizon because lastPosition.z <= 0.
-                emit(satelliteSetsBelowHorizonSignal, now);
+                horizonSets += 1;
+                vecHorizonSets.record(1);
                 lastDipBelowHorizon = now;
-                emit(periodAboveHorizonSignal, now - lastRisingAboveHorizon);
+                simtime_t timeAboveHorizon = now - lastRisingAboveHorizon;
+                totalTimeAboveHorizon += timeAboveHorizon;
+                vecPeriodsAboveHorizon.record(timeAboveHorizon);
             }
             isAboveHorizon = false;
         }
         if (type == periodicUpdate) {
             lastPeriodicUpdate = now;
-            emit(periodicUpdateSignal, 1);
+            periodicUpdates += 1;
+            vecPeriodicUpdates.record(1);
         } else if (type == getCurrentPositionUpdate) {
             lastGetCurrentPositionUpdate = now;
-            emit(getCurrentPositionUpdateSignal, 1);
+            getCurrentPositionUpdates += 1;
+            vecGetCurrentPositionUpdates.record(1);
         } else {
             EV_ERROR << "SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
             throw cRuntimeError("SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t");
@@ -736,49 +748,94 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         // refreshDisplay();
         // statistics
         emitMobilityStateChangedSignal();
+        positionUpdates += 1;
+        vecPositionUpdates.record(1);
         recordOmnetCoord(lastPosition);
-        emit(lastElevationAngleToSopSignal, lastElevationAngleToSop.get());
+        vecLastElevationAngleToSop.record(lastElevationAngleToSop.get());
     }
 }
 
 /* ---------------------- statistic helper functions --------------------------------*/
+void SGP4MobilityBase::setVectorNames()
+{
+    // OMNeT++ events/calls statistics
+    vecPositionUpdates.setName("positionUpdates:vector");
+    vecProcessedEvents.setName("processedEvents:vector");
+    //      periodic updates, done by handleSelfMessage()
+    vecPeriodicUpdates.setName("periodicUpdates:vector");
+    vecPeriodicUpdateCalls.setName("periodicUpdateCalls:vector");
+    vecPeriodicUpdateCallsNoWarmupPeriod.setName("periodicUpdateCallsNoWarmupPeriod:vector");
+    //      random updates, done by getCurrentPosition()
+    vecGetCurrentPositionUpdates.setName("getCurrentPositionUpdates:vector");
+    vecGetCurrentPositionUpdateCalls.setName("getCurrentPositionUpdateCalls:vector");
+    vecGetCurrentPositionUpdateCallsNoWarmupPeriod.setName("getCurrentPositionUpdateCallsNoWarmupPeriod:vector");
+    //      moveAndUpdate() calls
+    vecMoveAndUpdateCalls.setName("moveAndUpdateCalls:vector");
+    vecMoveAndUpdateLastUpdateNowCalls.setName("moveAndUpdateLastUpdateNowCalls:vector");
+    vecMoveAndUpdateLastUpdateNotNowCalls.setName("moveAndUpdateLastUpdateNotNowCalls:vector");
+    //      SGP4 computations
+    vecSgp4Computations.setName("sgp4Computations:vector");
+    // SGP4Mobility statistics
+    vecHorizonRises.setName("horizonRises:vector");
+    vecHorizonSets.setName("horizonSets:vector");
+    vecPeriodsAboveHorizon.setName("periodsAboveHorizon");
+
+    vecLastElevationAngleToSop.setName("lastElevationAngleToSop");
+    vecSgp4SpeedMeterPerSecond.setName("sgp4SpeedMeterPerSecond");
+
+    vecOmnetCoordX.setName("omnetCoordX");
+    vecOmnetCoordY.setName("omnetCoordY");
+    vecOmnetCoordZ.setName("omnetCoordZ");
+
+    vecWgs84CoordLat.setName("wgs84CoordLat");
+    vecWgs84CoordLon.setName("wgs84CoordLon");
+    vecWgs84CoordAlt.setName("wgs84CoordAlt");
+
+    vecWgs84CartCoordX.setName("wgs84CoordX");
+    vecWgs84CartCoordY.setName("wgs84CoordY");
+    vecWgs84CartCoordZ.setName("wgs84CoordZ");
+
+    vecSopRelativeCoordX.setName("sopRelativeCoordX");
+    vecSopRelativeCoordY.setName("sopRelativeCoordY");
+    vecSopRelativeCoordZ.setName("sopRelativeCoordZ");
+}
 
 void SGP4MobilityBase::recordOmnetCoord(const inet::Coord c)
 {
-    emit(omnetCoordX, c.x);
-    emit(omnetCoordY, c.y);
-    emit(omnetCoordZ, c.z);
+    vecOmnetCoordX.record(c.x);
+    vecOmnetCoordY.record(c.y);
+    vecOmnetCoordZ.record(c.z);
 }
 
 void SGP4MobilityBase::recordWGS84Coord(const WGS84Coord c)
 {
-    emit(wgs84CoordLat, c.lat);
-    emit(wgs84CoordLon, c.lon);
-    emit(wgs84CoordAlt, c.alt);
+    vecWgs84CoordLat.record(c.lat);
+    vecWgs84CoordLon.record(c.lon);
+    vecWgs84CoordAlt.record(c.alt);
 }
 
 void SGP4MobilityBase::recordWGS84CartCoord(const PJ_COORD c)
 {
-    emit(wgs84CartCoordX, c.xyz.x);
-    emit(wgs84CartCoordY, c.xyz.y);
-    emit(wgs84CartCoordZ, c.xyz.z);
+    vecWgs84CartCoordX.record(c.xyz.x);
+    vecWgs84CartCoordY.record(c.xyz.y);
+    vecWgs84CartCoordZ.record(c.xyz.z);
 }
 
 void SGP4MobilityBase::recordSopRelativeCoord(const inet::Coord c)
 {
-    emit(sopRelativeCoordX, c.x);
-    emit(sopRelativeCoordY, c.y);
-    emit(sopRelativeCoordZ, c.z);
+    vecSopRelativeCoordX.record(c.x);
+    vecSopRelativeCoordY.record(c.y);
+    vecSopRelativeCoordZ.record(c.z);
 }
 
 void SGP4MobilityBase::recordSgp4SpeedMeterPerSecond(const double speed)
 {
-    emit(sgp4SpeedMeterPerSecondSignal, speed);
+    vecSgp4SpeedMeterPerSecond.record(speed);
 }
 
 void SGP4MobilityBase::recordSgp4Computation(inet::deg elevationAngleToSop)
 {
-    emit(sgp4ComputationsSignal, elevationAngleToSop.get());
+    vecSgp4Computations.record(elevationAngleToSop.get());
 }
 
 /* ---------------------- print data --------------------------------*/
