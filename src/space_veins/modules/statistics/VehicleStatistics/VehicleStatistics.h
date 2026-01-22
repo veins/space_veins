@@ -57,26 +57,12 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         double aoiAreaUnderTheCurveSum = 0;
         simtime_t beginAverageTimeDuration = omnetpp::SimTime::ZERO;
 
-        // Mobility
-        static const simsignal_t omnetCoordX;
-        static const simsignal_t omnetCoordY;
-        static const simsignal_t omnetCoordZ;
-
-        static const simsignal_t wgs84CoordLat;
-        static const simsignal_t wgs84CoordLon;
-        static const simsignal_t wgs84CoordAlt;
-
-        static const simsignal_t wgs84CartCoordX;
-        static const simsignal_t wgs84CartCoordY;
-        static const simsignal_t wgs84CartCoordZ;
-
-        static const simsignal_t sopRelativeCoordX;
-        static const simsignal_t sopRelativeCoordY;
-        static const simsignal_t sopRelativeCoordZ;
-
         // Application layer
-        static const simsignal_t sendSatellitePacketsOverMinElevationAngle;
-        static const simsignal_t ageOfInformation;
+        unsigned long sendSatellitePacketsOverMinElevationAngle = 0;
+        double lastAverageAgeOfInformation = -1;
+
+        cOutVector vecSendSatellitePacketsOverMinElevationAngle;
+        cOutVector vecAgeOfInformation;
 
         static const simsignal_t sendSatellitePackets;
         static const simsignal_t receivedSatellitePackets;
@@ -101,11 +87,6 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         static const simsignal_t wlanPacketEndToEndDelay;
 
     public:
-        void recordOmnetCoord(const veins::Coord c);
-        void recordWGS84Coord(const space_veins::WGS84Coord c);
-        void recordWGS84CartCoord(const PJ_COORD c);
-        void recordSopRelativeCoord(const veins::Coord c);
-
         void recordSendSatellitePackets();
         void recordReceivedSatellitePackets();
 

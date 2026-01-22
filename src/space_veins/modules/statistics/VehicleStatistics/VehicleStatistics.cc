@@ -28,25 +28,6 @@
 
 Define_Module(space_veins::VehicleStatistics);
 
-const simsignal_t space_veins::VehicleStatistics::omnetCoordX = registerSignal("space_veins_vehicleStatistics_omnetCoordX");
-const simsignal_t space_veins::VehicleStatistics::omnetCoordY = registerSignal("space_veins_vehicleStatistics_omnetCoordY");
-const simsignal_t space_veins::VehicleStatistics::omnetCoordZ = registerSignal("space_veins_vehicleStatistics_omnetCoordZ");
-
-const simsignal_t space_veins::VehicleStatistics::wgs84CoordLat = registerSignal("space_veins_vehicleStatistics_wgs84CoordLat");
-const simsignal_t space_veins::VehicleStatistics::wgs84CoordLon = registerSignal("space_veins_vehicleStatistics_wgs84CoordLon");
-const simsignal_t space_veins::VehicleStatistics::wgs84CoordAlt = registerSignal("space_veins_vehicleStatistics_wgs84CoordAlt");
-
-const simsignal_t space_veins::VehicleStatistics::wgs84CartCoordX = registerSignal("space_veins_vehicleStatistics_wgs84CartCoordX");
-const simsignal_t space_veins::VehicleStatistics::wgs84CartCoordY = registerSignal("space_veins_vehicleStatistics_wgs84CartCoordY");
-const simsignal_t space_veins::VehicleStatistics::wgs84CartCoordZ = registerSignal("space_veins_vehicleStatistics_wgs84CartCoordZ");
-
-const simsignal_t space_veins::VehicleStatistics::sopRelativeCoordX = registerSignal("space_veins_vehicleStatistics_sopRelativeCoordX");
-const simsignal_t space_veins::VehicleStatistics::sopRelativeCoordY = registerSignal("space_veins_vehicleStatistics_sopRelativeCoordY");
-const simsignal_t space_veins::VehicleStatistics::sopRelativeCoordZ = registerSignal("space_veins_vehicleStatistics_sopRelativeCoordZ");
-
-const simsignal_t space_veins::VehicleStatistics::sendSatellitePacketsOverMinElevationAngle = registerSignal("space_veins_vehicleStatistics_sendSatellitePacketsOverMinElevationAngle");
-const simsignal_t space_veins::VehicleStatistics::ageOfInformation = registerSignal("space_veins_vehicleStatistics_ageOfInformation");
-
 const simsignal_t space_veins::VehicleStatistics::sendSatellitePackets = registerSignal("space_veins_vehicleStatistics_sendSatellitePackets");
 const simsignal_t space_veins::VehicleStatistics::receivedSatellitePackets = registerSignal("space_veins_vehicleStatistics_receivedSatellitePackets");
 
@@ -74,6 +55,9 @@ void space_veins::VehicleStatistics::initialize(int stage)
     if (stage == 0) {
         EV_DEBUG << "space_veins::VehicleStatistics initialized." << std::endl;
         moduleType = getParentModule()->getNedTypeName();
+
+        vecSendSatellitePacketsOverMinElevationAngle.setName("sendSatellitePacketsOverMinElevationAngle:vector");
+        vecAgeOfInformation.setName("ageOfInformation:vector");
     }
     if (stage == 5) {
         if (moduleType == "space_veins.nodes.Satellite") {
@@ -98,7 +82,8 @@ void space_veins::VehicleStatistics::initialize(int stage)
             auto onTransmissionEndedSignal = [this](veins::SignalPayload<cObject*> payload) {
                 // TODO: get minElevationAngle from MediumLimitCache
                 if (sgp4m->getLastElevationAngleToSop().get() >= inet::deg(8).get()) {
-                    emit(sendSatellitePacketsOverMinElevationAngle, 1);
+                    sendSatellitePacketsOverMinElevationAngle += 1;
+                    vecSendSatellitePacketsOverMinElevationAngle.record(1);
                 }
             };
             signalManager.subscribeCallback(getParentModule(), inet::physicallayer::IRadio::transmissionEndedSignal, onTransmissionEndedSignal);
@@ -132,7 +117,8 @@ void space_veins::VehicleStatistics::initialize(int stage)
                             // measure the age of information
                             simtime_t averageTimeDuration = now - beginAverageTimeDuration;
                             double averageAoI = aoiAreaUnderTheCurveSum / averageTimeDuration.dbl();
-                            emit(ageOfInformation, averageAoI);
+                            lastAverageAgeOfInformation = averageAoI;
+                            vecAgeOfInformation.record(averageAoI);
                         }
                         lastPacketReception = now;
                         if (beginAverageTimeDuration == omnetpp::SimTime::ZERO) {
@@ -146,7 +132,10 @@ void space_veins::VehicleStatistics::initialize(int stage)
     }
 }
 
-void space_veins::VehicleStatistics::finish() {}
+void space_veins::VehicleStatistics::finish() {
+    recordScalar("sendSatellitePacketsOverMinElevationAngle:count", sendSatellitePacketsOverMinElevationAngle);
+    recordScalar("ageOfInformation:last", lastAverageAgeOfInformation);
+}
 
 void space_veins::VehicleStatistics::handleMessage(cMessage *msg)
 {
@@ -154,34 +143,6 @@ void space_veins::VehicleStatistics::handleMessage(cMessage *msg)
 }
 
 space_veins::VehicleStatistics::~VehicleStatistics() {
-}
-
-void space_veins::VehicleStatistics::recordOmnetCoord(const veins::Coord c)
-{
-    emit(omnetCoordX, c.x);
-    emit(omnetCoordY, c.y);
-    emit(omnetCoordZ, c.z);
-}
-
-void space_veins::VehicleStatistics::recordWGS84Coord(const WGS84Coord c)
-{
-    emit(wgs84CoordLat, c.lat);
-    emit(wgs84CoordLon, c.lon);
-    emit(wgs84CoordAlt, c.alt);
-}
-
-void space_veins::VehicleStatistics::recordWGS84CartCoord(const PJ_COORD c)
-{
-    emit(wgs84CartCoordX, c.xyz.x);
-    emit(wgs84CartCoordY, c.xyz.y);
-    emit(wgs84CartCoordZ, c.xyz.z);
-}
-
-void space_veins::VehicleStatistics::recordSopRelativeCoord(const veins::Coord c)
-{
-    emit(sopRelativeCoordX, c.x);
-    emit(sopRelativeCoordY, c.y);
-    emit(sopRelativeCoordZ, c.z);
 }
 
 void space_veins::VehicleStatistics::recordSendSatellitePackets()

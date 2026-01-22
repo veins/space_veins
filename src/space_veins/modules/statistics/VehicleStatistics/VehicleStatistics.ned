@@ -28,40 +28,6 @@ simple VehicleStatistics
     parameters:
         @class(space_veins::VehicleStatistics);
 
-        @signal[space_veins_vehicleStatistics_omnetCoordX](type=double);
-        @signal[space_veins_vehicleStatistics_omnetCoordY](type=double);
-        @signal[space_veins_vehicleStatistics_omnetCoordZ](type=double);
-        @statistic[omnetCoordX](source=space_veins_vehicleStatistics_omnetCoordX; record=vector);
-        @statistic[omnetCoordY](source=space_veins_vehicleStatistics_omnetCoordY; record=vector);
-        @statistic[omnetCoordZ](source=space_veins_vehicleStatistics_omnetCoordZ; record=vector);
-
-        @signal[space_veins_vehicleStatistics_wgs84CoordLat](type=double);
-        @signal[space_veins_vehicleStatistics_wgs84CoordLon](type=double);
-        @signal[space_veins_vehicleStatistics_wgs84CoordAlt](type=double);
-        @statistic[wgs84CoordLat](source=space_veins_vehicleStatistics_wgs84CoordLat; record=vector);
-        @statistic[wgs84CoordLon](source=space_veins_vehicleStatistics_wgs84CoordLon; record=vector);
-        @statistic[wgs84CoordAlt](source=space_veins_vehicleStatistics_wgs84CoordAlt; record=vector);
-
-        @signal[space_veins_vehicleStatistics_wgs84CartCoordX](type=double);
-        @signal[space_veins_vehicleStatistics_wgs84CartCoordY](type=double);
-        @signal[space_veins_vehicleStatistics_wgs84CartCoordZ](type=double);
-        @statistic[wgs84CartCoordX](source=space_veins_vehicleStatistics_wgs84CartCoordX; record=vector);
-        @statistic[wgs84CartCoordY](source=space_veins_vehicleStatistics_wgs84CartCoordY; record=vector);
-        @statistic[wgs84CartCoordZ](source=space_veins_vehicleStatistics_wgs84CartCoordZ; record=vector);
-
-        @signal[space_veins_vehicleStatistics_sopRelativeCoordX](type=double);
-        @signal[space_veins_vehicleStatistics_sopRelativeCoordY](type=double);
-        @signal[space_veins_vehicleStatistics_sopRelativeCoordZ](type=double);
-        @statistic[sopRelativeCoordX](source=space_veins_vehicleStatistics_sopRelativeCoordX; record=vector);
-        @statistic[sopRelativeCoordY](source=space_veins_vehicleStatistics_sopRelativeCoordY; record=vector);
-        @statistic[sopRelativeCoordZ](source=space_veins_vehicleStatistics_sopRelativeCoordZ; record=vector);
-
-        @signal[space_veins_vehicleStatistics_sendSatellitePacketsOverMinElevationAngle](type=long);
-        @statistic[sendSatellitePacketsOverMinElevationAngle](source=space_veins_vehicleStatistics_sendSatellitePacketsOverMinElevationAngle; record=count, vector);
-        @signal[space_veins_vehicleStatistics_ageOfInformation](type=double);
-        // provides the average age of information after every packet reception in the application layer.
-        @statistic[ageOfInformation](source=space_veins_vehicleStatistics_ageOfInformation; record=last, vector);
-
         @signal[space_veins_vehicleStatistics_sendSatellitePackets](type=long);
         @signal[space_veins_vehicleStatistics_receivedSatellitePackets](type=long);
         @statistic[sendSatellitePackets](source=space_veins_vehicleStatistics_sendSatellitePackets; record=count, vector);
