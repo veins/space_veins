@@ -478,8 +478,8 @@ inet::Coord SGP4MobilityBase::getCurrentPosition()
 {
     Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
     updateType = getCurrentPositionUpdate;
-    getCurrentPositionUpdates += 1;
-    vecGetCurrentPositionUpdates.record(1);
+    getCurrentPositionUpdateCalls += 1;
+    vecGetCurrentPositionUpdateCalls.record(1);
     getCurrentPositionUpdateCallsNoWarmupPeriod += 1;
     vecGetCurrentPositionUpdateCallsNoWarmupPeriod.record(1);
     if (isRelevantInterval(simTime())) {
@@ -709,10 +709,15 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
             if (isAboveHorizon == false) {
                 // satellite rises ABOVE the horizon because according the last position update the satelltite was below the horizon (isAboveHorizon == false) but now it rised above the horizon because lastPosition.z > 0.
                 horizonRises += 1;
+                periodsAboveHorizon += 1;
                 vecHorizonRises.record(1);
                 lastRisingAboveHorizon = now;
             } else {
                 // another position update while the satellite is ABOVE the horizon because isAboveHorizon is already equal to TRUE.
+                if (periodsAboveHorizon == 0) {
+                    // increase periodsAboveHorizon for satellites whose initial position starts above the horizon
+                    periodsAboveHorizon += 1;
+                }
             }
             isAboveHorizon = true;
         } else {
