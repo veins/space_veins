@@ -47,8 +47,8 @@ class SPACE_VEINS_API GlobalStatistics : public cSimpleModule
         unsigned long numCurrentCars = 0;
 
         cOutVector vecCurrentCars;
+        cOutVector vecPacketReceptionHash;
 
-        static const simsignal_t packetReceptionHash;
         std::hash<size_t> hasher;
         size_t lastHash = 0;
 

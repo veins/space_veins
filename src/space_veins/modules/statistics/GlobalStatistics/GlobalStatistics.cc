@@ -36,8 +36,6 @@ Define_Module(space_veins::GlobalStatistics);
 
 using namespace space_veins;
 
-const simsignal_t GlobalStatistics::packetReceptionHash = registerSignal("space_veins_globalStatistics_packetReceptionHash");
-
 void GlobalStatistics::initialize(int stage)
 {
     if (stage == 0) {
@@ -53,11 +51,12 @@ void GlobalStatistics::initialize(int stage)
         WATCH(lastHash);
 
         vecCurrentCars.setName("activeTraciModules:vector");
+        vecPacketReceptionHash.setName("packetReceptionHash:vector");
 
         // listen for all packet receptions and calculate a hash
         auto onPacketReception = [this](veins::SignalPayload<cObject*> payload) {
             lastHash = hasher(lastHash + (size_t)(check_and_cast<inet::Packet*>(payload.p)->getId()));
-            emit(packetReceptionHash, lastHash);
+            vecPacketReceptionHash.record(lastHash);
         };
         signalManager.subscribeCallback(getSimulation()->getSystemModule(), inet::packetReceivedSignal, onPacketReception);
 
@@ -241,6 +240,8 @@ void GlobalStatistics::finish() {
     recordScalar("totalAddedTraciModules:count", numTotalCars);
     recordScalar("totalRemovedTraciModules:count", numRemovedCars);
     recordScalar("activeTraciModules:last", numCurrentCars);
+
+    recordScalar("packetReceptionHash:last", lastHash);
 
     if (recordReceptions) {
         // write repectionsMap
