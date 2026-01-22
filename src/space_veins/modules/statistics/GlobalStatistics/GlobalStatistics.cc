@@ -25,6 +25,8 @@
 #include "veins/modules/mobility/traci/TraCIScenarioManager.h"
 #include "veins/modules/mobility/traci/TraCIMobility.h"
 
+#include "veins_inet/VeinsInetManager.h"
+
 #include "inet/common/Simsignals.h"
 #include "inet/common/packet/Packet.h"
 #include "inet/physicallayer/contract/packetlevel/IRadio.h"
@@ -148,7 +150,10 @@ void GlobalStatistics::initialize(int stage)
                         // get vector index of receiver, 0 if receiver is not in a vector
                         long unsigned int receiverVectorIndex = 0;
                         // if receiver has TraCIMobility use externalId, otherwise vector index
-                        veins::TraCIMobility* tm = veins::TraCIMobilityAccess().get(receiverModule);
+                        veins::TraCIMobility* tm = nullptr;
+                        if (veins::FindModule<veins::VeinsInetManager*>::findGlobalModule() != nullptr) {
+                            tm = veins::TraCIMobilityAccess().get(receiverModule);
+                        }
                         if (tm == nullptr) {
                             // receiver module has no traci mobility, use vector index
                             if (receiverModule->isVector()) receiverVectorIndex = receiverModule->getIndex();
