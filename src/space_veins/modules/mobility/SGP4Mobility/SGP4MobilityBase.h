@@ -193,7 +193,6 @@ protected:
     void recordWGS84CartCoord(const PJ_COORD c);
     void recordSopRelativeCoord(const inet::Coord c);
     void recordSgp4SpeedMeterPerSecond(const double speed);
-    void recordSgp4Computation(inet::deg elevationAngleToSop);
 
     // attributes
     // ned parameters
@@ -236,6 +235,7 @@ protected:
 
     // SOP pointer
     SatelliteObservationPoint* sop;
+    inet::StationaryMobility* sopMobility;
 
     // Time management
     // wall clock start time utc

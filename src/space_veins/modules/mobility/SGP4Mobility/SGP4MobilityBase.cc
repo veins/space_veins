@@ -200,6 +200,9 @@ void SGP4MobilityBase::initialize(int stage)
         // geocentric to topocentric projection
         wgs84cartesian_to_topocentric_projection = proj_create(pj_ctx, ss_proj.str().c_str());
 
+        // get mobility module of the SOP
+        sopMobility = static_cast<inet::StationaryMobility*>(sop->getSubmodule("mobility"));
+
         // Statistics
         vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
 
@@ -476,7 +479,7 @@ void SGP4MobilityBase::moveAndUpdate()
 // for random time updates
 inet::Coord SGP4MobilityBase::getCurrentPosition()
 {
-    Enter_Method((std::string(getFullPath()) + " getCurrentPosition(), simTime: " + std::string(SIMTIME_STR(simTime()))).c_str());
+    Enter_Method("SGP4Mobility::getCurrentPosition");
     updateType = getCurrentPositionUpdate;
     getCurrentPositionUpdateCalls += 1;
     vecGetCurrentPositionUpdateCalls.record(1);
@@ -680,7 +683,7 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     // EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
     sgp4Computations++;
-    recordSgp4Computation(calculateElevationAngleRelativeToSop(returnValues.omnetppCoord));
+    vecSgp4Computations.record(1);
     recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
     recordSopRelativeCoord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP);
@@ -689,8 +692,6 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
 
 inet::deg SGP4MobilityBase::calculateElevationAngleRelativeToSop(inet::Coord pos) {
     inet::Coord vecSopToSatellite;    // a vector pointing from SOP to a satellite position
-    // get mobility module of the SOP
-    auto sopMobility = static_cast<inet::StationaryMobility*>(sop->getSubmodule("mobility"));
     // calculate vector pointing from SOP to the satellite
     vecSopToSatellite = pos - sopMobility->getCurrentPosition();
     // normalize the vector, it's length is 1
@@ -836,11 +837,6 @@ void SGP4MobilityBase::recordSopRelativeCoord(const inet::Coord c)
 void SGP4MobilityBase::recordSgp4SpeedMeterPerSecond(const double speed)
 {
     vecSgp4SpeedMeterPerSecond.record(speed);
-}
-
-void SGP4MobilityBase::recordSgp4Computation(inet::deg elevationAngleToSop)
-{
-    vecSgp4Computations.record(elevationAngleToSop.get());
 }
 
 /* ---------------------- print data --------------------------------*/
