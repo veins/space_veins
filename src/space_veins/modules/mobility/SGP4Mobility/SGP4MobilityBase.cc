@@ -461,18 +461,18 @@ void SGP4MobilityBase::moveAndUpdate()
 {
     // EV_TRACE << "SGP4MobilityBase::moveAndUpdate() called" << std::endl;
     moveAndUpdateCalls += 1;
-    vecMoveAndUpdateCalls.record(1);
+    // vecMoveAndUpdateCalls.record(1);
     simtime_t now = simTime();
     // check if lastPosition is outdated
     if (lastUpdate != now) {
         // only update the position if it is outdated
         moveAndUpdateLastUpdateNotNowCalls += 1;
-        vecMoveAndUpdateLastUpdateNotNowCalls.record(1);
+        // vecMoveAndUpdateLastUpdateNotNowCalls.record(1);
         SGP4MobilityBase::move();
         // orient();
     } else {
         moveAndUpdateLastUpdateNowCalls += 1;
-        vecMoveAndUpdateLastUpdateNowCalls.record(1);
+        // vecMoveAndUpdateLastUpdateNowCalls.record(1);
     }
 }
 
@@ -482,9 +482,9 @@ inet::Coord SGP4MobilityBase::getCurrentPosition()
     Enter_Method("SGP4Mobility::getCurrentPosition");
     updateType = getCurrentPositionUpdate;
     getCurrentPositionUpdateCalls += 1;
-    vecGetCurrentPositionUpdateCalls.record(1);
+    // vecGetCurrentPositionUpdateCalls.record(1);
     getCurrentPositionUpdateCallsNoWarmupPeriod += 1;
-    vecGetCurrentPositionUpdateCallsNoWarmupPeriod.record(1);
+    // vecGetCurrentPositionUpdateCallsNoWarmupPeriod.record(1);
     if (isRelevantInterval(simTime())) {
         SGP4MobilityBase::moveAndUpdate();
         return lastPosition;
@@ -505,11 +505,11 @@ void SGP4MobilityBase::handleSelfMessage(cMessage* message)
     SGP4MobilityBase::moveAndUpdate();
     SGP4MobilityBase::scheduleUpdate();
     periodicUpdateCalls += 1;
-    vecPeriodicUpdateCalls.record(1);
+    // vecPeriodicUpdateCalls.record(1);
     periodicUpdateCallsNoWarmupPeriod += 1;
-    vecPeriodicUpdateCallsNoWarmupPeriod.record(1);
+    // vecPeriodicUpdateCallsNoWarmupPeriod.record(1);
     processedEvents += 1;
-    vecProcessedEvents.record(1);
+    // vecProcessedEvents.record(1);
     return;
 }
 
@@ -683,10 +683,10 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     // EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
     sgp4Computations++;
-    vecSgp4Computations.record(1);
-    recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
-    recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
-    recordSopRelativeCoord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP);
+    // vecSgp4Computations.record(1);
+    // recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
+    // recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
+    // recordSopRelativeCoord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP);
     return returnValues;
 }
 
@@ -711,7 +711,7 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
                 // satellite rises ABOVE the horizon because according the last position update the satelltite was below the horizon (isAboveHorizon == false) but now it rised above the horizon because lastPosition.z > 0.
                 horizonRises += 1;
                 periodsAboveHorizon += 1;
-                vecHorizonRises.record(1);
+                // vecHorizonRises.record(1);
                 lastRisingAboveHorizon = now;
             } else {
                 // another position update while the satellite is ABOVE the horizon because isAboveHorizon is already equal to TRUE.
@@ -728,22 +728,22 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
             } else {
                 // satellite sets BELOW the horizon because according the last position update the satelltite was above the horizon (isAboveHorizon == true) but now it sets below the horizon because lastPosition.z <= 0.
                 horizonSets += 1;
-                vecHorizonSets.record(1);
+                // vecHorizonSets.record(1);
                 lastDipBelowHorizon = now;
                 simtime_t timeAboveHorizon = now - lastRisingAboveHorizon;
                 totalTimeAboveHorizon += timeAboveHorizon;
-                vecPeriodsAboveHorizon.record(timeAboveHorizon);
+                // vecPeriodsAboveHorizon.record(timeAboveHorizon);
             }
             isAboveHorizon = false;
         }
         if (type == periodicUpdate) {
             lastPeriodicUpdate = now;
             periodicUpdates += 1;
-            vecPeriodicUpdates.record(1);
+            // vecPeriodicUpdates.record(1);
         } else if (type == getCurrentPositionUpdate) {
             lastGetCurrentPositionUpdate = now;
             getCurrentPositionUpdates += 1;
-            vecGetCurrentPositionUpdates.record(1);
+            // vecGetCurrentPositionUpdates.record(1);
         } else {
             EV_ERROR << "SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
             throw cRuntimeError("SGP4MobilityBase::updateManagementDataAndStatistics: undefined updateType_t");
@@ -755,9 +755,9 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         // statistics
         emitMobilityStateChangedSignal();
         positionUpdates += 1;
-        vecPositionUpdates.record(1);
+        // vecPositionUpdates.record(1);
         recordOmnetCoord(lastPosition);
-        vecLastElevationAngleToSop.record(lastElevationAngleToSop.get());
+        // vecLastElevationAngleToSop.record(lastElevationAngleToSop.get());
     }
 }
 
@@ -808,35 +808,35 @@ void SGP4MobilityBase::setVectorNames()
 
 void SGP4MobilityBase::recordOmnetCoord(const inet::Coord c)
 {
-    vecOmnetCoordX.record(c.x);
-    vecOmnetCoordY.record(c.y);
-    vecOmnetCoordZ.record(c.z);
+    // vecOmnetCoordX.record(c.x);
+    // vecOmnetCoordY.record(c.y);
+    // vecOmnetCoordZ.record(c.z);
 }
 
 void SGP4MobilityBase::recordWGS84Coord(const WGS84Coord c)
 {
-    vecWgs84CoordLat.record(c.lat);
-    vecWgs84CoordLon.record(c.lon);
-    vecWgs84CoordAlt.record(c.alt);
+    // vecWgs84CoordLat.record(c.lat);
+    // vecWgs84CoordLon.record(c.lon);
+    // vecWgs84CoordAlt.record(c.alt);
 }
 
 void SGP4MobilityBase::recordWGS84CartCoord(const PJ_COORD c)
 {
-    vecWgs84CartCoordX.record(c.xyz.x);
-    vecWgs84CartCoordY.record(c.xyz.y);
-    vecWgs84CartCoordZ.record(c.xyz.z);
+    // vecWgs84CartCoordX.record(c.xyz.x);
+    // vecWgs84CartCoordY.record(c.xyz.y);
+    // vecWgs84CartCoordZ.record(c.xyz.z);
 }
 
 void SGP4MobilityBase::recordSopRelativeCoord(const inet::Coord c)
 {
-    vecSopRelativeCoordX.record(c.x);
-    vecSopRelativeCoordY.record(c.y);
-    vecSopRelativeCoordZ.record(c.z);
+    // vecSopRelativeCoordX.record(c.x);
+    // vecSopRelativeCoordY.record(c.y);
+    // vecSopRelativeCoordZ.record(c.z);
 }
 
 void SGP4MobilityBase::recordSgp4SpeedMeterPerSecond(const double speed)
 {
-    vecSgp4SpeedMeterPerSecond.record(speed);
+    // vecSgp4SpeedMeterPerSecond.record(speed);
 }
 
 /* ---------------------- print data --------------------------------*/
