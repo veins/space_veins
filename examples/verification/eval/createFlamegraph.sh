@@ -18,15 +18,19 @@ perf record \
 $3
 
 perf script -i "$1" > "${1}.out"
+mv "$1" archive/latest
 
 ###############################
 #         fold stacks         #
 ###############################
 
 /ramdisk/FlameGraph/stackcollapse-perf.pl "${1}.out" > "${1}.out.folded"
+mv "${1}.out" archive/latest
 
 ###############################
 #      create flamegraph      #
 ###############################
 
 /ramdisk/FlameGraph/flamegraph.pl "${1}.out.folded" > "${1}.svg"
+mv "${1}.out.folded" archive/latest
+mv "${1}.svg" archive/latest
