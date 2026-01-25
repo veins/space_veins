@@ -27,15 +27,13 @@ using namespace space_veins;
 
 Define_Module(space_veins::SGP4MobilityWithLinearInterpolationUpdates);
 
-const simsignal_t SGP4MobilityWithLinearInterpolationUpdates::linearInterpolationSpeedMeterPerSecondSignal = registerSignal("space_veins_sgp4MobilityWithLinearInterpolationUpdates_linearInterpolationSpeedMeterPerSecondSignal");
-const simsignal_t SGP4MobilityWithLinearInterpolationUpdates::linearInterpolationComputationsSignal = registerSignal("space_veins_sgp4MobilityWithLinearInterpolationUpdates_linearInterpolationComputationsSignal");
-
 void SGP4MobilityWithLinearInterpolationUpdates::initialize(int stage)
 {
     // EV_DEBUG << "SGP4MobilityWithLinearInterpolationUpdates stage: " << stage << std::endl;
     SGP4MobilityBase::initialize(stage);
     if (stage == 0) {
         WATCH(linearInterpolationVector);
+        vecLinearInterpolationSpeedMeterPerSecond.setName("linearInterpolationSpeedMeterPerSecond:vector");
     }
 }
 
@@ -97,23 +95,12 @@ void SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatisti
     SGP4MobilityBase::updateManagementDataAndStatistics(type, updated);
     if (updated) {
         if (type == periodicUpdate) {
-            recordLinearInterpolationSpeedMeterPerSecond(linearInterpolationSpeedMeterPerSecond);
-        } else if (type == getCurrentPositionUpdate) {
-            recordLinearInterpolationComputation(lastElevationAngleToSop);
+            vecLinearInterpolationSpeedMeterPerSecond.record(linearInterpolationSpeedMeterPerSecond);
         } else {
             EV_ERROR << "SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
             throw cRuntimeError("SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatistics: undefined updateType_t");
         }
     }
-}
-void SGP4MobilityWithLinearInterpolationUpdates::recordLinearInterpolationSpeedMeterPerSecond(const double speed)
-{
-    emit(linearInterpolationSpeedMeterPerSecondSignal, speed);
-}
-
-void SGP4MobilityWithLinearInterpolationUpdates::recordLinearInterpolationComputation(inet::deg elevationAngleToSop)
-{
-    emit(linearInterpolationComputationsSignal, elevationAngleToSop.get());
 }
 
 void SGP4MobilityWithLinearInterpolationUpdates::finish()

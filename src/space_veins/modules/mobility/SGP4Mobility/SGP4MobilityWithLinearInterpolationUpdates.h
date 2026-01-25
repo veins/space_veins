@@ -57,9 +57,8 @@ protected:
     inet::Coord linearInterpolationVector = inet::Coord::NIL; // direction used for linear interpolation, vector is normalized sucht that it can be multiplied with a velocity
     double linearInterpolationSpeedMeterPerSecond;
 
-    // Signals
-    static const simsignal_t linearInterpolationSpeedMeterPerSecondSignal;
-    static const simsignal_t linearInterpolationComputationsSignal;
+    // statistics
+    cOutVector  vecLinearInterpolationSpeedMeterPerSecond;
 };
 
 class SPACE_VEINS_API SGP4MobilityWithLinearInterpolationUpdatesAccess {
