@@ -81,7 +81,7 @@ legend("bottomright",
        bty="n"
        )
 box()
-xticks <- seq(minX, maxX+1, length.out = maxX+1)
+xticks <- seq(minX, maxX, length.out = 7)
 xlabels <- sprintf("%.0f", xticks)
 axis(1, at = xticks, labels = xlabels)
 # axis(2, las=1, tck=-0.04)
