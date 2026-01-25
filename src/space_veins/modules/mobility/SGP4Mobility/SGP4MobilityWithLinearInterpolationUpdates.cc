@@ -95,7 +95,7 @@ void SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatisti
     SGP4MobilityBase::updateManagementDataAndStatistics(type, updated);
     if (updated) {
         if (type == periodicUpdate) {
-            vecLinearInterpolationSpeedMeterPerSecond.record(linearInterpolationSpeedMeterPerSecond);
+            // vecLinearInterpolationSpeedMeterPerSecond.record(linearInterpolationSpeedMeterPerSecond);
         } else {
             EV_ERROR << "SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatistics: undefined updateType_t: " << type << std::endl;
             throw cRuntimeError("SGP4MobilityWithLinearInterpolationUpdates::updateManagementDataAndStatistics: undefined updateType_t");
