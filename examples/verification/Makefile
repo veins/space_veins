@@ -506,7 +506,7 @@ flamegraphs: eval/createFlamegraphForEveryStrat.sh
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j12 experimentId=$(experimentId) space_veins
-	bash $<
+	cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- bash $<
 
 debugInContainer: ../../src/libspace_veins.so
 	date +%Y-%m-%dT%H-%M-%S
