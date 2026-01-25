@@ -784,26 +784,26 @@ void SGP4MobilityBase::setVectorNames()
     // SGP4Mobility statistics
     vecHorizonRises.setName("horizonRises:vector");
     vecHorizonSets.setName("horizonSets:vector");
-    vecPeriodsAboveHorizon.setName("periodsAboveHorizon");
+    vecPeriodsAboveHorizon.setName("periodsAboveHorizon:vector");
 
-    vecLastElevationAngleToSop.setName("lastElevationAngleToSop");
-    vecSgp4SpeedMeterPerSecond.setName("sgp4SpeedMeterPerSecond");
+    vecLastElevationAngleToSop.setName("lastElevationAngleToSop:vector");
+    vecSgp4SpeedMeterPerSecond.setName("sgp4SpeedMeterPerSecond:vector");
 
-    vecOmnetCoordX.setName("omnetCoordX");
-    vecOmnetCoordY.setName("omnetCoordY");
-    vecOmnetCoordZ.setName("omnetCoordZ");
+    vecOmnetCoordX.setName("omnetCoordX:vector");
+    vecOmnetCoordY.setName("omnetCoordY:vector");
+    vecOmnetCoordZ.setName("omnetCoordZ:vector");
 
-    vecWgs84CoordLat.setName("wgs84CoordLat");
-    vecWgs84CoordLon.setName("wgs84CoordLon");
-    vecWgs84CoordAlt.setName("wgs84CoordAlt");
+    vecWgs84CoordLat.setName("wgs84CoordLat:vector");
+    vecWgs84CoordLon.setName("wgs84CoordLon:vector");
+    vecWgs84CoordAlt.setName("wgs84CoordAlt:vector");
 
-    vecWgs84CartCoordX.setName("wgs84CoordX");
-    vecWgs84CartCoordY.setName("wgs84CoordY");
-    vecWgs84CartCoordZ.setName("wgs84CoordZ");
+    vecWgs84CartCoordX.setName("wgs84CoordX:vector");
+    vecWgs84CartCoordY.setName("wgs84CoordY:vector");
+    vecWgs84CartCoordZ.setName("wgs84CoordZ:vector");
 
-    vecSopRelativeCoordX.setName("sopRelativeCoordX");
-    vecSopRelativeCoordY.setName("sopRelativeCoordY");
-    vecSopRelativeCoordZ.setName("sopRelativeCoordZ");
+    vecSopRelativeCoordX.setName("sopRelativeCoordX:vector");
+    vecSopRelativeCoordY.setName("sopRelativeCoordY:vector");
+    vecSopRelativeCoordZ.setName("sopRelativeCoordZ:vector");
 }
 
 void SGP4MobilityBase::recordOmnetCoord(const inet::Coord c)
