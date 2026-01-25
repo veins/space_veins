@@ -425,7 +425,7 @@ archive/latest/plots/runtimeAoiEcdf.pdf: eval/runtimeAoiEcdf.R archive/latest/pl
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/plots/ageOfInformation.csv
 
-runtimePlots: archive/latest/plots/runtimeAoiEcdf.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf
+runtimePlots: archive/latest/plots/runtimeAoiEcdf.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf archive/latest/plots/runtimeAccuracyVsUpdateInterval.filtered.pdf
 	touch $@
 
 #########################################################################
@@ -494,6 +494,7 @@ runtimeExperiment:
 	$(MAKE) -j8 experimentId=$(experimentId) archive/latest/csv/gnuTimeResults/gnuTimeResults.csv
 	$(MAKE) -j8 experimentId=$(experimentId) archive/latest/plots/ageOfInformation.csv
 	$(MAKE) -j8 experimentId=$(experimentId) runtimePlots
+	rm -r csv
 	rm runRuntime runtimeResultCollection runtimePlots
 
 flamegraphs: eval/createFlamegraphForEveryStrat.sh

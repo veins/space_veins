@@ -42,7 +42,8 @@ paper.width <- 308.43/72*1.22274*0.5*2
 paper.height <- paper.width * .4*1.2
 
 minX <- 0
-maxX <- max(max(unfiltered$updateInterval), max(filtered$updateInterval))
+# maxX <- max(max(unfiltered$updateInterval), max(filtered$updateInterval))
+maxX <- max(unfiltered$updateInterval)
 minY <- 0
 maxY <- max(max(unfiltered$avg), max(unfiltered$avg))
 
