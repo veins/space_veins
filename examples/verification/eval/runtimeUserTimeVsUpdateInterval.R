@@ -13,18 +13,18 @@ unfiltered <- unfiltered[!is.na(userTime),
                           sd = sd(userTime, na.rm = TRUE)), 
                         by = .(getCurrentPositionBehavior, updateInterval)]
 unfiltered <- unfiltered[order(updateInterval)]
-print(unfiltered)
-filtered <- data[updateAboveHorizon == "En"]
-filtered <- filtered[!is.na(userTime), 
-                        .(avg = mean(userTime, na.rm = TRUE),
-                          sd = sd(userTime, na.rm = TRUE)), 
-                        by = .(getCurrentPositionBehavior, updateInterval)]
-filtered <- filtered[order(updateInterval)]
-print(filtered)
+# print(unfiltered)
+# filtered <- data[updateAboveHorizon == "En"]
+# filtered <- filtered[!is.na(userTime), 
+#                         .(avg = mean(userTime, na.rm = TRUE),
+#                           sd = sd(userTime, na.rm = TRUE)), 
+#                         by = .(getCurrentPositionBehavior, updateInterval)]
+# filtered <- filtered[order(updateInterval)]
+# print(filtered)
 
 
 fwrite(unfiltered, "archive/latest/plots/runtimeUserTimeVsUpdateInterval.unfiltered.pdf.csv")
-fwrite(filtered, "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf.csv")
+# fwrite(filtered, "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf.csv")
 
 # ----------- plot
 
@@ -92,45 +92,45 @@ done()
 
 
 # ----------- filtered -------------------------------------------------------------------------------------------------------
-done <- myps(file = "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered", width=paper.width, height=paper.height)
-plot.new()
+# done <- myps(file = "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered", width=paper.width, height=paper.height)
+# plot.new()
 
-# minX <- 0
-# maxX <- max(filtered$updateInterval)
-# minY <- 0
-# maxY <- max(filtered$avg)
+# # minX <- 0
+# # maxX <- max(filtered$updateInterval)
+# # minY <- 0
+# # maxY <- max(filtered$avg)
 
-par(mar=c(3.0,3.0,1,1.0), mgp=c(3.0, 0.5, 0))
-plot.window(xlim=c(minX, maxX+1),
-            ylim=c(minY, maxY+10),
-            xaxs="i",
-            yaxs="i")
+# par(mar=c(3.0,3.0,1,1.0), mgp=c(3.0, 0.5, 0))
+# plot.window(xlim=c(minX, maxX+1),
+#             ylim=c(minY, maxY+10),
+#             xaxs="i",
+#             yaxs="i")
 
-unique_behaviors <- unique(filtered$getCurrentPositionBehavior)
+# unique_behaviors <- unique(filtered$getCurrentPositionBehavior)
 
-i <- 1  # Index counter
-for(behavior in unique_behaviors) {
-  subset_dt <- filtered[getCurrentPositionBehavior == behavior]
-  lines(subset_dt$updateInterval, subset_dt$avg, lty=i)
-  points(subset_dt$updateInterval, subset_dt$avg, pch=i)
-  i <- i + 1  # Increment index
-}
+# i <- 1  # Index counter
+# for(behavior in unique_behaviors) {
+#   subset_dt <- filtered[getCurrentPositionBehavior == behavior]
+#   lines(subset_dt$updateInterval, subset_dt$avg, lty=i)
+#   points(subset_dt$updateInterval, subset_dt$avg, pch=i)
+#   i <- i + 1  # Increment index
+# }
 
-# Add legend using index-based colors
-legend("bottomright",
-       legend=unique_behaviors,
-       lty=1:length(unique_behaviors),
-       pch=1:length(unique_behaviors),
-       ncol=2,
-       bty="n"
-       )
-box()
-xticks <- seq(minX, maxX+1, length.out = maxX+1)
-xlabels <- sprintf("%.0f", xticks)
-axis(1, at = xticks, labels = xlabels)
+# # Add legend using index-based colors
+# legend("bottomright",
+#        legend=unique_behaviors,
+#        lty=1:length(unique_behaviors),
+#        pch=1:length(unique_behaviors),
+#        ncol=2,
+#        bty="n"
+#        )
+# box()
+# xticks <- seq(minX, maxX+1, length.out = maxX+1)
+# xlabels <- sprintf("%.0f", xticks)
+# axis(1, at = xticks, labels = xlabels)
+# # axis(2, las=1, tck=-0.04)
 # axis(2, las=1, tck=-0.04)
-axis(2, las=1, tck=-0.04)
-title(xlab="periodic update interval in s", line=1.8)
-title(ylab="user space run time in s", line=2)
+# title(xlab="periodic update interval in s", line=1.8)
+# title(ylab="user space run time in s", line=2)
 
-done()
+# done()
