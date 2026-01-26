@@ -11,13 +11,14 @@ set -x
 
 perf record \
 -F 99 \
+-e cycles:u \
 -o $1 \
---call-graph $2 \
+--call-graph "${2},65528" \
 --no-bpf-event \
 --per-thread \
 $3
 
-perf script -i "$1" > "${1}.out"
+perf script --no-inline -i "$1" > "${1}.out"
 mv "$1" archive/latest
 
 ###############################
