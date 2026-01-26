@@ -46,6 +46,8 @@ minX <- 0
 maxX <- max(unfiltered$updateInterval)
 minY <- 0
 maxY <- max(max(unfiltered$avg), max(unfiltered$avg))
+print(maxY)
+maxY <- 350
 
 # ----------- unfiltered
 done <- myps(file = "archive/latest/plots/runtimeUserTimeVsUpdateInterval.unfiltered", width=paper.width, height=paper.height)
@@ -74,7 +76,7 @@ for(behavior in unique_behaviors) {
 
 # Add legend using index-based colors
 legend("bottomright",
-       legend=unique_behaviors,
+       legend=c("baseline", "precise", "lin. interp.", "nearest neighbor"),
        lty=1:length(unique_behaviors),
        pch=1:length(unique_behaviors),
        ncol=2,
