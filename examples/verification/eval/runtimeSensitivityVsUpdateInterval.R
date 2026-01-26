@@ -80,6 +80,10 @@ i <- 1  # Index counter
 for(behavior in unique_behaviors) {
   subset_dt <- unfiltered[gcpBehavior == behavior]
   print(subset_dt)
+  # keep line type and point character similar to user timer vs update interval
+  if (i == 2) {
+    i <- i + 1
+  }
   lines(subset_dt$updateInterval, subset_dt$avg, lty=i)
   points(subset_dt$updateInterval, subset_dt$avg, pch=i)
   i <- i + 1  # Increment index
@@ -88,8 +92,8 @@ for(behavior in unique_behaviors) {
 # Add legend using index-based colors
 legend("bottomleft",
        legend=c("baseline", "lin. interp.", "nearest neighbor"),
-       lty=1:length(unique_behaviors),
-       pch=1:length(unique_behaviors),
+       lty=c(1, 3, 4),
+       pch=c(1, 3, 4),
        ncol=2,
        bty="n"
        )
