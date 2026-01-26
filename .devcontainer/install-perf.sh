@@ -54,7 +54,7 @@ tar -xf linux-"$KERNEL_FULL_VERSION".tar.xz
 
 # build perf
 cd linux-"$KERNEL_FULL_VERSION"/tools/perf
-make -j8
+make BUILD_NONDISTRO=1 -j8
 
 # install it
 mkdir -p /usr/lib/linux-tools/"$KERNEL_FULL_VERSION"
