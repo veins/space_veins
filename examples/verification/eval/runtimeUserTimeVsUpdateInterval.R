@@ -41,13 +41,13 @@ myps <- function(file, paper="special", width=6, height=4, family="Times") {
 paper.width <- 308.43/72*1.22274*0.5*2
 paper.height <- paper.width * .4*1.2
 
-minX <- 0
+minX <- 0.01
 # maxX <- max(max(unfiltered$updateInterval), max(filtered$updateInterval))
 maxX <- max(unfiltered$updateInterval)
 minY <- 0
 maxY <- max(max(unfiltered$avg), max(unfiltered$avg))
 print(maxY)
-maxY <- 350
+maxY <- 500
 
 # ----------- unfiltered
 done <- myps(file = "archive/latest/plots/runtimeUserTimeVsUpdateInterval.unfiltered", width=paper.width, height=paper.height)
@@ -62,7 +62,8 @@ par(mar=c(3.0,3.0,1,1.0), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minX, maxX+1),
             ylim=c(minY, maxY+10),
             xaxs="i",
-            yaxs="i")
+            yaxs="i",
+            log="x")
 
 unique_behaviors <- unique(unfiltered$getCurrentPositionBehavior)
 
@@ -83,8 +84,9 @@ legend("bottomright",
        bty="n"
        )
 box()
-xticks <- seq(minX, maxX, length.out = 7)
-xlabels <- sprintf("%.0f", xticks)
+# xticks <- seq(minX, maxX, length.out = 7)
+xticks <- c(0.01, 0.1, 1, 10)
+xlabels <- sprintf("%.2f", xticks)
 axis(1, at = xticks, labels = xlabels)
 # axis(2, las=1, tck=-0.04)
 axis(2, las=1, tck=-0.04)

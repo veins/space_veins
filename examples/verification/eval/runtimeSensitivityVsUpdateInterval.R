@@ -18,6 +18,7 @@ unfiltered$precision <- (unfiltered$tp) / (unfiltered$tp + unfiltered$fp)
 unfiltered$conditionPositive <- unfiltered$fn + unfiltered$tp
 unfiltered$conditionNegative <- unfiltered$fp + unfiltered$tn
 unfiltered$sensitivity <- unfiltered$tp / unfiltered$conditionPositive
+unfiltered$sensitivity <- 1 - unfiltered$sensitivity
 unfiltered$fpr <- unfiltered$fp / unfiltered$conditionNegative
 unfiltered$plr <- unfiltered$sensitivity / unfiltered$fpr
 fwrite(unfiltered, "archive/latest/plots/classicationResults.csv")
@@ -51,12 +52,12 @@ myps <- function(file, paper="special", width=6, height=4, family="Times") {
 paper.width <- 308.43/72*1.22274*0.5*2
 paper.height <- paper.width * .4*1.2
 
-minX <- 0
+minX <- 0.01
 # maxX <- max(max(unfiltered$updateInterval), max(filtered$updateInterval))
 maxX <- max(unfiltered$updateInterval)
 print(maxX)
-minY <- 0.8
-maxY <- max(unfiltered$avg)
+minY <- 0.000001
+maxY <- 1
 print(maxY)
 
 # ----------- unfiltered
@@ -72,7 +73,8 @@ par(mar=c(3.0,3.0,1,1.0), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minX, maxX),
             ylim=c(minY, 1) ,
             xaxs="i",
-            yaxs="i")
+            yaxs="i",
+            log="xy")
 
 unique_behaviors <- unique(unfiltered$gcpBehavior)
 
@@ -90,7 +92,7 @@ for(behavior in unique_behaviors) {
 }
 
 # Add legend using index-based colors
-legend("bottomleft",
+legend("topleft",
        legend=c("baseline", "lin. interp.", "nearest neighbor"),
        lty=c(1, 3, 4),
        pch=c(1, 3, 4),
@@ -98,8 +100,8 @@ legend("bottomleft",
        bty="n"
        )
 box()
-xticks <- seq(minX, maxX, length.out = 7)
-xlabels <- sprintf("%.0f", xticks)
+xticks <- c(0.01, 0.1, 1, 10)
+xlabels <- sprintf("%.2f", xticks)
 axis(1, at = xticks, labels = xlabels)
 # axis(2, las=1, tck=-0.04)
 # yticks <- seq(0, 1, length.out = 7)
