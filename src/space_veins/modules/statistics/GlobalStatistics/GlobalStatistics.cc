@@ -22,10 +22,8 @@
 
 #include "space_veins/modules/statistics/GlobalStatistics/GlobalStatistics.h"
 
-#include "veins/modules/mobility/traci/TraCIScenarioManager.h"
-#include "veins/modules/mobility/traci/TraCIMobility.h"
-
 #include "veins_inet/VeinsInetManager.h"
+#include "veins_inet/VeinsInetMobility.h"
 
 #include "inet/common/Simsignals.h"
 #include "inet/common/packet/Packet.h"
@@ -150,17 +148,17 @@ void GlobalStatistics::initialize(int stage)
                         // get vector index of receiver, 0 if receiver is not in a vector
                         long unsigned int receiverVectorIndex = 0;
                         // if receiver has TraCIMobility use externalId, otherwise vector index
-                        veins::TraCIMobility* tm = nullptr;
+                        veins::VeinsInetMobility* vim = nullptr;
                         if (veins::FindModule<veins::VeinsInetManager*>::findGlobalModule() != nullptr) {
-                            tm = veins::TraCIMobilityAccess().get(receiverModule);
+                            vim = veins::VeinsInetMobilityAccess().get(receiverModule);
                         }
-                        if (tm == nullptr) {
+                        if (vim == nullptr) {
                             // receiver module has no traci mobility, use vector index
                             if (receiverModule->isVector()) receiverVectorIndex = receiverModule->getIndex();
                         } else {
                             // use externalId, assuming that it is a string containing an integer number
                             // externalId should be equal to routeId in this setup
-                            std::string externalId = tm->getExternalId();
+                            std::string externalId = vim->getExternalId();
                             // cast string to long
                             receiverVectorIndex = std::stoul(externalId);
                         }
