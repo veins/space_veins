@@ -34,6 +34,7 @@
 
 <!-- debug config -->
 <launch>
+    <basedir path="/workspace/space_veins/examples/verification/sumoScenarios/reykjavik" />
     <copy file="reykjavik.net.xml" />
     <copy file="reykjavik.rou.xml" />
     <copy file="reykjavik.poly.xml" />

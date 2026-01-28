@@ -34,6 +34,7 @@
 
 <!-- debug config -->
 <launch>
+    <basedir path="/workspace/space_veins/examples/verification/sumoScenarios/hamburg" />
     <copy file="hamburg.net.xml" />
     <copy file="hamburg.rou.xml" />
     <copy file="hamburg.poly.xml" />

@@ -34,6 +34,7 @@
 
 <!-- debug config -->
 <launch>
+    <basedir path="/workspace/space_veins/examples/verification/sumoScenarios/nullIsland" />
     <copy file="Null-Island-5by5-grid.net.xml" />
     <copy file="Null-Island-5by5-grid.rou.xml" />
     <copy file="Null-Island-5by5-grid.poly.xml" />
