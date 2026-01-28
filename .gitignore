@@ -23,6 +23,7 @@ LICENSES/LicenseRef-ReuseIgnoreFileLicense.txt
 
 **/*.sif
 **/*.sif.*
+**/*_compilation-output.txt
 
 .containerHome/*
 .ccache
