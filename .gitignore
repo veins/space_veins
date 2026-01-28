@@ -22,6 +22,7 @@ scripts/*.rou.alt.xml
 LICENSES/LicenseRef-ReuseIgnoreFileLicense.txt
 
 **/*.sif
+**/*.sif.*
 
 .containerHome/*
 .ccache
