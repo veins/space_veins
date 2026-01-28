@@ -18,13 +18,13 @@ unfiltered$precision <- (unfiltered$tp) / (unfiltered$tp + unfiltered$fp)
 unfiltered$conditionPositive <- unfiltered$fn + unfiltered$tp
 unfiltered$conditionNegative <- unfiltered$fp + unfiltered$tn
 unfiltered$sensitivity <- unfiltered$tp / unfiltered$conditionPositive
-unfiltered$sensitivity <- 1 - unfiltered$sensitivity
-unfiltered$fpr <- unfiltered$fp / unfiltered$conditionNegative
-unfiltered$plr <- unfiltered$sensitivity / unfiltered$fpr
-fwrite(unfiltered, "archive/latest/plots/classicationResults.csv")
-unfiltered <- unfiltered[!is.na(sensitivity), 
-                        .(avg = mean(sensitivity, na.rm = TRUE),
-                          sd = sd(sensitivity, na.rm = TRUE)), 
+unfiltered$falseNegativeRate <- unfiltered$fn / unfiltered$conditionPositive
+unfiltered$falsePositiveRate <- unfiltered$fp / unfiltered$conditionNegative
+unfiltered$positiveLikelihoodRateio <- unfiltered$sensitivity / unfiltered$falsePositiveRate
+fwrite(unfiltered, "archive/latest/plots/classicationResults.unfiltered.csv")
+unfiltered <- unfiltered[!is.na(falseNegativeRate), 
+                        .(avg = mean(falseNegativeRate, na.rm = TRUE),
+                          sd = sd(falseNegativeRate, na.rm = TRUE)), 
                         by = .(gcpBehavior, updateInterval)]
 unfiltered <- unfiltered[order(updateInterval)]
 print(unfiltered)
@@ -34,7 +34,7 @@ print(unfiltered)
 # filtered$precision <- (filtered$tp) / (filtered$tp + filtered$fp)
 # filtered <- filtered[order(updateInterval)]
 
-fwrite(unfiltered, "archive/latest/plots/runtimeSensitivityVsUpdateInterval.unfiltered.pdf.csv")
+fwrite(unfiltered, "archive/latest/plots/runtimeFnrVsUpdateInterval.unfiltered.pdf.csv")
 # fwrite(filtered, "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf.csv")
 
 # ----------- plot
@@ -61,7 +61,7 @@ maxY <- 1
 print(maxY)
 
 # ----------- unfiltered
-done <- myps(file = "archive/latest/plots/runtimeSensitivityVsUpdateInterval.unfiltered", width=paper.width, height=paper.height)
+done <- myps(file = "archive/latest/plots/runtimeFnrVsUpdateInterval.unfiltered", width=paper.width, height=paper.height)
 plot.new()
 
 # minX <- 0
@@ -69,7 +69,7 @@ plot.new()
 # minY <- 0
 # maxY <- max(unfiltered$avg)
 
-par(mar=c(3.0,3.0,1,1.0), mgp=c(3.0, 0.5, 0))
+par(mar=c(3.0,4.0,1,1.0), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minX, maxX),
             ylim=c(minY, 1) ,
             xaxs="i",
@@ -109,7 +109,7 @@ axis(1, at = xticks, labels = xlabels)
 # axis(2, las=1, tck=-0.04, at = yticks, labels = ylabels)
 axis(2, las=1, tck=-0.04)
 title(xlab="periodic update interval in s", line=1.8)
-title(ylab="sensitivity", line=2)
+title(ylab="false negative rate (miss rate)", line=3)
 
 done()
 

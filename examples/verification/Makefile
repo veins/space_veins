@@ -421,7 +421,7 @@ archive/latest/plots/runtimeAccuracyVsUpdateInterval.filtered.pdf: eval/runtimeA
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/receptionsMap/classification.csv
 
-archive/latest/plots/runtimeSensitivityVsUpdateInterval.filtered.pdf: eval/runtimeSensitivityVsUpdateInterval.R archive/latest/csv/receptionsMap/classification.csv
+archive/latest/plots/runtimeFnrVsUpdateInterval.filtered.pdf: eval/runtimeFnrVsUpdateInterval.R archive/latest/csv/receptionsMap/classification.csv
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/receptionsMap/classification.csv
 
@@ -429,7 +429,7 @@ archive/latest/plots/runtimeAoiEcdf.pdf: eval/runtimeAoiEcdf.R archive/latest/pl
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/plots/ageOfInformation.csv
 
-runtimePlots: archive/latest/plots/runtimeAoiEcdf.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf archive/latest/plots/runtimeSensitivityVsUpdateInterval.filtered.pdf
+runtimePlots: archive/latest/plots/runtimeAoiEcdf.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.filtered.pdf
 	touch $@
 
 #########################################################################
