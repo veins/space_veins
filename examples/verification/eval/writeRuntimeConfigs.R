@@ -1,5 +1,4 @@
-# experiments <- list("RuntimeEnUpPosOnlyAboveHorizon", "RuntimeDisUpPosOnlyAboveHorizon")
-experiments <- list("RuntimeDisUpPosOnlyAboveHorizon")
+experiments <- list("RuntimeEnUpPosOnlyAboveHorizon", "RuntimeDisUpPosOnlyAboveHorizon")
 getCurrentPositionBehavior <- list("NGCP", "WGCP", "WLIP", "WNPP")
 updateInterval <- list("0.01", "0.1", "1.0", "10.0")
 

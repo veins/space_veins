@@ -31,7 +31,7 @@ runtimeExperiments := EnUpPosOnlyAboveHorizon DisUpPosOnlyAboveHorizon
 # vectorFiles := $(wildcard results/*.vec)
 verificationConfigs := $(foreach E, $(experiments), $(foreach G, $(getCurrentPositionBehavior), Verify$E$G))
 demoConfigs := DemoEnUpPosOnlyAboveHorizonNGCP_1c0 DemoEnUpPosOnlyAboveHorizonWGCP_1c0 DemoEnUpPosOnlyAboveHorizonWLIP_1c0 DemoEnUpPosOnlyAboveHorizonWNPP_1c0 DemoDisUpPosOnlyAboveHorizonNGCP_1c0 DemoDisUpPosOnlyAboveHorizonWGCP_1c0 DemoDisUpPosOnlyAboveHorizonWLIP_1c0 DemoDisUpPosOnlyAboveHorizonWNPP_1c0
-runtimeConfigs := RuntimeDisUpPosOnlyAboveHorizonNGCP_0c01 RuntimeDisUpPosOnlyAboveHorizonNGCP_0c1 RuntimeDisUpPosOnlyAboveHorizonNGCP_1c0 RuntimeDisUpPosOnlyAboveHorizonNGCP_10c0 RuntimeDisUpPosOnlyAboveHorizonWGCP_0c01 RuntimeDisUpPosOnlyAboveHorizonWGCP_0c1 RuntimeDisUpPosOnlyAboveHorizonWGCP_1c0 RuntimeDisUpPosOnlyAboveHorizonWGCP_10c0 RuntimeDisUpPosOnlyAboveHorizonWLIP_0c01 RuntimeDisUpPosOnlyAboveHorizonWLIP_0c1 RuntimeDisUpPosOnlyAboveHorizonWLIP_1c0 RuntimeDisUpPosOnlyAboveHorizonWLIP_10c0 RuntimeDisUpPosOnlyAboveHorizonWNPP_0c01 RuntimeDisUpPosOnlyAboveHorizonWNPP_0c1 RuntimeDisUpPosOnlyAboveHorizonWNPP_1c0 RuntimeDisUpPosOnlyAboveHorizonWNPP_10c0
+runtimeConfigs := RuntimeEnUpPosOnlyAboveHorizonNGCP_0c01 RuntimeEnUpPosOnlyAboveHorizonNGCP_0c1 RuntimeEnUpPosOnlyAboveHorizonNGCP_1c0 RuntimeEnUpPosOnlyAboveHorizonNGCP_10c0 RuntimeEnUpPosOnlyAboveHorizonWGCP_0c01 RuntimeEnUpPosOnlyAboveHorizonWGCP_0c1 RuntimeEnUpPosOnlyAboveHorizonWGCP_1c0 RuntimeEnUpPosOnlyAboveHorizonWGCP_10c0 RuntimeEnUpPosOnlyAboveHorizonWLIP_0c01 RuntimeEnUpPosOnlyAboveHorizonWLIP_0c1 RuntimeEnUpPosOnlyAboveHorizonWLIP_1c0 RuntimeEnUpPosOnlyAboveHorizonWLIP_10c0 RuntimeEnUpPosOnlyAboveHorizonWNPP_0c01 RuntimeEnUpPosOnlyAboveHorizonWNPP_0c1 RuntimeEnUpPosOnlyAboveHorizonWNPP_1c0 RuntimeEnUpPosOnlyAboveHorizonWNPP_10c0 RuntimeDisUpPosOnlyAboveHorizonNGCP_0c01 RuntimeDisUpPosOnlyAboveHorizonNGCP_0c1 RuntimeDisUpPosOnlyAboveHorizonNGCP_1c0 RuntimeDisUpPosOnlyAboveHorizonNGCP_10c0 RuntimeDisUpPosOnlyAboveHorizonWGCP_0c01 RuntimeDisUpPosOnlyAboveHorizonWGCP_0c1 RuntimeDisUpPosOnlyAboveHorizonWGCP_1c0 RuntimeDisUpPosOnlyAboveHorizonWGCP_10c0 RuntimeDisUpPosOnlyAboveHorizonWLIP_0c01 RuntimeDisUpPosOnlyAboveHorizonWLIP_0c1 RuntimeDisUpPosOnlyAboveHorizonWLIP_1c0 RuntimeDisUpPosOnlyAboveHorizonWLIP_10c0 RuntimeDisUpPosOnlyAboveHorizonWNPP_0c01 RuntimeDisUpPosOnlyAboveHorizonWNPP_0c1 RuntimeDisUpPosOnlyAboveHorizonWNPP_1c0 RuntimeDisUpPosOnlyAboveHorizonWNPP_10c0
 
 vectors := lastElevationAngleToSop
 vectorCsvFiles := $(foreach C, $(verificationConfigs), $(foreach V, $(vectors), csv/vectors/$(C)-$(V).csv))
@@ -429,7 +429,7 @@ archive/latest/plots/runtimeAoiEcdf.pdf: eval/runtimeAoiEcdf.R archive/latest/pl
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/plots/ageOfInformation.csv
 
-runtimePlots: archive/latest/plots/runtimeAoiEcdf.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.filtered.pdf
+runtimePlots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.filtered.pdf
 	touch $@
 
 #########################################################################

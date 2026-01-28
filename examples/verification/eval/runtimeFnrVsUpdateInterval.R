@@ -11,17 +11,18 @@ data <- fread(args[1])
 
 data[, updateInterval := as.numeric(gsub("c", ".", updateInterval, fixed = TRUE)) ]
 
+data$totalPopulation <- data$fp + data$fn + data$tp + data$tn
+data$accuracy <- (data$tp + data$tn) / (data$tp + data$tn + data$fp + data$fn)
+data$precision <- (data$tp) / (data$tp + data$fp)
+data$conditionPositive <- data$fn + data$tp
+data$conditionNegative <- data$fp + data$tn
+data$sensitivity <- data$tp / data$conditionPositive
+data$falseNegativeRate <- data$fn / data$conditionPositive
+data$falsePositiveRate <- data$fp / data$conditionNegative
+data$positiveLikelihoodRateio <- data$sensitivity / data$falsePositiveRate
+fwrite(data, "archive/latest/plots/classicationResults.data.csv")
+
 unfiltered <- data[filter == "Dis"]
-unfiltered$totalPopulation <- unfiltered$fp + unfiltered$fn + unfiltered$tp + unfiltered$tn
-unfiltered$accuracy <- (unfiltered$tp + unfiltered$tn) / (unfiltered$tp + unfiltered$tn + unfiltered$fp + unfiltered$fn)
-unfiltered$precision <- (unfiltered$tp) / (unfiltered$tp + unfiltered$fp)
-unfiltered$conditionPositive <- unfiltered$fn + unfiltered$tp
-unfiltered$conditionNegative <- unfiltered$fp + unfiltered$tn
-unfiltered$sensitivity <- unfiltered$tp / unfiltered$conditionPositive
-unfiltered$falseNegativeRate <- unfiltered$fn / unfiltered$conditionPositive
-unfiltered$falsePositiveRate <- unfiltered$fp / unfiltered$conditionNegative
-unfiltered$positiveLikelihoodRateio <- unfiltered$sensitivity / unfiltered$falsePositiveRate
-fwrite(unfiltered, "archive/latest/plots/classicationResults.unfiltered.csv")
 unfiltered <- unfiltered[!is.na(falseNegativeRate), 
                         .(avg = mean(falseNegativeRate, na.rm = TRUE),
                           sd = sd(falseNegativeRate, na.rm = TRUE)), 
@@ -29,13 +30,16 @@ unfiltered <- unfiltered[!is.na(falseNegativeRate),
 unfiltered <- unfiltered[order(updateInterval)]
 print(unfiltered)
 
-# filtered <- data[filter == "En"]
-# filtered$accuracy <- (filtered$tp + filtered$tn) / (filtered$tp + filtered$tn + filtered$fp + filtered$fn)
-# filtered$precision <- (filtered$tp) / (filtered$tp + filtered$fp)
-# filtered <- filtered[order(updateInterval)]
+filtered <- data[filter == "Dis"]
+filtered <- filtered[!is.na(falseNegativeRate), 
+                        .(avg = mean(falseNegativeRate, na.rm = TRUE),
+                          sd = sd(falseNegativeRate, na.rm = TRUE)), 
+                        by = .(gcpBehavior, updateInterval)]
+filtered <- filtered[order(updateInterval)]
+print(filtered)
 
 fwrite(unfiltered, "archive/latest/plots/runtimeFnrVsUpdateInterval.unfiltered.pdf.csv")
-# fwrite(filtered, "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf.csv")
+fwrite(filtered, "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf.csv")
 
 # ----------- plot
 
@@ -63,12 +67,6 @@ print(maxY)
 # ----------- unfiltered
 done <- myps(file = "archive/latest/plots/runtimeFnrVsUpdateInterval.unfiltered", width=paper.width, height=paper.height)
 plot.new()
-
-# minX <- 0
-# maxX <- max(unfiltered$updateInterval)
-# minY <- 0
-# maxY <- max(unfiltered$avg)
-
 par(mar=c(3.0,4.0,1,1.0), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minX, maxX),
             ylim=c(minY, 1) ,
@@ -114,46 +112,48 @@ title(ylab="false negative rate (miss rate)", line=3)
 done()
 
 
-# # # ----------- filtered -------------------------------------------------------------------------------------------------------
-# # done <- myps(file = "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered", width=paper.width, height=paper.height)
-# # plot.new()
+# ----------- filtered -------------------------------------------------------------------------------------------------------
+done <- myps(file = "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered", width=paper.width, height=paper.height)
+plot.new()
+par(mar=c(3.0,4.0,1,1.0), mgp=c(3.0, 0.5, 0))
+plot.window(xlim=c(minX, maxX),
+            ylim=c(minY, 1) ,
+            xaxs="i",
+            yaxs="i",
+            log="xy")
 
-# # # minX <- 0
-# # # maxX <- max(filtered$updateInterval)
-# # # minY <- 0
-# # # maxY <- max(filtered$avg)
+unique_behaviors <- unique(filtered$gcpBehavior)
 
-# # par(mar=c(3.0,3.0,1,1.0), mgp=c(3.0, 0.5, 0))
-# # plot.window(xlim=c(minX, maxX+1),
-# #             ylim=c(minY, maxY+10),
-# #             xaxs="i",
-# #             yaxs="i")
+i <- 1  # Index counter
+for(behavior in unique_behaviors) {
+  subset_dt <- filtered[gcpBehavior == behavior]
+  print(subset_dt)
+  # keep line type and point character similar to user timer vs update interval
+  if (i == 2) {
+    i <- i + 1
+  }
+  lines(subset_dt$updateInterval, subset_dt$avg, lty=i)
+  points(subset_dt$updateInterval, subset_dt$avg, pch=i)
+  i <- i + 1  # Increment index
+}
 
-# # unique_behaviors <- unique(filtered$getCurrentPositionBehavior)
-
-# # i <- 1  # Index counter
-# # for(behavior in unique_behaviors) {
-# #   subset_dt <- filtered[getCurrentPositionBehavior == behavior]
-# #   lines(subset_dt$updateInterval, subset_dt$avg, lty=i)
-# #   points(subset_dt$updateInterval, subset_dt$avg, pch=i)
-# #   i <- i + 1  # Increment index
-# # }
-
-# # # Add legend using index-based colors
-# # legend("bottomright",
-# #        legend=unique_behaviors,
-# #        lty=1:length(unique_behaviors),
-# #        pch=1:length(unique_behaviors),
-# #        ncol=2,
-# #        bty="n"
-# #        )
-# # box()
-# # xticks <- seq(minX, maxX+1, length.out = maxX+1)
-# # xlabels <- sprintf("%.0f", xticks)
-# # axis(1, at = xticks, labels = xlabels)
-# # # axis(2, las=1, tck=-0.04)
-# # axis(2, las=1, tck=-0.04)
-# # title(xlab="periodic update interval in s", line=1.8)
-# # title(ylab="user space run time in s", line=2)
-
-# # done()
+# Add legend using index-based colors
+legend("topleft",
+       legend=c("baseline", "lin. interp.", "nearest neighbor"),
+       lty=c(1, 3, 4),
+       pch=c(1, 3, 4),
+       ncol=2,
+       bty="n"
+       )
+box()
+xticks <- c(0.01, 0.1, 1, 10)
+xlabels <- sprintf("%.2f", xticks)
+axis(1, at = xticks, labels = xlabels)
+# axis(2, las=1, tck=-0.04)
+# yticks <- seq(0, 1, length.out = 7)
+# ylabels <- sprintf("%.1f", yticks)
+# axis(2, las=1, tck=-0.04, at = yticks, labels = ylabels)
+axis(2, las=1, tck=-0.04)
+title(xlab="periodic update interval in s", line=1.8)
+title(ylab="false negative rate (miss rate)", line=3)
+done()
