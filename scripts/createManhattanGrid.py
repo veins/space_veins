@@ -11,7 +11,7 @@ parser.add_argument('sideLength', metavar='SIDE_LENGTH', type=float, help='The M
 parser.add_argument('scenarioName', metavar='scenarioName', help='The name for the scenario.')
 parser.add_argument('-lat', '--latitude', dest='latitude', type=float, default=0.0, help="Latitude of top left node in deg [default: 0.0deg]")
 parser.add_argument('-lon', '--longitude', dest='longitude', type=float, default=0.0, help="Longitude of top left node in deg [default: 0.0m]")
-parser.add_argument('-d', '--degreePerKilometer', dest='degreePerKilometer', type=str, default='NullIsland', help="Methode to use for calculating the degree per kilometer values. Possible values [\"NullIsland\", \"reykjavik\", \"hamburg\", \"calculation\"] [default: NullIsland]")
+parser.add_argument('-d', '--degreePerKilometer', dest='degreePerKilometer', type=str, default='calculation', help="Methode to use for calculating the degree per kilometer values. Possible values [\"nullIsland\", \"reykjavik\", \"hamburg\", \"calculation\"] [default: calculation]")
 parser.add_argument('-n', '--numLanes', dest='numLanes', type=int, default=1, help="Number of lanes per edge. [default: 1].")
 parser.add_argument('-p', '--priority', dest='priority', type=int, default=10, help="Edge priority. [default: 10].")
 parser.add_argument('-s', '--speed', dest='speed', type=float, default=13.89, help="Allowed vehile speed. [default: 13.89].")

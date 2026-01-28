@@ -10,12 +10,12 @@ parser.add_argument('dimension', metavar='DIMENSION', type=int, help='Dimension 
 parser.add_argument('sideLength', metavar='SIDE_LENGTH', type=float, help='The Manhattan grid\'s side length in km.')
 parser.add_argument('-lat', '--latitude', dest='latitude', type=float, default=0.0, help="Latitude of top left node in deg [default: 0.0deg]")
 parser.add_argument('-lon', '--longitude', dest='longitude', type=float, default=0.0, help="Longitude of top left node in deg [default: 0.0m]")
-parser.add_argument('-d', '--degreePerKilometer', dest='degreePerKilometer', type=str, default='NullIsland', help="Methode to use for calculating the degree per kilometer values. Possible values [\"NullIsland\", \"reykjavik\", \"hamburg\", \"calculation\"] [default: NullIsland]")
+parser.add_argument('-d', '--degreePerKilometer', dest='degreePerKilometer', type=str, default='calculation', help="Methode to use for calculating the degree per kilometer values. Possible values [\"nullIsland\", \"reykjavik\", \"hamburg\", \"calculation\"] [default: calculation]")
 
 args = parser.parse_args()
 rangeArg = args.dimension + 1
 
-if not (args.degreePerKilometer == "NullIsland" or
+if not (args.degreePerKilometer == "nullIsland" or
         args.degreePerKilometer == "reykjavik" or
         args.degreePerKilometer == "hamburg" or
         args.degreePerKilometer == "calculation"):
@@ -55,10 +55,10 @@ def calculateDegreePerKilometer(latitude):
     # print("degreePerKilometerY: ", degreePerKilometerY)
     return degreePerKilometerX, degreePerKilometerY
 
-if args.degreePerKilometer == "Reykjavik":
+if args.degreePerKilometer == "reykjavik":
     degreePerKilometerX = degreePerKilometerXReykjavik
     degreePerKilometerY = degreePerKilometerYReykjavik
-elif args.degreePerKilometer == "NullIsland":
+elif args.degreePerKilometer == "nullIsland":
     degreePerKilometerX = degreePerKilometerX_NullIsland
     degreePerKilometerY = degreePerKilometerY_NullIsland
 elif args.degreePerKilometer == "hamburg":
