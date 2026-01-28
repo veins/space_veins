@@ -39,7 +39,7 @@ filtered <- filtered[order(updateInterval)]
 print(filtered)
 
 fwrite(unfiltered, "archive/latest/plots/runtimeFnrVsUpdateInterval.unfiltered.pdf.csv")
-fwrite(filtered, "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered.pdf.csv")
+fwrite(filtered, "archive/latest/plots/runtimeFnrVsUpdateInterval.filtered.pdf.csv")
 
 # ----------- plot
 
@@ -69,7 +69,7 @@ done <- myps(file = "archive/latest/plots/runtimeFnrVsUpdateInterval.unfiltered"
 plot.new()
 par(mar=c(3.0,4.0,1,1.0), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minX, maxX),
-            ylim=c(minY, 1) ,
+            ylim=c(minY, maxY) ,
             xaxs="i",
             yaxs="i",
             log="xy")
@@ -113,11 +113,11 @@ done()
 
 
 # ----------- filtered -------------------------------------------------------------------------------------------------------
-done <- myps(file = "archive/latest/plots/runtimeUserTimeVsUpdateInterval.filtered", width=paper.width, height=paper.height)
+done <- myps(file = "archive/latest/plots/runtimeFnrUpdateInterval.filtered", width=paper.width, height=paper.height)
 plot.new()
 par(mar=c(3.0,4.0,1,1.0), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minX, maxX),
-            ylim=c(minY, 1) ,
+            ylim=c(minY, maxY) ,
             xaxs="i",
             yaxs="i",
             log="xy")
