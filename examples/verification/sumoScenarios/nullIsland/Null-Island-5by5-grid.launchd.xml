@@ -35,7 +35,8 @@
 <!-- debug config -->
 <launch>
     <copy file="Null-Island-5by5-grid.net.xml" />
-    <!-- <copy file="Null-Island-5by5-grid.rou.xml" /> -->
+    <copy file="Null-Island-5by5-grid.rou.xml" />
+    <copy file="Null-Island-5by5-grid.poly.xml" />
     <copy file="Null-Island-5by5-grid.sumo.cfg" type="config" />
 </launch>
 
