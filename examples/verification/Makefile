@@ -70,6 +70,32 @@ runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 printRuns:
 	cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) ./run -- -q runs -c VncDebug
 
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                         Result collection                             #
+#                                                                       #
+#                                                                       #
+#########################################################################
+
+scalarFiles := $(shell find archive/latest/results -name "*.sca")
+.ONESHELL:
+SHELL := /bin/bash
+sca2csv:
+	mkdir -p archive/latest/csv/scalars
+	ssh nsm-sim05 mkdir -p /tmp/franke/$(experimentId)/results
+	scp -r archive/latest/results/*.sca nsm-sim05:/tmp/franke/$(experimentId)/results
+	ssh nsm-sim05 /home/mafr432d/git/space_veins/examples/verification/eval/opp_sca2csv.sh "/tmp/franke/$(experimentId)"
+	scp nsm-sim05:/tmp/franke/$(experimentId)/scalars.csv archive/latest/csv/scalars/scalars.csv
+	ssh nsm-sim05 rm -r /tmp/franke/$(experimentId)
+
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                               orga                                    #
+#                                                                       #
+#                                                                       #
+#########################################################################
 killOnAllMachines:
 	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
 	for host in $$hosts; do
@@ -81,6 +107,7 @@ exp:
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j1 experimentId=$(experimentId) runVnc
+	$(MAKE) -j1 experimentId=$(experimentId) sca2csv
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 
