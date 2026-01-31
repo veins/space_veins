@@ -253,11 +253,11 @@ void GlobalStatistics::finish() {
         int repetition = getEnvir()->getConfigEx()->getActiveRunNumber();
         std::string fileName;
         fileName.append(receptionsMapPath);
-        fileName.append("/ReceptionsMap_");
-        fileName.append(std::string(configName));
-        fileName.append("_");
-        fileName.append(std::to_string(repetition));
-        fileName.append(".csv");
+        // fileName.append("/ReceptionsMap_");
+        // fileName.append(std::string(configName));
+        // fileName.append("_");
+        // fileName.append(std::to_string(repetition));
+        // fileName.append(".csv");
         FILE* file = fopen(fileName.c_str(), "w");
         if (file) {
             fwrite(receptionsMapString.data(), 1, receptionsMapString.size(), file);
