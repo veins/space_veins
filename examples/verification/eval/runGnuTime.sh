@@ -58,7 +58,7 @@ gnuTimeFormatString="Config,${keyName_simTimeLimit},${keyName_warmupPeriod},${ke
 ./run --mode debug -- -u Cmdenv -c ${1} -r ${2} --"*.globalStatistics.receptionsMapPath=\"${receptionsOutputFilePath}\""
 
 # copy receptions map file from local disk to NFS
-mkdir -p archive/latest/csv/receptionsMap
+mkdir -p archive/latest/csv/receptionsMap/rawData
 # uncomment for testing: touch $receptionsOutputFilePath
-cp $receptionsOutputFilePath archive/latest/csv/receptionsMap/${receptionsOutputFileName}
+cp $receptionsOutputFilePath archive/latest/csv/receptionsMap/rawData/${receptionsOutputFileName}
 echo $(pwd)
