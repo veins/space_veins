@@ -47,10 +47,6 @@ runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 #                                                                       #
 #########################################################################
 
-# sleep 5 seconds after finishing all runs to wait for files written to disk
-# write results of GNU time in a dedicated file for every config to avoid race conditions
-# --timeout=0: no timeout
-# make results dir on own our because otherwise the radio medium communication log is not written
 # 	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 # 		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
 # 	hosts="nsm-lab01 nsm-lab05 nsm-lab07 nsm-lab08"
@@ -58,7 +54,7 @@ runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 SHELL := /bin/bash
 runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 	mkdir -p results
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
 		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
 	done
@@ -89,6 +85,13 @@ sca2csv:
 	scp nsm-sim05:/tmp/franke/$(experimentId)/scalars.csv archive/latest/csv/scalars/scalars.csv
 	ssh nsm-sim05 rm -r /tmp/franke/$(experimentId)
 
+# 	cp archive/latest/csv/gnuTime/*.csv /tmp/franke/$(experimentId)
+# 	rm -r /tmp/franke/$(experimentId)
+.ONESHELL:
+SHELL := /bin/bash
+gnuTimeResults: eval/gnuTimeResults.pl
+	/home/mafr432d/git/space_veins/examples/verification/eval/gnuTimeResults.pl archive/latest/csv/gnuTime/*.csv
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -97,7 +100,7 @@ sca2csv:
 #                                                                       #
 #########################################################################
 killOnAllMachines:
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
 		ssh $$host 'pkill -u mafr432d'
 	done
