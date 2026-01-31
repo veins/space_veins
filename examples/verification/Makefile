@@ -20,6 +20,9 @@ experimentFolderName := verification
 runmakerJobs := 1
 runmakerLogLines := 50
 
+shell:
+	cd ../../singularity && ./singularity-space_veins.sh shell
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -48,12 +51,29 @@ runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 # write results of GNU time in a dedicated file for every config to avoid race conditions
 # --timeout=0: no timeout
 # make results dir on own our because otherwise the radio medium communication log is not written
+# 	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
+# 		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
+# 	hosts="nsm-lab01 nsm-lab05 nsm-lab07 nsm-lab08"
+.ONESHELL:
+SHELL := /bin/bash
 runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 	mkdir -p results
-	parallel-ssh -i -h perfMachines.txt --timeout=0 "cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt"
-# 	parallel-ssh -i -h perfMachines.txt --timeout=0 uptime
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	for host in $$hosts; do
+		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
+	done
+	wait
 	sleep 1
 	touch $@
+
+printRuns:
+	cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) ./run -- -q runs -c VncDebug
+
+killOnAllMachines:
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	for host in $$hosts; do
+		ssh $$host 'pkill -u mafr432d'
+	done
 
 exp:
 	mkdir -p archive/$(experimentId)
