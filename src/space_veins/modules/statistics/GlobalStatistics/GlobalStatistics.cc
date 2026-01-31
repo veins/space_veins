@@ -201,10 +201,10 @@ std::string GlobalStatistics::receptionCounterToString(ReceptionCounter_t rc, bo
         for (const auto& value : rc.receptionArray) {
             line.append(std::to_string(rc.packetNumber.first));
             line.append(",");
-            // line.append(std::to_string(rc.packetNumber.second));
-            // line.append(",");
-            // line.append(std::to_string(rc.transmissionEndTime.dbl()));
-            // line.append(",");
+            line.append(std::to_string(rc.packetNumber.second));
+            line.append(",");
+            line.append(std::to_string(rc.transmissionEndTime.dbl()));
+            line.append(",");
             line.append(std::to_string(i));
             line.append(",");
             line.append(std::to_string(value));
@@ -232,8 +232,8 @@ std::string GlobalStatistics::receptionsMapToString() {
     std::string output;
     // output.reserve(1000) // reserves memory for 1000 characters
     if (oneLinePerReception) {
-        // output.append("senderVectorIndex,senderPacketId,simTime,receiverVectorIndex,packetReceived\n");
-        output.append("senderVectorIndex,receiverVectorIndex,packetReceived\n");
+        output.append("senderVectorIndex,senderPacketId,simTime,receiverVectorIndex,packetReceived\n");
+        // output.append("senderVectorIndex,receiverVectorIndex,packetReceived\n");
     } else { // write one line per transmission
         // output.append("senderVectorIndex,senderPacketId,simTime,packetReceptionArray\n");
         output.append("senderVectorIndex,packetReceptionArray\n");
