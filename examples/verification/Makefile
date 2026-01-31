@@ -23,6 +23,11 @@ runmakerLogLines := 50
 shell:
 	cd ../../singularity && ./singularity-space_veins.sh shell
 
+ccFiles := $(shell find ../../src -name "*.cc")
+hFiles := $(shell find ../../src -name "*.h")
+space_veins: $(ccFiles) $(hFiles) ../../src/Makefile
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins -- make -j8 space_veins
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -111,8 +116,11 @@ exp:
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j1 experimentId=$(experimentId) runVnc
 	$(MAKE) -j1 experimentId=$(experimentId) sca2csv
+	$(MAKE) -j1 experimentId=$(experimentId) gnuTimeResults
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
+	cp omnetpp.ini archive/$(experimentId)
+	cp Makefile archive/$(experimentId)
 
 time = $(shell date +%Y-%m-%dT%H'\':%M'\':%S)
 test:
