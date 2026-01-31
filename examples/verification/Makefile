@@ -64,6 +64,7 @@ runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 	done
 	wait
 	sleep 1
+	mv results archive/$(experimentId)
 	touch $@
 
 printRuns:
