@@ -83,7 +83,7 @@ void GlobalStatistics::initialize(int stage)
                 // ToDo filter for transmissions from satellite that are higher than minElevationAngle
                 const inet::physicallayer::Radio* senderRadioModule = check_and_cast<const inet::physicallayer::Radio*>(transmission->getTransmitter());
                 const cModule* senderModule = senderRadioModule->getParentModule()->getParentModule();
-                EV_DEBUG << "GlobalStatistics - onTransmissionEndedSignal; senderModule: " << senderModule->getFullPath() << std::endl;
+                // EV_DEBUG << "GlobalStatistics - onTransmissionEndedSignal; senderModule: " << senderModule->getFullPath() << std::endl;
 
                 // get vector index of sender, 0 if sender is not in a vector
                 unsigned long senderVectorIndex = 0;
@@ -104,11 +104,11 @@ void GlobalStatistics::initialize(int stage)
                     unsigned long nodeModuleVectorSize = 1;
                     if (recipient != nullptr && recipient->isVector()) nodeModuleVectorSize = recipient->getVectorSize();
 
-                    EV_DEBUG << "GlobalStatistics - onTransmissionEndedSignal; insert ReceptionCounter - senderId: " << senderVectorIndex
-                             << ", sendersPacketId: " << packetId
-                             << ", simTime: " << now.dbl()
-                             << ", nodeModuleVectorSize: " << nodeModuleVectorSize
-                             << std::endl;
+                    // EV_DEBUG << "GlobalStatistics - onTransmissionEndedSignal; insert ReceptionCounter - senderId: " << senderVectorIndex
+                    //          << ", sendersPacketId: " << packetId
+                    //          << ", simTime: " << now.dbl()
+                    //          << ", nodeModuleVectorSize: " << nodeModuleVectorSize
+                    //          << std::endl;
                     receptionsMap.insert({std::pair<unsigned short, unsigned int>(senderVectorIndex, packetId),
                                           ReceptionCounter_t(senderVectorIndex, packetId, now, std::max(numCurrentCars, nodeModuleVectorSize))});
                 }
@@ -126,7 +126,7 @@ void GlobalStatistics::initialize(int stage)
                 if (!packet->hasBitError()) { // only continue if the packet has no bit errors
                     const inet::physicallayer::Radio* senderRadioModule = check_and_cast<const inet::physicallayer::Radio*>(transmission->getTransmitter());
                     const cModule* senderModule = senderRadioModule->getParentModule()->getParentModule();
-                    EV_DEBUG << "GlobalStatistics - onReceptionEndedSignal; senderModule: " << senderModule->getFullPath() << std::endl;
+                    // EV_DEBUG << "GlobalStatistics - onReceptionEndedSignal; senderModule: " << senderModule->getFullPath() << std::endl;
 
                     // get vector index of sender, 0 if sender is not in a vector
                     int senderVectorIndex = 0;
@@ -144,7 +144,7 @@ void GlobalStatistics::initialize(int stage)
                         // we found the transmission of the satellite in our map
                         const inet::physicallayer::Radio* receiverRadioModule = check_and_cast<const inet::physicallayer::Radio*>(reception->getReceiver());
                         cModule* receiverModule = receiverRadioModule->getParentModule()->getParentModule();
-                        EV_DEBUG << "GlobalStatistics - onReceptionEndedSignal; receiverModule: " << receiverModule->getFullPath() << std::endl;
+                        // EV_DEBUG << "GlobalStatistics - onReceptionEndedSignal; receiverModule: " << receiverModule->getFullPath() << std::endl;
                         // get vector index of receiver, 0 if receiver is not in a vector
                         long unsigned int receiverVectorIndex = 0;
                         // if receiver has TraCIMobility use externalId, otherwise vector index
@@ -168,16 +168,20 @@ void GlobalStatistics::initialize(int stage)
                         if (it->second.receptionArray[receiverVectorIndex] == 1) {
                             throw cRuntimeError("GlobalStatistics receiverArray entry is already equals to 1.");
                         } else {
-                            EV_DEBUG << "GlobalStatistics - onReceptionEndedSignal; update ReceptionCounter - senderId: " << senderVectorIndex
-                                     << ", sendersPacketId: " << packetId
-                                     << ", simTime: " << now.dbl()
-                                     << ", receiverVectorIndex: " << receiverVectorIndex
-                                     << std::endl;
+                            // EV_DEBUG << "GlobalStatistics - onReceptionEndedSignal; update ReceptionCounter - senderId: " << senderVectorIndex
+                            //          << ", sendersPacketId: " << packetId
+                            //          << ", simTime: " << now.dbl()
+                            //          << ", receiverVectorIndex: " << receiverVectorIndex
+                            //          << std::endl;
                             it->second.receptionArray[receiverVectorIndex] = 1;
                         }
                     } else {
                         // we did not find the transmission of the satellite in our map
-                        throw cRuntimeError("GlobalStatistics listened to a packet reception with unknown message id.");
+                        if (now <= warmupPeriod + SimTime(20, SIMTIME_MS)) {
+                            EV_DEBUG << "GlobalStatistics listened to a packet reception with unknown message id. IGNORING as packet was in flight during warmup period end" << std::endl;
+                        } else {
+                            throw cRuntimeError("GlobalStatistics listened to a packet reception with unknown message id.");
+                        }
                     }
                 } else {
                     throw cRuntimeError("GlobalStatistics received a packet with bit errors. This is not supposed to happen");
