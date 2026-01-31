@@ -97,6 +97,16 @@ SHELL := /bin/bash
 gnuTimeResults: eval/gnuTimeResults.pl
 	/home/mafr432d/git/space_veins/examples/verification/eval/gnuTimeResults.pl archive/latest/csv/gnuTime/*.csv
 
+.ONESHELL:
+SHELL := /bin/bash
+classification: eval/compareReceptionsMapFiles.sh
+	mkdir -p /home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/intermediate
+	/home/mafr432d/git/space_veins/examples/verification/eval/compareReceptionsMapFiles.sh \
+	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityNoGetCurrentPositionUpdates,filter=false,txInterval=1-#0.rx.csv \
+	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityWithGetCurrentPositionUpdates,filter=false,txInterval=1-#0.rx.csv \
+	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityWithLinearInterpolationUpdates,filter=false,txInterval=1-#0.rx.csv \
+	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityWithNearestPeriodicPositionUpdates,filter=false,txInterval=1-#0.rx.csv
+
 #########################################################################
 #                                                                       #
 #                                                                       #
