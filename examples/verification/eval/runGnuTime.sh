@@ -60,5 +60,5 @@ gnuTimeFormatString="Config,${keyName_simTimeLimit},${keyName_warmupPeriod},${ke
 # copy receptions map file from local disk to NFS
 mkdir -p archive/latest/csv/receptionsMap/rawData
 # uncomment for testing: touch $receptionsOutputFilePath
-mw $receptionsOutputFilePath archive/latest/csv/receptionsMap/rawData/${receptionsOutputFileName}
+mv $receptionsOutputFilePath archive/latest/csv/receptionsMap/rawData/${receptionsOutputFileName}
 echo $(pwd)

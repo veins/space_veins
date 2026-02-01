@@ -104,13 +104,16 @@ gnuTimeResults: eval/gnuTimeResults.pl
 
 .ONESHELL:
 SHELL := /bin/bash
-classification: eval/compareReceptionsMapFiles.sh
-	mkdir -p /home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/intermediate
-	/home/mafr432d/git/space_veins/examples/verification/eval/compareReceptionsMapFiles.sh \
-	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityNoGetCurrentPositionUpdates,filter=false,txInterval=1-#0.rx.csv \
-	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityWithGetCurrentPositionUpdates,filter=false,txInterval=1-#0.rx.csv \
-	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityWithLinearInterpolationUpdates,filter=false,txInterval=1-#0.rx.csv \
-	/home/mafr432d/git/space_veins/examples/verification/archive/latest/csv/receptionsMap/rawData/VncDebug-simTimeLimit=60,warmupPeriod=15,geo=hamburg,leo=iridium86,hour=09,minEle=8,mobilityInterval=0.1,gcp=SGP4MobilityWithNearestPeriodicPositionUpdates,filter=false,txInterval=1-#0.rx.csv
+classification: eval/processReceptionsMap.sh eval/compareReceptionsMapFiles.sh
+	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap'
+	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap/intermediate'
+	rsync -avz --progress archive/latest/csv/receptionsMap/rawData nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/
+	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/$(experimentId)/receptionsMap/rawData > /tmp/franke/$(experimentId)/receptionsMap/classification.csv'
+# 	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/tmp/receptionsMap/rawData > /tmp/franke/tmp/receptionsMap/classification.csv'
+	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/intermediate archive/latest/csv/receptionsMap/
+	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/classification.csv archive/latest/csv/classification.csv
+	ssh nsm-sim05 'rm -r /tmp/franke/$(experimentId)'
+
 
 #########################################################################
 #                                                                       #
@@ -123,6 +126,12 @@ killOnAllMachines:
 	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
 		ssh $$host 'pkill -u mafr432d'
+	done
+
+cleanTmp:
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
+	for host in $$hosts; do
+		ssh $$host 'rm -r /tmp/franke/rx'
 	done
 
 exp:
