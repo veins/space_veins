@@ -95,8 +95,6 @@ sca2csv:
 	scp nsm-sim05:/tmp/franke/$(experimentId)/scalars.csv archive/latest/csv/scalars/scalars.csv
 	ssh nsm-sim05 rm -r /tmp/franke/$(experimentId)
 
-# 	cp archive/latest/csv/gnuTime/*.csv /tmp/franke/$(experimentId)
-# 	rm -r /tmp/franke/$(experimentId)
 .ONESHELL:
 SHELL := /bin/bash
 gnuTimeResults: eval/gnuTimeResults.pl
@@ -109,7 +107,6 @@ classification: eval/processReceptionsMap.sh eval/compareReceptionsMapFiles.sh
 	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap/intermediate'
 	rsync -avz --progress archive/latest/csv/receptionsMap/rawData nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/
 	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/$(experimentId)/receptionsMap/rawData > /tmp/franke/$(experimentId)/receptionsMap/classification.csv'
-# 	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/tmp/receptionsMap/rawData > /tmp/franke/tmp/receptionsMap/classification.csv'
 	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/intermediate archive/latest/csv/receptionsMap/
 	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/classification.csv archive/latest/csv/classification.csv
 	ssh nsm-sim05 'rm -r /tmp/franke/$(experimentId)'
@@ -141,6 +138,7 @@ exp:
 	$(MAKE) -j1 experimentId=$(experimentId) runVnc
 	$(MAKE) -j1 experimentId=$(experimentId) sca2csv
 	$(MAKE) -j1 experimentId=$(experimentId) gnuTimeResults
+	$(MAKE) -j1 experimentId=$(experimentId) classification
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 	cp omnetpp.ini archive/$(experimentId)
