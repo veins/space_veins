@@ -55,10 +55,10 @@ gnuTimeFormatString="Config,${keyName_simTimeLimit},${keyName_warmupPeriod},${ke
 /usr/bin/time \
 -o $gnuTimeOutputFile \
 --format $gnuTimeFormatString \
-./run --mode debug -- -u Cmdenv -c ${1} -r ${2} --"*.globalStatistics.receptionsMapPath=\"${receptionsOutputFilePath}\""
+./run --mode release -- -u Cmdenv -c ${1} -r ${2} --"*.globalStatistics.receptionsMapPath=\"${receptionsOutputFilePath}\""
 
 # copy receptions map file from local disk to NFS
 mkdir -p archive/latest/csv/receptionsMap/rawData
 # uncomment for testing: touch $receptionsOutputFilePath
-cp $receptionsOutputFilePath archive/latest/csv/receptionsMap/rawData/${receptionsOutputFileName}
+mw $receptionsOutputFilePath archive/latest/csv/receptionsMap/rawData/${receptionsOutputFileName}
 echo $(pwd)

@@ -66,6 +66,11 @@ runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 	wait
 	sleep 1
 	mv results archive/$(experimentId)
+	for host in $$hosts; do
+		ssh $$host 'rm -r /tmp/franke/rx' &
+	done
+	wait
+	sleep 1
 	touch $@
 
 printRuns:
