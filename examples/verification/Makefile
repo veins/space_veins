@@ -97,6 +97,11 @@ sca2csv:
 
 .ONESHELL:
 SHELL := /bin/bash
+filterForScalar: eval/filterForScalar.R archive/latest/csv/scalars/scalars.csv
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/scalars/scalars.csv
+
+.ONESHELL:
+SHELL := /bin/bash
 gnuTimeResults: eval/gnuTimeResults.pl
 	/home/mafr432d/git/space_veins/examples/verification/eval/gnuTimeResults.pl archive/latest/csv/gnuTime/*.csv
 
