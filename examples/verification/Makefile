@@ -115,6 +115,25 @@ classification: eval/processReceptionsMap.sh eval/compareReceptionsMapFiles.sh
 #########################################################################
 #                                                                       #
 #                                                                       #
+#                                plotting                               #
+#                                                                       #
+#                                                                       #
+#########################################################################
+
+archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf: eval/runtimeUserTimeVsUpdateInterval.R
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/gnuTimeResults.csv
+
+archive/latest/plots/runtimeFnrVsUpdateInterval.pdf: eval/runtimeFnrVsUpdateInterval.R archive/latest/csv/classification.csv
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/classification.csv
+
+plots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.pdf
+	touch $@
+
+#########################################################################
+#                                                                       #
+#                                                                       #
 #                               orga                                    #
 #                                                                       #
 #                                                                       #
