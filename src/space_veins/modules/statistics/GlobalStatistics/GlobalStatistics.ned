@@ -29,5 +29,7 @@ simple GlobalStatistics
         @class(space_veins::GlobalStatistics);
         bool recordReceptions = default(false); // record a map tracks which receiver received which transmission
         bool oneLinePerReception = default(true); // if true: write a single line for every reception, if false: write a single line for every transmission
+        bool writeTransmissionEndTime = default(true); // if true: writes the transmission end time of every transmission into the receptionsMap
+        bool writePacketId = default(true); // if true: writes the packetId every transmission into the receptionsMap
         string receptionsMapPath = default("/ramdisk/"); // path where to write the receptionsMap results
 }
