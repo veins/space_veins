@@ -73,6 +73,8 @@ class INET_API Radio : public PhysicalLayerBase, public virtual IRadio
     simtime_t lastBusy;
     simtime_t myStartTime;
     simtime_t statsTotalBusyTime;
+    unsigned long statsIgnoredReceptions = 0;
+    unsigned long statsEvaluatedReceptions = 0;
 
     cOutVector myReceptionState;
 

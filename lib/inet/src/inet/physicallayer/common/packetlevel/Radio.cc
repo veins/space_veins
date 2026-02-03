@@ -95,6 +95,9 @@ void Radio::finish()
     recordScalar("totalBusyTime", statsTotalBusyTime.dbl());
     simtime_t totalLifeTime = simTime() - myStartTime;
     recordScalar("totalBusyTimeRatio", (statsTotalBusyTime.dbl() / totalLifeTime.dbl()));
+    recordScalar("statsIgnoredReceptions:count", statsIgnoredReceptions);
+    recordScalar("statsEvaluatedReceptions:count", statsEvaluatedReceptions);
+    recordScalar("statsTotalReceptions:count", statsIgnoredReceptions + statsEvaluatedReceptions);
 }
 
 void Radio::initializeRadioMode() {
@@ -503,9 +506,12 @@ void Radio::endReception(cMessage *timer)
         sendUp(macFrame);
         receptionTimer = nullptr;
         emit(receptionEndedSignal, check_and_cast<const cObject *>(reception));
+        statsEvaluatedReceptions += 1;
     }
-    else
+    else {
         EV_INFO << "Reception ended: \x1b[1mignoring\x1b[0m " << (ISignal *)signal << " " << IRadioSignal::getSignalPartName(part) << " as " << reception << endl;
+        statsIgnoredReceptions += 1;
+    }
     updateTransceiverState();
     updateTransceiverPart();
     delete timer;
