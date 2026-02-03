@@ -35,6 +35,10 @@ class INET_API ReceiverBase : public cModule, public virtual IReceiver
 
     virtual Packet *computeReceivedPacket(const ISnir *snir, bool isReceptionSuccessful) const;
 
+    virtual void finish() override;
+
+    mutable unsigned long totalInterferingTransmissions = 0;
+
   public:
     ReceiverBase() { }
 
