@@ -47,9 +47,11 @@ void OracleMac::initialize(int stage)
         nodeId = getParentModule()->getParentModule()->getIndex();
 
         satelliteContactTimeout = par("satelliteContactTimeout");
+        ignoreGlobalOracle = par("ignoreGlobalOracle");
 
         sendTimer = new cMessage("sendTimer", SEND_TIMER);
         WATCH(nodeId);
+        WATCH(ignoreGlobalOracle);
         WATCH(acksPerPacket);
         WATCH(uniquePacketsReceivedBySatellites);
         WATCH(totalPacketsReceivedBySatellites);
@@ -78,7 +80,12 @@ void OracleMac::startTransmitting()
     encapsulate(currentTxFrameDuplicate);
 
     // send
-    simtime_t sendAt = globalOracleMac->askOracle();
+    simtime_t sendAt;
+    if (!ignoreGlobalOracle) {
+        sendAt = globalOracleMac->askOracle();
+    } else {
+        sendAt = simTime();
+    }
     EV << "Schedule transmission of " << currentTxFrame << " at: " << sendAt << endl;
     scheduleAt(sendAt, sendTimer);
 }

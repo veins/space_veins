@@ -42,6 +42,8 @@ class SPACE_VEINS_API OracleMac : public inet::AckingMac {
         std::map<int, satelliteContact_t> satelliteContacts;
         simtime_t satelliteContactTimeout;
 
+        bool ignoreGlobalOracle;
+
         GlobalOracleMac* globalOracleMac = nullptr;
 
         unsigned long uniquePacketsReceivedBySatellites = 0;

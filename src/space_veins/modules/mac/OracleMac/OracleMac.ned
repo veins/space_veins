@@ -30,4 +30,5 @@ module OracleMac extends AckingMac
     parameters:
         @class(space_veins::OracleMac);
         double satelliteContactTimeout @unit(s) = 3600s;
+        bool ignoreGlobalOracle = default(false);
 }
