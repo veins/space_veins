@@ -18,4 +18,6 @@ data <- data[, ..columns]
 # all node vehicle statistics
 pattern <- "ManhattanBuildingShadowing\\.node\\[\\d+\\]\\.satNic\\[0\\]\\.radio\\.receiver"
 data <- data[node %like% pattern]
-print(data)
+filename <- paste(scalars, collapse = "_")
+path <- paste0("archive/latest/csv/scalars/", filename, ".csv")
+fwrite(data, path)
