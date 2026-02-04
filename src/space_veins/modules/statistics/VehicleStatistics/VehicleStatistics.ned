@@ -27,6 +27,7 @@ simple VehicleStatistics
 {
     parameters:
         @class(space_veins::VehicleStatistics);
+        double minElevationAngleV2S = default(-1);    // minimum elevation angle between a vehicle and a satelite such that communication is possible, NaN completly ignores the minElevationAngle.
 
         @signal[space_veins_vehicleStatistics_sendSatellitePackets](type=long);
         @signal[space_veins_vehicleStatistics_receivedSatellitePackets](type=long);

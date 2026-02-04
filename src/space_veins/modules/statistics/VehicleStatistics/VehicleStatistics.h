@@ -51,6 +51,8 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         space_veins::SGP4MobilityBase* sgp4m;
         std::string moduleType;
 
+        double minElevationAngleV2S;
+
         // Age of Information (AoI)
         std::set<long> uniqueIds;    // as the UDP layer and the UdpSink application both emit the same signal
         simtime_t lastPacketReception = omnetpp::SimTime::ZERO;

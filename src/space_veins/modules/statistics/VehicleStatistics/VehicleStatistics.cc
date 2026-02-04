@@ -56,11 +56,16 @@ void space_veins::VehicleStatistics::initialize(int stage)
         EV_DEBUG << "space_veins::VehicleStatistics initialized." << std::endl;
         moduleType = getParentModule()->getNedTypeName();
 
+        minElevationAngleV2S = par("minElevationAngleV2S");
+
         vecSendSatellitePacketsOverMinElevationAngle.setName("sendSatellitePacketsOverMinElevationAngle:vector");
         vecAgeOfInformation.setName("ageOfInformation:vector");
     }
     if (stage == 5) {
         if (moduleType == "space_veins.nodes.Satellite") {
+            if (minElevationAngleV2S == -1) {
+                throw cRuntimeError("VehicleStatistics: Do not use the default minElevationAngleV2S, specify the same value as in the MediumLimitCache.");
+            }
             // after initialization of the SGP4Mobility
             // search for SGP4Mobility
             sgp4m = SGP4MobilityNoGetCurrentPositionUpdatesAccess().get(getParentModule());
@@ -76,12 +81,17 @@ void space_veins::VehicleStatistics::initialize(int stage)
             if (sgp4m == nullptr) {
                 throw cRuntimeError("VehicleStatistics: Satellite has no mobility");
             }
-            ASSERT(sgp4m);
+
+            minElevationAngleV2S = par("minElevationAngleV2S");
+            WATCH(minElevationAngleV2S);
             // SGP4Mobility found, if not: SatCars do not have a SGP4Mobility
             // listen for all packets that have been transmitted
             auto onTransmissionEndedSignal = [this](veins::SignalPayload<cObject*> payload) {
-                // TODO: get minElevationAngle from MediumLimitCache
-                if (sgp4m->getLastElevationAngleToSop().get() >= inet::deg(8).get()) {
+                // TODO: get value from MediumLimitCache, currently read it from omnetpp.ini, because
+                // I cannot include "inet/physicallayer/common/packetlevel/RadioMedium.h" and
+                // "inet/physicallayer/common/packetlevel/MediumLimitCache.h" which both are required
+                // to access the MediumLimitCache module
+                if (sgp4m->getLastElevationAngleToSop().get() >= inet::deg(minElevationAngleV2S).get()) {
                     sendSatellitePacketsOverMinElevationAngle += 1;
                     vecSendSatellitePacketsOverMinElevationAngle.record(1);
                 }
