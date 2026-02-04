@@ -36,6 +36,7 @@ class SPACE_VEINS_API GlobalOracleMac : public cSimpleModule
         bool busy = false; // true if channel is busy
         simtime_t channelIdleTime; // time when the channel becomes idle again
         cMessage* channelIdleTimer = nullptr; // expires when the channel becomes idle again
+        cOutVector vecSendTimes;
 
         virtual void initialize(int stage) override;
         virtual void finish() override;

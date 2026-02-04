@@ -32,6 +32,7 @@ void GlobalOracleMac::initialize(int stage)
         tdmaSlotDuration = par("tdmaSlotDuration");
         channelIdleTime = SimTime();
         channelIdleTimer = new cMessage("channelIdleTimer", CHANNEL_IDLE_TIMER);
+        vecSendTimes.setName("sendTimes:vector");
         EV_DEBUG << "GlobalOralceMac initialized." << std::endl;
     }
 }
@@ -72,6 +73,7 @@ simtime_t GlobalOracleMac::askOracle()
         scheduleAt(channelIdleTime, channelIdleTimer);
         busy = true;
         EV_TRACE << "GlobalOracleMac: channel idle -> send immediately at: " << simTime() << std::endl;
+        vecSendTimes.record(simTime());
         return simTime();
     } else {
         cancelEvent(channelIdleTimer);
@@ -79,6 +81,7 @@ simtime_t GlobalOracleMac::askOracle()
         scheduleAt(channelIdleTime + tdmaSlotDuration, channelIdleTimer);
         channelIdleTime += tdmaSlotDuration;
         EV_TRACE << "GlobalOracleMac: channel busy -> send at: " << sendTime << std::endl;
+        vecSendTimes.record(sendTime);
         return sendTime;
     }
 }
