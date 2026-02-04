@@ -52,14 +52,11 @@ runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 #                                                                       #
 #########################################################################
 
-# 	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
-# 		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
-# 	hosts="nsm-lab01 nsm-lab05 nsm-lab07 nsm-lab08"
 .ONESHELL:
 SHELL := /bin/bash
 runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 	mkdir -p results
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
 	for host in $$hosts; do
 		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
 	done
@@ -144,19 +141,19 @@ plots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf archive/latest/p
 #                                                                       #
 #########################################################################
 killOnAllMachines:
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
 	for host in $$hosts; do
 		ssh $$host 'pkill -u mafr432d'
 	done
 
 findTmp:
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
 	for host in $$hosts; do
 		ssh $$host 'find /tmp/franke'
 	done
 
 cleanTmp:
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
 	for host in $$hosts; do
 		ssh $$host 'rm -r /tmp/franke/rx'
 	done
