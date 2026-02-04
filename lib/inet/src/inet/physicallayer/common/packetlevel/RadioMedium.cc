@@ -308,7 +308,9 @@ bool RadioMedium::isInterferingTransmission(const ITransmission *transmission, c
     return transmission->getTransmitterId() != receiver->getId() &&
            arrival->getEndTime() >= listening->getStartTime() + minInterferenceTime &&
            arrival->getStartTime() <= listening->getEndTime() - minInterferenceTime &&
-           isInInterferenceRange(transmission, listening->getStartPosition(), listening->getEndPosition());
+           isInInterferenceRange(transmission, listening->getStartPosition(), listening->getEndPosition()) &&
+           !areReceiverAndTransmitterSatellites(check_and_cast<const Radio*>(receiver), transmission) &&
+           isElevationAngleLargeEnough(check_and_cast<const Radio*>(receiver), transmission, arrival);
 }
 
 bool RadioMedium::isInterferingTransmission(const ITransmission *transmission, const IReception *reception) const
@@ -319,7 +321,9 @@ bool RadioMedium::isInterferingTransmission(const ITransmission *transmission, c
     return transmission->getTransmitterId() != receiver->getId() &&
            arrival->getEndTime() > reception->getStartTime() + minInterferenceTime &&
            arrival->getStartTime() < reception->getEndTime() - minInterferenceTime &&
-           isInInterferenceRange(transmission, reception->getStartPosition(), reception->getEndPosition());
+           isInInterferenceRange(transmission, reception->getStartPosition(), reception->getEndPosition()) &&
+           !areReceiverAndTransmitterSatellites(check_and_cast<const Radio*>(receiver), transmission) &&
+           isElevationAngleLargeEnough(check_and_cast<const Radio*>(receiver), transmission, arrival);
 }
 
 void RadioMedium::removeNonInterferingTransmissions()
