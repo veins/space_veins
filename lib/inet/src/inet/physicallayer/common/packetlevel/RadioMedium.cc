@@ -250,18 +250,23 @@ bool RadioMedium::isElevationAngleLargeEnough(const Radio *receiverRadio, const 
     // Check whether the minElevationAngle is NaN
     if (std::isnan(minElevationAngle.get())) return true;
     // Check whether the transmitter or receiver is the satellite
-    Coord direction;    // transmission direction vector always has to point towards the satellite such that we can properly calculate the elevation angle between vehicle and satellite.
+    Coord directionStart;    // transmission direction vector always has to point towards the satellite such that we can properly calculate the elevation angle between vehicle and satellite.
+    Coord directionEnd;    // transmission direction vector always has to point towards the satellite such that we can properly calculate the elevation angle between vehicle and satellite.
     if (transmitterModuleType == "space_veins.nodes.Satellite") {
         // satellite is transmitter
-        direction = transmission->getStartPosition() - arrival->getEndPosition();
+        directionStart = transmission->getStartPosition() - arrival->getStartPosition();
+        directionEnd = transmission->getEndPosition() - arrival->getEndPosition();
     }
     else if (receiverModuleType == "space_veins.nodes.Satellite") {
         // satellite is receiver
-        direction = arrival->getEndPosition() - transmission->getStartPosition();
+        directionStart = arrival->getStartPosition() - transmission->getStartPosition();
+        directionEnd = arrival->getEndPosition() - transmission->getEndPosition();
     }
-    direction.normalize();
-    deg elevationAngle = inet::deg(inet::rad(asin(direction.z)));
-    if (elevationAngle.get() >= minElevationAngle.get()) return true;
+    directionStart.normalize();
+    deg elevationAngleStart = inet::deg(inet::rad(asin(directionStart.z)));
+    directionEnd.normalize();
+    deg elevationAngleEnd = inet::deg(inet::rad(asin(directionEnd.z)));
+    if (elevationAngleStart.get() >= minElevationAngle.get() && elevationAngleEnd.get() >= minElevationAngle.get()) return true;
     return false;
 }
 
