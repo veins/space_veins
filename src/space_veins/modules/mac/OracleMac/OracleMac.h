@@ -29,6 +29,7 @@
 
 #include "space_veins/space_veins.h"
 #include "space_veins/modules/mac/OracleMac/GlobalOracleMac.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityBase.h"
 
 namespace space_veins {
 class SPACE_VEINS_API OracleMac : public inet::AckingMac {
@@ -45,6 +46,9 @@ class SPACE_VEINS_API OracleMac : public inet::AckingMac {
         bool ignoreGlobalOracle;
 
         GlobalOracleMac* globalOracleMac = nullptr;
+        SGP4MobilityBase* sgp4m = nullptr;
+        bool isSatellite;
+        cOutVector vecSendDown;
 
         unsigned long uniquePacketsReceivedBySatellites = 0;
         unsigned long totalPacketsReceivedBySatellites = 0;

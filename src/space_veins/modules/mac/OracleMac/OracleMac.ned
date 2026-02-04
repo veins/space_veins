@@ -31,4 +31,5 @@ module OracleMac extends AckingMac
         @class(space_veins::OracleMac);
         double satelliteContactTimeout @unit(s) = 3600s;
         bool ignoreGlobalOracle = default(false);
+        bool isSatellite = default(false); // should be true if the parent module is a satellite with SGP4Mobility
 }

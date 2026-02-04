@@ -23,6 +23,11 @@
 //
 
 #include "space_veins/modules/mac/OracleMac/OracleMac.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityNoGetCurrentPositionUpdates.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithGetCurrentPositionUpdates.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithLinearInterpolationUpdates.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityWithNearestPeriodicPositionUpdates.h"
+
 #include "inet/linklayer/acking/AckingMacHeader_m.h"
 #include "inet/linklayer/common/MacAddressTag_m.h"
 #include "inet/common/ProtocolGroup.h"
@@ -43,11 +48,13 @@ void OracleMac::initialize(int stage)
         vecReceivingSatelliteIds.setName("receivingSatelliteIds:vector");
         vecAcksPerPacket.setName("acksPerPacket:vector");
         vecSatelliteContacts.setName("satelliteContacts:vector");
+        vecSendDown.setName("sendDown:vector");
 
         nodeId = getParentModule()->getParentModule()->getIndex();
 
         satelliteContactTimeout = par("satelliteContactTimeout");
         ignoreGlobalOracle = par("ignoreGlobalOracle");
+        isSatellite = par("isSatellite");
 
         sendTimer = new cMessage("sendTimer", SEND_TIMER);
         WATCH(nodeId);
@@ -60,6 +67,24 @@ void OracleMac::initialize(int stage)
         // initialize globalOracleMac
         globalOracleMac = GlobalOracleMacAccess().get();
         ASSERT(globalOracleMac);
+    }
+    if (stage == 5) { // initialize globalOracleMac
+        if (isSatellite) {
+            sgp4m = SGP4MobilityNoGetCurrentPositionUpdatesAccess().get(getParentModule()->getParentModule());
+            if (sgp4m == nullptr) {
+                sgp4m = SGP4MobilityWithGetCurrentPositionUpdatesAccess().get(getParentModule()->getParentModule());
+            }
+            if (sgp4m == nullptr) {
+                sgp4m = SGP4MobilityWithLinearInterpolationUpdatesAccess().get(getParentModule()->getParentModule());
+            }
+            if (sgp4m == nullptr) {
+                sgp4m = SGP4MobilityWithNearestPeriodicPositionUpdatesAccess().get(getParentModule()->getParentModule());
+            }
+            if (sgp4m == nullptr) {
+                throw cRuntimeError("OracleMac: Satellite has no mobility");
+            }
+            ASSERT(sgp4m);
+        }
     }
     AckingMac::initialize(stage);
 }
@@ -81,7 +106,7 @@ void OracleMac::startTransmitting()
 
     // send
     simtime_t sendAt;
-    if (!ignoreGlobalOracle) {
+    if (!ignoreGlobalOracle && sgp4m->getIsAboveHorizon()) {
         sendAt = globalOracleMac->askOracle();
     } else {
         sendAt = simTime();
@@ -143,6 +168,7 @@ void OracleMac::handleSelfMessage(cMessage *message)
     } else if (message->getKind() == SEND_TIMER) {
         radio->setRadioMode(fullDuplex ? inet::physicallayer::IRadio::RADIO_MODE_TRANSCEIVER : inet::physicallayer::IRadio::RADIO_MODE_TRANSMITTER);
         sendDown(currentTxFrameDuplicate);
+        vecSendDown.record(simTime());
         EV << "Starting transmission of " << currentTxFrameDuplicate << std::endl;
     } else {
         AckingMac::handleSelfMessage(message);

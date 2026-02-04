@@ -153,6 +153,7 @@ public:
     virtual inet::Quaternion getCurrentAngularPosition() override { return inet::Quaternion::IDENTITY; }
     virtual inet::Coord getCurrentAcceleration() override { return inet::Coord::ZERO; }
     inet::deg getLastElevationAngleToSop() { return lastElevationAngleToSop; }
+    bool getIsAboveHorizon() { Enter_Method("SGP4Mobility::getIsAboveHorizon"); return isAboveHorizon; }
 
 protected:
     // methods
