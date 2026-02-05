@@ -1,7 +1,8 @@
 #!/bin/bash
 set -x
 
-# ./eval/createFlamegraph.sh /ramdisk/VerifyDisUpPosOnlyAboveHorizonWGCP_0_debug.perf.data dwarf "./run --mode debug -- -u Cmdenv -c VerifyDisUpPosOnlyAboveHorizonWGCP -r 0"
-./eval/createFlamegraph.sh /ramdisk/VerifyDisUpPosOnlyAboveHorizonNGCP_0_debug.perf.data dwarf "./run --mode debug -- -u Cmdenv -c VerifyDisUpPosOnlyAboveHorizonNGCP -r 0"
-# ./eval/createFlamegraph.sh /ramdisk/VerifyDisUpPosOnlyAboveHorizonWLIP_0_debug.perf.data dwarf "./run --mode debug -- -u Cmdenv -c VerifyDisUpPosOnlyAboveHorizonWLIP -r 0"
-# ./eval/createFlamegraph.sh /ramdisk/VerifyDisUpPosOnlyAboveHorizonWNPP_0_debug.perf.data dwarf "./run --mode debug -- -u Cmdenv -c VerifyDisUpPosOnlyAboveHorizonWNPP -r 0"
+mkdir -p /ramdisk/franke/fg
+./eval/createFlamegraph.sh /ramdisk/franke/fg/ngcp.perf.data dwarf "./run --mode release -- -u Cmdenv -c VncDebug -r 0"
+./eval/createFlamegraph.sh /ramdisk/franke/fg/wgcp.perf.data dwarf "./run --mode release -- -u Cmdenv -c VncDebug -r 5"
+./eval/createFlamegraph.sh /ramdisk/franke/fg/wlip.perf.data dwarf "./run --mode release -- -u Cmdenv -c VncDebug -r 10"
+./eval/createFlamegraph.sh /ramdisk/franke/fg/wnpp.perf.data dwarf "./run --mode release -- -u Cmdenv -c VncDebug -r 15"

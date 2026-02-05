@@ -136,6 +136,21 @@ plots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf archive/latest/p
 #########################################################################
 #                                                                       #
 #                                                                       #
+#                             flamegraphs                               #
+#                                                                       #
+#                                                                       #
+#########################################################################
+flamegraphs: eval/createFlamegraphForEveryStrat.sh
+	mkdir -p archive/$(experimentId)
+	rm archive/latest
+	ln -s $(experimentId) archive/latest
+	$(MAKE) -j6 experimentId=$(experimentId) space_veins
+	ssh nsm-lab08 'cd /home/mafr432d/git/space_veins/singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- bash $<'
+	mv results archive/$(experimentId)
+
+#########################################################################
+#                                                                       #
+#                                                                       #
 #                               orga                                    #
 #                                                                       #
 #                                                                       #
