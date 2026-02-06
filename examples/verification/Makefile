@@ -56,7 +56,7 @@ runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 SHELL := /bin/bash
 runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 	mkdir -p results
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
 		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
 	done
@@ -86,11 +86,11 @@ scalarFiles := $(shell find archive/latest/results -name "*.sca")
 SHELL := /bin/bash
 sca2csv:
 	mkdir -p archive/latest/csv/scalars
-	ssh nsm-sim05 mkdir -p /tmp/franke/$(experimentId)/results
-	scp -r archive/latest/results/*.sca nsm-sim05:/tmp/franke/$(experimentId)/results
-	ssh nsm-sim05 /home/mafr432d/git/space_veins/examples/verification/eval/opp_sca2csv.sh "/tmp/franke/$(experimentId)"
-	scp nsm-sim05:/tmp/franke/$(experimentId)/scalars.csv archive/latest/csv/scalars/scalars.csv
-	ssh nsm-sim05 rm -r /tmp/franke/$(experimentId)
+# 	ssh nsm-sim05 mkdir -p /tmp/franke/$(experimentId)/results
+# 	scp -r archive/latest/results/*.sca nsm-sim05:/tmp/franke/$(experimentId)/results
+# 	ssh nsm-sim05 /home/mafr432d/git/space_veins/examples/verification/eval/opp_sca2csv.sh "/tmp/franke/$(experimentId)"
+# 	scp nsm-sim05:/tmp/franke/$(experimentId)/scalars.csv archive/latest/csv/scalars/scalars.csv
+# 	ssh nsm-sim05 rm -r /tmp/franke/$(experimentId)
 
 .ONESHELL:
 SHELL := /bin/bash
@@ -105,13 +105,13 @@ gnuTimeResults: eval/gnuTimeResults.pl
 .ONESHELL:
 SHELL := /bin/bash
 classification: eval/processReceptionsMap.sh eval/compareReceptionsMapFiles.sh
-	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap'
-	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap/intermediate'
-	rsync -avz --progress archive/latest/csv/receptionsMap/rawData nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/
-	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/$(experimentId)/receptionsMap/rawData > /tmp/franke/$(experimentId)/receptionsMap/classification.csv'
-	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/intermediate archive/latest/csv/receptionsMap/
-	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/classification.csv archive/latest/csv/classification.csv
-	ssh nsm-sim05 'rm -r /tmp/franke/$(experimentId)'
+# 	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap'
+# 	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap/intermediate'
+# 	rsync -avz --progress archive/latest/csv/receptionsMap/rawData nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/
+# 	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/$(experimentId)/receptionsMap/rawData > /tmp/franke/$(experimentId)/receptionsMap/classification.csv'
+# 	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/intermediate archive/latest/csv/receptionsMap/
+# 	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/classification.csv archive/latest/csv/classification.csv
+# 	ssh nsm-sim05 'rm -r /tmp/franke/$(experimentId)'
 
 
 #########################################################################
@@ -156,31 +156,31 @@ flamegraphs: eval/createFlamegraphForEveryStrat.sh
 #                                                                       #
 #########################################################################
 killOnAllMachines:
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
 		ssh $$host 'pkill -u mafr432d'
 	done
 
 findTmp:
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
 		ssh $$host 'find /tmp/franke'
 	done
 
 cleanTmp:
-	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07"
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
 		ssh $$host 'rm -r /tmp/franke/rx'
 	done
 
+# 	$(MAKE) -j1 experimentId=$(experimentId) sca2csv
+# 	$(MAKE) -j1 experimentId=$(experimentId) classification
 exp:
 	mkdir -p archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j1 experimentId=$(experimentId) runVnc
-	$(MAKE) -j1 experimentId=$(experimentId) sca2csv
 	$(MAKE) -j1 experimentId=$(experimentId) gnuTimeResults
-	$(MAKE) -j1 experimentId=$(experimentId) classification
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 	cp omnetpp.ini archive/$(experimentId)
