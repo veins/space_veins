@@ -6,6 +6,8 @@ set -x
 # $3 command that is being perfed
 
 # --per-thread \
+# taskset \
+# -c 0,6 \
 ###############################
 #           run perf          #
 ###############################
@@ -18,7 +20,7 @@ perf record \
 --no-bpf-event \
 $3
 
-perf script --no-inline -i "$1" > "${1}.out"
+perf script -i "$1" > "${1}.out"
 mv "$1" archive/latest
 
 ###############################
