@@ -86,11 +86,11 @@ scalarFiles := $(shell find archive/latest/results -name "*.sca")
 SHELL := /bin/bash
 sca2csv:
 	mkdir -p archive/latest/csv/scalars
-# 	ssh nsm-sim05 mkdir -p /tmp/franke/$(experimentId)/results
-# 	scp -r archive/latest/results/*.sca nsm-sim05:/tmp/franke/$(experimentId)/results
-# 	ssh nsm-sim05 /home/mafr432d/git/space_veins/examples/verification/eval/opp_sca2csv.sh "/tmp/franke/$(experimentId)"
-# 	scp nsm-sim05:/tmp/franke/$(experimentId)/scalars.csv archive/latest/csv/scalars/scalars.csv
-# 	ssh nsm-sim05 rm -r /tmp/franke/$(experimentId)
+	ssh nsm-sim05 mkdir -p /tmp/franke/$(experimentId)/results
+	scp -r archive/latest/results/*.sca nsm-sim05:/tmp/franke/$(experimentId)/results
+	ssh nsm-sim05 /home/mafr432d/git/space_veins/examples/verification/eval/opp_sca2csv.sh "/tmp/franke/$(experimentId)"
+	scp nsm-sim05:/tmp/franke/$(experimentId)/scalars.csv archive/latest/csv/scalars/scalars.csv
+	ssh nsm-sim05 rm -r /tmp/franke/$(experimentId)
 
 .ONESHELL:
 SHELL := /bin/bash
@@ -105,13 +105,13 @@ gnuTimeResults: eval/gnuTimeResults.pl
 .ONESHELL:
 SHELL := /bin/bash
 classification: eval/processReceptionsMap.sh eval/compareReceptionsMapFiles.sh
-# 	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap'
-# 	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap/intermediate'
-# 	rsync -avz --progress archive/latest/csv/receptionsMap/rawData nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/
-# 	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/$(experimentId)/receptionsMap/rawData > /tmp/franke/$(experimentId)/receptionsMap/classification.csv'
-# 	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/intermediate archive/latest/csv/receptionsMap/
-# 	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/classification.csv archive/latest/csv/classification.csv
-# 	ssh nsm-sim05 'rm -r /tmp/franke/$(experimentId)'
+	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap'
+	ssh nsm-sim05 'mkdir -p /tmp/franke/$(experimentId)/receptionsMap/intermediate'
+	rsync -avz --progress archive/latest/csv/receptionsMap/rawData nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/
+	ssh nsm-sim05 '/home/mafr432d/git/space_veins/examples/verification/eval/processReceptionsMap.sh /tmp/franke/$(experimentId)/receptionsMap/rawData > /tmp/franke/$(experimentId)/receptionsMap/classification.csv'
+	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/intermediate archive/latest/csv/receptionsMap/
+	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/classification.csv archive/latest/csv/classification.csv
+	ssh nsm-sim05 'rm -r /tmp/franke/$(experimentId)'
 
 
 #########################################################################
@@ -126,11 +126,15 @@ archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf: eval/runtimeUserTimeVs
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/gnuTimeResults.csv
 
+archive/latest/plots/runtimeWallClockTimeVsUpdateInterval.pdf: eval/runtimeWallClockTimeVsUpdateInterval.R
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/gnuTimeResults.csv
+
 archive/latest/plots/runtimeFnrVsUpdateInterval.pdf: eval/runtimeFnrVsUpdateInterval.R archive/latest/csv/classification.csv
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/classification.csv
 
-plots: archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.pdf
+plots: archive/latest/plots/runtimeWallClockTimeVsUpdateInterval.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.pdf
 	touch $@
 
 #########################################################################

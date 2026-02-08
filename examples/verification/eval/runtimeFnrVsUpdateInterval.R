@@ -71,6 +71,7 @@ for(behavior in unique_behaviors) {
   subset_dt <- plottedData[gcp == behavior]
   lines(subset_dt$mobilityInterval, subset_dt$avg, lty=i)
   points(subset_dt$mobilityInterval, subset_dt$avg, pch=i)
+  arrows(x0=subset_dt$mobilityInterval, y0=subset_dt$avg - subset_dt$sd, x1=subset_dt$mobilityInterval, y1=subset_dt$avg + subset_dt$sd, code=3, angle=90, length=0.05, lwd=1.0, col="darkgrey")
   i <- i + 1  # Increment index
   leg.txt <- append(leg.txt, behavior)
 }
