@@ -5,6 +5,7 @@ set -x
 # $2 call-graph creating method: fp or dwarf
 # $3 command that is being perfed
 
+# --per-thread \
 ###############################
 #           run perf          #
 ###############################
@@ -15,7 +16,6 @@ perf record \
 -o $1 \
 --call-graph "${2},65528" \
 --no-bpf-event \
---per-thread \
 $3
 
 perf script --no-inline -i "$1" > "${1}.out"
