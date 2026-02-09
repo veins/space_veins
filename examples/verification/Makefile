@@ -177,14 +177,14 @@ cleanTmp:
 		ssh $$host 'rm -r /tmp/franke/rx'
 	done
 
-# 	$(MAKE) -j1 experimentId=$(experimentId) sca2csv
-# 	$(MAKE) -j1 experimentId=$(experimentId) classification
 exp:
 	mkdir -p archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j1 experimentId=$(experimentId) runVnc
 	$(MAKE) -j1 experimentId=$(experimentId) gnuTimeResults
+	$(MAKE) -j1 experimentId=$(experimentId) sca2csv
+	$(MAKE) -j1 experimentId=$(experimentId) classification
 	mv $(experimentId)_runs.log archive/$(experimentId)
 	mv $(experimentId)_runs.txt archive/$(experimentId)
 	cp omnetpp.ini archive/$(experimentId)
