@@ -12,8 +12,10 @@ set -x
 #           run perf          #
 ###############################
 
+taskset \
+-c 0,6 \
 perf record \
--F 99 \
+-F 97 \
 -e cycles:u \
 -o $1 \
 --call-graph "${2},65528" \
