@@ -36,7 +36,7 @@ minX <- 0.01
 # maxX <- max(max(unfiltered$updateInterval), max(filtered$updateInterval))
 maxX <- max(plottedData$mobilityInterval)
 minY <- 0
-maxY <- 2600
+maxY <- 1100
 
 # ----------- unfiltered
 done <- myps(file = "archive/latest/plots/runtimeWallClockTimeVsUpdateInterval", width=paper.width, height=paper.height)
