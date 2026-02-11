@@ -482,7 +482,7 @@ inet::Coord SGP4MobilityBase::getCurrentPosition()
     Enter_Method("SGP4Mobility::getCurrentPosition");
     updateType = getCurrentPositionUpdate;
     getCurrentPositionUpdateCalls += 1;
-    // vecGetCurrentPositionUpdateCalls.record(1);
+    vecGetCurrentPositionUpdateCalls.record(1);
     getCurrentPositionUpdateCallsNoWarmupPeriod += 1;
     // vecGetCurrentPositionUpdateCallsNoWarmupPeriod.record(1);
     if (isRelevantInterval(simTime())) {
@@ -683,7 +683,7 @@ SGP4MobilityBase::calculatedSgp4SatellitePositions_t SGP4MobilityBase::calculate
     // EV_TRACE << "------- end trace log caculateSatellitePosition -------" << std::endl;
     // statistics
     sgp4Computations++;
-    // vecSgp4Computations.record(1);
+    vecSgp4Computations.record(calculateElevationAngleRelativeToSop(satellitePosition).get());
     // recordWGS84Coord(lastCalculatedSgp4SatellitePosition.wgs84);
     // recordWGS84CartCoord(lastCalculatedSgp4SatellitePosition.wgs84CartesianGeocentric);
     // recordSopRelativeCoord(lastCalculatedSgp4SatellitePosition.omnetppCoordRelativeToSOP);
@@ -757,7 +757,7 @@ void SGP4MobilityBase::updateManagementDataAndStatistics(updateType_t type, bool
         positionUpdates += 1;
         // vecPositionUpdates.record(1);
         recordOmnetCoord(lastPosition);
-        // vecLastElevationAngleToSop.record(lastElevationAngleToSop.get());
+        vecLastElevationAngleToSop.record(lastElevationAngleToSop.get());
     }
 }
 
