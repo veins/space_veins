@@ -11,11 +11,18 @@ args = commandArgs(trailingOnly=TRUE)
 print(args)
 
 # read in elevation angle data
-eleAngleDis <- fread(args[1])
+data <- fread(args[1])
+
+# filter for ngcp
+data <- data[grepl("\\\\\"SGP4MobilityNoGetCurrentPositionUpdates\\\\\"", gcp), ]
+print("data:")
+print(data)
+
+eleAngleDis <- data[filter == FALSE, ]
 print("eleAngleDis:")
 print(eleAngleDis)
 
-eleAngleEn <- fread(args[2])
+eleAngleEn <- data[filter == TRUE, ]
 print("eleAngleEn:")
 print(eleAngleEn)
 
@@ -26,8 +33,9 @@ print(paste("minTimeEn:", min(eleAngleEn$time)))
 # print maximum of eleAngleDis$time and eleAngleEn$time
 print(paste("maxTimeDis:", max(eleAngleDis$time)))
 print(paste("maxTimeEn:", max(eleAngleEn$time)))
+minTime <- 0
 
-maxTime <- max(max(eleAngleDis$time), max(eleAngleEn$time))
+maxTime <- 3600
 
 # minEle <- min(min(eleAngleDis$lastElevationAngleToSop), min(eleAngleEn$lastElevationAngleToSop))
 # maxEle <- max(max(eleAngleDis$lastElevationAngleToSop), max(eleAngleEn$lastElevationAngleToSop))
@@ -69,7 +77,7 @@ legends = list(dis=list(lty=ltys[["dotted"]], lwd=lwds[["default"]], pch=pchs[["
                com=list(lty=ltys[["dashed"]], lwd=lwds[["default"]], col="red", label= expression("com. threshold"))
                )
 
-done <- myps(file = args[3], width=paper.width, height=paper.height)
+done <- myps(file = args[2], width=paper.width, height=paper.height)
 plot.new()
 par(mar=c(3.25,3.0,.5,1.1), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minTime, maxTime), ylim=c(minEle, maxEle), xaxs="i", yaxs="i")
@@ -85,7 +93,7 @@ abline(h=8, col="red", lty=legends[["com"]][["lty"]])
 # points(e2e$time, e2e$lastElevationAngleToSop, pch = legends[["received"]][["pch"]])
 
 box()
-ticks <- c(15, 17284, 34568, 51852, 69136, 86420)
+ticks <- c(0, 600, 1200, 1800, 2400, 3000, 3600)
 # axis(1, xaxp=c(minTime, maxTime, 5))
 axis(1, at = ticks)
 axis(2, las=1, tck=-0.025, yaxp=c(minEle, maxEle, 4))

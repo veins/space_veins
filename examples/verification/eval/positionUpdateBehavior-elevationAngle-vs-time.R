@@ -10,11 +10,11 @@ args = commandArgs(trailingOnly=TRUE)
 # }
 print(args)
 
-minTime <- 2804
-maxTime <- 2809
+minTime <- 1400
+maxTime <- 1405
 
-eleWindowMin <- 7.85
-eleWindowMax <- 8.15
+eleWindowMin <- 28
+eleWindowMax <- 29
 
 # read in elevation angle data
 # filter based on simulation time
@@ -22,6 +22,8 @@ eleAngle <- fread(args[1])
 eleAngle <- subset(eleAngle, time >= minTime)
 eleAngle <- subset(eleAngle, time <= maxTime)
 eleAngle <- subset(eleAngle, select = -c(node, repetition))
+eleAngle <- eleAngle[grepl(paste0("\\\\\"",args[4],"\\\\\""), gcp), ]
+eleAngle <- eleAngle[filter == FALSE, ]
 print("eleAngle:")
 print(eleAngle)
 
@@ -31,6 +33,8 @@ gcpuc <- fread(args[2])
 gcpuc <- subset(gcpuc, time >= minTime)
 gcpuc <- subset(gcpuc, time <= maxTime)
 gcpuc <- subset(gcpuc, select = -c(node, repetition))
+gcpuc <- gcpuc[grepl(paste0("\\\\\"",args[4],"\\\\\""), gcp), ]
+gcpuc <- gcpuc[filter == FALSE, ]
 print("gcpuc:")
 print(gcpuc)
 
@@ -40,17 +44,19 @@ sgp4 <- fread(args[3])
 sgp4 <- subset(sgp4, time >= minTime)
 sgp4 <- subset(sgp4, time <= maxTime)
 sgp4 <- subset(sgp4, select = -c(node, repetition))
+sgp4 <- sgp4[grepl(paste0("\\\\\"",args[4],"\\\\\""), gcp), ]
+sgp4 <- sgp4[filter == FALSE, ]
 print("sgp4:")
 print(sgp4)
 
-# read time points and calculated elevationAngle relative to the SOP of linear interpolation updates
-# filter based on simulation time
-# li <- fread(args[4])
-# li <- subset(li, time >= minTime)
-# li <- subset(li, time <= maxTime)
-# li <- subset(li, select = -c(node, repetition))
-# print("li:")
-# print(li)
+# # read time points and calculated elevationAngle relative to the SOP of linear interpolation updates
+# # filter based on simulation time
+# # li <- fread(args[4])
+# # li <- subset(li, time >= minTime)
+# # li <- subset(li, time <= maxTime)
+# # li <- subset(li, select = -c(node, repetition))
+# # print("li:")
+# # print(li)
 
 # ----------- plot
 
@@ -74,12 +80,12 @@ lwds = list(default=1)
 pchs = list(circle=1,
             cross=4,
             diamond=5)
-legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("SGP4 update")),
-               gcpUpdate=list(lty=2, label= expression("gcp call")))
+legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("periodic update")),
+               gcpUpdate=list(lty=2, label= expression("random update")))
 
-done <- myps(file = args[4], width=paper.width, height=paper.height)
+done <- myps(file = args[5], width=paper.width, height=paper.height)
 plot.new()
-par(mar=c(3.25,3.0,.5,.75), mgp=c(3.0, 0.5, 0))
+par(mar=c(3.25,3.6,.5,1.25), mgp=c(3.0, 0.5, 0))
 plot.window(xlim=c(minTime + 1, maxTime - 1), ylim=c(eleWindowMin ,eleWindowMax), xaxs="i", yaxs="i")
 lines(eleAngle$time, eleAngle$lastElevationAngleToSop, type = "s", lwd = legends[["sgp4Update"]][["lwd"]])
 points(sgp4$time, sgp4$sgp4Computations, pch = legends[["sgp4Update"]][["pch"]])
@@ -99,10 +105,10 @@ yticks <- seq(eleWindowMin, eleWindowMax, length.out = 7)
 ylabels <- sprintf("%.2f", yticks)
 axis(2, at = yticks, labels = ylabels, las=1, tck = -0.05)
 title(xlab="simulation time in s", line=2.2)
-title(ylab="elevation angle in deg", line=2)
+title(ylab="elevation angle in deg", line=2.6)
 
 # legend position in the top middle
-legendPosition <- "bottomleft"
+legendPosition <- "bottomright"
 insetValue <- c(0, 0)
 
 # if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition") {
@@ -120,5 +126,7 @@ legend(legendPosition,
     #    cex=0.9,
        x.intersp = 0.15,
        seg.len = 0.9,
+       xpd=NA,
+       bg="white",
        ncol=1)
 done()

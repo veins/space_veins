@@ -75,20 +75,15 @@ runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
 
 .ONESHELL:
 SHELL := /bin/bash
-runVncDemo: $(experimentId)_demo_runs.log $(experimentId)_runs.txt perfMachines.txt
+runVncDemo: $(experimentId)_runs.log $(experimentId)_demo_runs.txt perfMachines.txt
 	mkdir -p results
 	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
-		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
+		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_demo_runs.txt' &
 	done
 	wait
 	sleep 1
 	mv results archive/$(experimentId)
-	for host in $$hosts; do
-		ssh $$host 'rm -r /tmp/franke/rx' &
-	done
-	wait
-	sleep 1
 	touch $@
 
 printRuns:
@@ -134,6 +129,11 @@ classification: eval/processReceptionsMap.sh eval/compareReceptionsMapFiles.sh
 	rsync -avz --progress nsm-sim05:/tmp/franke/$(experimentId)/receptionsMap/classification.csv archive/latest/csv/classification.csv
 	ssh nsm-sim05 'rm -r /tmp/franke/$(experimentId)'
 
+demoVectors:
+	mkdir -p archive/latest/csv/vectors
+	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F getCurrentPositionUpdateCalls:vector=getCurrentPositionUpdateCalls -I filter -I gcp -A repetition archive/latest/results/*.vec > archive/latest/csv/vectors/getCurrentPositionUpdateCalls.csv
+	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F sgp4Computations:vector=sgp4Computations -I filter -I gcp -A repetition archive/latest/results/*.vec > archive/latest/csv/vectors/sgp4Computations.csv
+	../../lib/veins_scripts/eval/opp_vec2csv.pl -v -M 'ManhattanBuildingShadowing\.leo[a-z,A-Z]*\[(?<module>[0-9]+)\]\.*' -F lastElevationAngleToSop:vector=lastElevationAngleToSop -I filter -I gcp -A repetition archive/latest/results/*.vec > archive/latest/csv/vectors/lastElevationAngleToSop.csv
 
 #########################################################################
 #                                                                       #
@@ -156,6 +156,40 @@ archive/latest/plots/runtimeFnrVsUpdateInterval.pdf: eval/runtimeFnrVsUpdateInte
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/classification.csv
 
 plots: archive/latest/plots/runtimeWallClockTimeVsUpdateInterval.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.pdf
+	touch $@
+
+archive/latest/plots/archive/latest/plots/updatePositionOnlyAboveHorizon_elevationAngle-vs-time.pdf: eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/lastElevationAngleToSop.csv
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/lastElevationAngleToSop.csv archive/latest/plots/updatePositionOnlyAboveHorizon_elevationAngle-vs-time
+
+plotPositionUpdateBehavior: eval/positionUpdateBehavior-elevationAngle-vs-time.R
+	mkdir -p archive/latest/plots
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/sgp4Computations.csv \
+																					SGP4MobilityNoGetCurrentPositionUpdates \
+																					archive/latest/plots/baselineExample
+
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/sgp4Computations.csv \
+																					SGP4MobilityWithGetCurrentPositionUpdates \
+																					archive/latest/plots/PreciseExample
+
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/sgp4Computations.csv \
+																					SGP4MobilityWithNearestPeriodicPositionUpdates \
+																					archive/latest/plots/nearestNeighborExample
+
+	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/lastElevationAngleToSop.csv \
+																					archive/latest/csv/vectors/getCurrentPositionUpdateCalls.csv \
+																					archive/latest/csv/vectors/sgp4Computations.csv \
+																					SGP4MobilityWithLinearInterpolationUpdates \
+																					archive/latest/plots/linInterExample
+	touch $@
+
+demoPlots: archive/latest/plots/archive/latest/plots/updatePositionOnlyAboveHorizon_elevationAngle-vs-time.pdf plotPositionUpdateBehavior
 	touch $@
 
 #########################################################################
@@ -185,8 +219,16 @@ demo:
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
 	$(MAKE) -j6 experimentId=$(experimentId) space_veins
-	ssh nsm-lab08 'cd /home/mafr432d/git/space_veins/singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- bash $<'
-	mv results archive/$(experimentId)
+	$(MAKE) -j1 experimentId=$(experimentId) runVncDemo
+	$(MAKE) -j1 experimentId=$(experimentId) demoVectors
+	$(MAKE) -j2 experimentId=$(experimentId) demoPlots
+	mv $(experimentId)_runs.log archive/$(experimentId)
+	mv $(experimentId)_demo_runs.txt archive/$(experimentId)
+	cp omnetpp.ini archive/$(experimentId)
+	cp Makefile archive/$(experimentId)
+	rm runVncDemo
+	rm demoPlots
+	rm plotPositionUpdateBehavior
 
 #########################################################################
 #                                                                       #
