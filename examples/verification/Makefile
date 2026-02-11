@@ -41,6 +41,9 @@ $(experimentId)_runs.log:
 $(experimentId)_runs.txt: ../../lib/veins_scripts/running/generateRunsVnc.pl ../../src/libspace_veins.so
 	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< VncDebug > ../examples/$(experimentFolderName)/$@
 
+$(experimentId)_demo_runs.txt: ../../lib/veins_scripts/running/generateRunsVnc.pl ../../src/libspace_veins.so
+	cd ../../singularity && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) -- perl $< VncDemo > ../examples/$(experimentFolderName)/$@
+
 runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 
 
@@ -55,6 +58,24 @@ runmakerFiles: $(experimentId)_runs.log $(experimentId)_runs.txt
 .ONESHELL:
 SHELL := /bin/bash
 runVnc: $(experimentId)_runs.log $(experimentId)_runs.txt perfMachines.txt
+	mkdir -p results
+	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
+	for host in $$hosts; do
+		ssh $$host 'cd $(mkfile_path) && cd ../../singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- python3 ../../lib/runmaker/runmaker4.py --jobs $(runmakerJobs) -l $(experimentId)_runs.log --loglines $(runmakerLogLines) $(experimentId)_runs.txt' &
+	done
+	wait
+	sleep 1
+	mv results archive/$(experimentId)
+	for host in $$hosts; do
+		ssh $$host 'rm -r /tmp/franke/rx' &
+	done
+	wait
+	sleep 1
+	touch $@
+
+.ONESHELL:
+SHELL := /bin/bash
+runVncDemo: $(experimentId)_demo_runs.log $(experimentId)_runs.txt perfMachines.txt
 	mkdir -p results
 	hosts="nsm-lab01 nsm-lab02 nsm-lab05 nsm-lab07 nsm-lab08"
 	for host in $$hosts; do
@@ -145,6 +166,21 @@ plots: archive/latest/plots/runtimeWallClockTimeVsUpdateInterval.pdf archive/lat
 #                                                                       #
 #########################################################################
 flamegraphs: eval/createFlamegraphForEveryStrat.sh
+	mkdir -p archive/$(experimentId)
+	rm archive/latest
+	ln -s $(experimentId) archive/latest
+	$(MAKE) -j6 experimentId=$(experimentId) space_veins
+	ssh nsm-lab08 'cd /home/mafr432d/git/space_veins/singularity/ && ./singularity-space_veins.sh /workspace/space_veins/examples/$(experimentFolderName) --launchd 9996 -- bash $<'
+	mv results archive/$(experimentId)
+
+#########################################################################
+#                                                                       #
+#                                                                       #
+#                                 demo                                  #
+#                                                                       #
+#                                                                       #
+#########################################################################
+demo:
 	mkdir -p archive/$(experimentId)
 	rm archive/latest
 	ln -s $(experimentId) archive/latest
