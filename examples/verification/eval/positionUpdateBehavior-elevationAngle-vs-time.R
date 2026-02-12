@@ -46,6 +46,10 @@ sgp4 <- subset(sgp4, time <= maxTime)
 sgp4 <- subset(sgp4, select = -c(node, repetition))
 sgp4 <- sgp4[grepl(paste0("\\\\\"",args[4],"\\\\\""), gcp), ]
 sgp4 <- sgp4[filter == FALSE, ]
+# sgp4 is used to draw periodic updates, remove the sgp4 updates which did not happen at a full second
+# sgp4 <- sgp4[sgp4Computations %% 1 == 0, ]
+# sgp4 <- sgp4[sgp4Computations == trunc(sgp4Computations), ]
+sgp4 <- sgp4[abs(time - trunc(time)) < 1e-10, ]
 print("sgp4:")
 print(sgp4)
 
