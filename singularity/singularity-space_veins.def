@@ -80,8 +80,10 @@ From: ../.devcontainer/space_veins-0.0-XXXXXXX.tar
     mkdir -p /opt/singularity-space_veins
     echo '#!/bin/bash' > /opt/singularity-space_veins/run-with-launchd.sh
     echo 'set -e' >> /opt/singularity-space_veins/run-with-launchd.sh
-    echo '/workspace/space_veins/lib/veins/bin/veins_launchd -d' >> /opt/singularity-space_veins/run-with-launchd.sh
-    echo 'trap "kill $(cat /tmp/sumo-launchd.pid)" EXIT' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo 'username=$(whoami)' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo '/workspace/space_veins/lib/veins/bin/veins_launchd -d --port $1 --pidfile /tmp/${username}-sumo-launchd.pid --logfile /tmp/${username}-sumo-launchd.log' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo 'trap "kill $(cat /tmp/${username}-sumo-launchd.pid)" EXIT' >> /opt/singularity-space_veins/run-with-launchd.sh
+    echo 'shift' >> /opt/singularity-space_veins/run-with-launchd.sh
     echo '"$@"' >> /opt/singularity-space_veins/run-with-launchd.sh
     chmod a+x /opt/singularity-space_veins/run-with-launchd.sh
 
@@ -112,7 +114,8 @@ From: ../.devcontainer/space_veins-0.0-XXXXXXX.tar
     set -e
 
     WITH_LAUNCHD=0
-    GETOPT_RESULT=$(getopt --name "singularity-space_veins runscript" --options vhc:l --longoptions version,help,chdir:,launchd -- "$@")
+    LAUNCHD_PORT="${LAUNCHD_PORT:-9999}"
+    GETOPT_RESULT=$(getopt --name "singularity-space_veins runscript" --options vhc:l: --longoptions version,help,chdir:,launchd: -- "$@")
     eval set -- "$GETOPT_RESULT"
     while true; do
         case "$1" in
@@ -130,6 +133,8 @@ From: ../.devcontainer/space_veins-0.0-XXXXXXX.tar
             ;;
         -l | --launchd)
             WITH_LAUNCHD=1
+            shift
+            LAUNCHD_PORT="$1"
             ;;
         --)
             shift
@@ -147,6 +152,6 @@ From: ../.devcontainer/space_veins-0.0-XXXXXXX.tar
         exec "$@"
         ;;
     1)
-        exec /opt/singularity-space_veins/run-with-launchd.sh "$@"
+        exec /opt/singularity-space_veins/run-with-launchd.sh "$LAUNCHD_PORT" "$@"
         ;;
     esac
