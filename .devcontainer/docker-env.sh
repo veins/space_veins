@@ -39,6 +39,7 @@
 # 2025-06-20 add WORKSPACE, HOST variable
 #
 # 2026-03-24 add /opt/pipx to PATH variable
+# 2026-03-25 set SUMO_HOME variable
 
 export PYTHONPATH=/opt/pip/usr/local/lib/python3.10/dist-packages:$PYTHONPATH
 export PATH=/usr/lib/ccache:$PATH
@@ -46,8 +47,12 @@ export PATH=$PATH:/opt/omnetpp/bin
 export PATH=$PATH:/opt/sumo/bin
 export PATH=$PATH:/opt/vnc/
 export PATH=$PATH:/opt/pipx
+
 export CCACHE_DIR=/workspace/space_veins/.ccache
+
 export WORKSPACE=/workspace/space_veins
+
+export SUMO_HOME=/opt/sumo
 
 # displayed in zsh prompt
 export HOST=space_VeinsContainer
