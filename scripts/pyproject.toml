@@ -8,6 +8,7 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.10"
 skyfield = "1.49"
+datetime = "^6.0"
 
 
 [build-system]
