@@ -5,6 +5,7 @@
 # tested with skyfield 1.46
 from skyfield.api import load, wgs84
 import argparse
+import datetime
 
 parser = argparse.ArgumentParser(description='Print satellite overflights at given time and place.')
 parser.add_argument('tleFile', metavar='TLE_FILE', help='File which stores the two line element sets.')
@@ -26,36 +27,32 @@ ts = load.timescale()
 
 location = wgs84.latlon(args.lat, args.lon)
 
+# start
+# date
 start = args.sdate.split(':')
 start_date = start[0]
 start_date = start_date.split("-")
+# time
 start_time = start[1]
 start_time = start_time.split("-")
+# datetime
+datetimeStartDate = datetime.datetime(int(start_date[0]), int(start_date[1]), int(start_date[2]), int(start_time[0]), int(start_time[1]), int(start_time[2]))
 
+# end
+# date
 end = args.edate.split(':')
 end_date = end[0]
+# time
 end_date = end_date.split("-")
 end_time = end[1]
 end_time = end_time.split("-")
+# datetime
+datetimeEndDate = datetime.datetime(int(end_date[0]), int(end_date[1]), int(end_date[2]), int(end_time[0]), int(end_time[1]), int(end_time[2]))
 
-if (int(end_date[0]) < int(start_date[0])):
-    raise ValueError("End date's year lies before start date!")
 
-if (int(end_date[1]) < int(start_date[1])):
-    raise ValueError("End date's month lies before start date!")
 
-if (int(end_date[2]) < int(start_date[2])):
-    raise ValueError("End date's day lies before start date!")
-
-if (int(end_time[0]) < int(end_time[0])):
-    raise ValueError("End date's hour lies before start date!")
-
-if (int(end_time[1]) < int(end_time[1])):
-    raise ValueError("End date's minute lies before start date!")
-
-if (int(end_time[2]) < int(end_time[2])):
-    raise ValueError("End date's second lies before start date!")
-
+if (datetimeEndDate < datetimeStartDate):
+    raise ValueError("End date lies before start date!")
 
 t0 = ts.utc(int(start_date[0]), int(start_date[1]), int(start_date[2]), int(start_time[0]), int(start_time[1]), int(start_time[2]))
 print('start date:')
