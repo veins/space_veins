@@ -1,0 +1,50 @@
+name: space_Veins tests
+run-name: ${{ gitea.actor }} performs space_Veins tests
+on: [push]
+
+jobs:
+  PerformTests:
+    runs-on: space_veins-runner
+    steps:
+      - name: Welcome message
+        run: |
+          echo "The job was automatically triggered by a ${{ gitea.event_name }} event."
+
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Build the Docker image
+        run: |
+          cd .devcontainer
+          docker build -t space_veins:latest .
+
+      - name: Build space_Veins in the docker container
+        run: |
+          docker run \
+          --mount source=.,target=/workspace/space_veins,type=bind,consistency=cached \
+          --mount source=./.containerHome/omnetpp.workspace,target=/opt/omnetpp.workspace,type=bind,consistency=cached \
+          -e "HOME=/workspace/space_veins/.containerHome" \
+          --rm space_veins:latest \
+          /bin/bash -c '. /opt/docker-env.sh && cd /workspace/space_veins && make makefiles && make -j8'
+
+      - name: Build the tests in the docker container
+        run: |
+          docker run \
+          --mount source=.,target=/workspace/space_veins,type=bind,consistency=cached \
+          --mount source=./.containerHome/omnetpp.workspace,target=/opt/omnetpp.workspace,type=bind,consistency=cached \
+          -e "HOME=/workspace/space_veins/.containerHome" \
+          --rm space_veins:latest \
+          /bin/bash -c '. /opt/docker-env.sh && cd /workspace/space_veins/subprojects/space_veins_testsims && make makefiles && make -j8'
+
+      - name: Run the tests in the docker container
+        run: |
+          docker run \
+          --mount source=.,target=/workspace/space_veins,type=bind,consistency=cached \
+          --mount source=./.containerHome/omnetpp.workspace,target=/opt/omnetpp.workspace,type=bind,consistency=cached \
+          -e "HOME=/workspace/space_veins/.containerHome" \
+          --rm space_veins:latest \
+          /bin/bash -c '. /opt/docker-env.sh && cd /workspace/space_veins/lib/veins/bin && ./veins_launchd -d && cd ../../../subprojects/space_veins_testsims && ./runall'
+
+      - name: Goodbye message
+        run: |
+          echo "This job's status is ${{ job.status }}."
