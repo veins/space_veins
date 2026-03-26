@@ -41,9 +41,9 @@ void SatPosTestApp::initialize(int stage)
     if (stage == 0) {
         testNumber = par("testNumber");
      
-        getSystemModule()->subscribe(VehicleStatistics::omnetCoordX, this);
-        getSystemModule()->subscribe(VehicleStatistics::omnetCoordY, this);
-        getSystemModule()->subscribe(VehicleStatistics::omnetCoordZ, this);
+        // getSystemModule()->subscribe(VehicleStatistics::omnetCoordX, this);
+        // getSystemModule()->subscribe(VehicleStatistics::omnetCoordY, this);
+        // getSystemModule()->subscribe(VehicleStatistics::omnetCoordZ, this);
 
         //findHost()->subscribe(BaseMobility::mobilityStateChangedSignal, this);
         EV_DEBUG << "SatPosTestApp initialized with testNumber=" << testNumber << std::endl;

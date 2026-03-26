@@ -52,9 +52,6 @@ protected:
     void handleSelfMsg(cMessage*);
     void handleLowerMsg(cMessage*);
     double roundTo(double value, double precision);
-    double calculatesMinutes(double jd_1, double jd_frac_1, double jd_2, double jd_frac_2);
-
-    SGP4Mobility* sgp4mobillity;
 
     /**
      * Perform test for time step t (special value t=0: initialize, t=999: finish)

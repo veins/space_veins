@@ -1,1 +1,0 @@
--O3 -DNDEBUG=1   -MMD -MP -MF .d  -fPIC  -fno-omit-frame-pointer -DHAVE_SWAPCONTEXT -DXMLPARSER=libxml -DPREFER_QTENV -DWITH_QTENV -DWITH_PARSIM -DWITH_NETBUILDER -DOMNETPPLIBS_IMPORT -DINET_IMPORT -DSPACE_VEINS_EXPORT -I. -I../../../lib/veins/src -I../../../lib/inet/src -I../../../lib/veins/subprojects/veins_inet/src -I/opt/omnetpp/include

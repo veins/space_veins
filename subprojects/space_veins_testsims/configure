@@ -34,8 +34,8 @@ import logging
 from logging import info, warning, error
 from optparse import OptionParser
 
-proj_name = "space_veins"
-proj_name_caps = "SPACE_VEINS"
+proj_name = "space_veins_testsims"
+proj_name_caps = "SPACE_VEINS_TESTSIMTS"
 
 # check python version
 if sys.version_info[0] < 3:
@@ -55,9 +55,9 @@ def versions_to_hr(vv):
 parser = OptionParser()
 parser.add_option("-v", "--verbose", dest="count_verbose", default=0, action="count", help="increase verbosity [default: don't log infos, debug]")
 parser.add_option("-q", "--quiet", dest="count_quiet", default=0, action="count", help="decrease verbosity [default: log warnings, errors]")
-parser.add_option("--with-space_veins", dest="space_veins", help="link with a version of Veins installed in PATH [default: space_Veins]", metavar="PATH", default="../../")
-parser.add_option("--with-veins", dest="veins", help="link with a version of Veins installed in PATH [default: lib/veins]", metavar="PATH", default="../../lib/veins")
-parser.add_option("--with-inet", dest="inet", help="link with a version of the INET Framework installed in PATH [default: lib/inet]", metavar="PATH", default="../../lib/inet")
+parser.add_option("--with-space_veins", dest="space_veins", help="link with a version of Veins installed in PATH [default: ../..]", metavar="PATH", default="../../")
+parser.add_option("--with-veins", dest="veins", help="link with a version of Veins installed in PATH [default: ../../lib/veins]", metavar="PATH", default="../../lib/veins")
+parser.add_option("--with-inet", dest="inet", help="link with a version of the INET Framework installed in PATH [default: ../../lib/inet]", metavar="PATH", default="../../lib/inet")
 parser.add_option("--with-veins-inet", dest="veins_inet", help="link with a version of the veins subproject veins_inet installed in PATH [default: ../../lib/veins/subprojects/veins_inet]", metavar="PATH", default="../../lib/veins/subprojects/veins_inet")
 (options, args) = parser.parse_args()
 
@@ -70,12 +70,39 @@ if args:
 
 
 # Start with default flags
-makemake_flags = ['-f', '--deep', '--no-deep-includes', '--make-so', '-I', '.', '-o', 'space_veins_testsims', '-O', 'out', '-p', proj_name_caps, '-lproj']
-run_libs = ['../../src/space_veins', os.path.join('src', 'space_veins_testsims')]
-
-run_neds = ['../../src/space_veins', os.path.join('src', 'space_veins_testsims')]
-run_neds = ['../../src/space_veins', os.path.join('src', 'veins_testsims')] + run_neds
+makemake_flags = ['-f', '--deep', '--no-deep-includes', '--make-so', '-I', '.', '-o', 'space_veins_testsims', '-O', 'out']
+run_libs = [os.path.join('src', proj_name)]
+run_neds = [os.path.join('src', proj_name)]
 run_imgs = [os.path.join('images')]
+
+# Add flags for space_Veins
+if options.space_veins:
+    fname = os.path.join(options.space_veins, 'print-space_Veins-version')
+    expect_version = [b'0.3']
+    try:
+        info('Running "%s" to determine space_Veins version.' % fname)
+        version = subprocess.check_output(['env', fname]).strip()
+        if not version in expect_version:
+            warning('')
+            warning('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            warning('Unsupported space_Veins Version. Expecting %s, found %s' % (versions_to_hr(expect_version), version_to_hr(version)))
+            warning('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+            warning('')
+        else:
+            info('Found space_Veins version %s. Okay.' % version_to_hr(version))
+    except subprocess.CalledProcessError as e:
+        error('Could not determine space_Veins Version (by running %s): %s. Check the path to space_Veins (--with-space_veins=... option) and the space_Veins version (should be version %s)' % (fname, e, versions_to_hr(expect_version)))
+        sys.exit(1)
+
+    space_veins_header_dirs = [os.path.join(os.path.relpath(options.space_veins, 'src'), 'src')]
+    space_veins_includes = ['-I' + s for s in space_veins_header_dirs]
+    space_veins_link = ["-L" + os.path.join(os.path.relpath(options.space_veins, 'src'), 'src'), "-lspace_veins$(D)"]
+    space_veins_defs = []
+
+    makemake_flags += space_veins_includes + space_veins_link + space_veins_defs
+    run_libs = [os.path.relpath(os.path.join(options.space_veins, 'src', 'space_veins'))] + run_libs
+    run_neds = [os.path.relpath(os.path.join(options.space_veins, 'src', 'space_veins'))] + run_neds
+    run_imgs = [os.path.relpath(os.path.join(options.space_veins, 'images'))] + run_imgs
 
 # Add flags for Veins
 if options.veins:
@@ -105,17 +132,6 @@ if options.veins:
     run_libs = [os.path.relpath(os.path.join(options.veins, 'src', 'veins'))] + run_libs# run_libs wird oben nicht mehr verwendet
     run_neds = [os.path.relpath(os.path.join(options.veins, 'src', 'veins'))] + run_neds
     run_imgs = [os.path.relpath(os.path.join(options.veins, 'images'))] + run_imgs
-
-if options.space_veins:
-    space_veins_header_dirs = [os.path.join(os.path.relpath(options.space_veins, 'src'), 'src')]
-    space_veins_includes = ['-I' + s for s in space_veins_header_dirs]
-    space_veins_link = ["-L" + os.path.join(os.path.relpath(options.space_veins, 'src'), 'src'), "-lspace_veins$(D)"]
-    space_veins_defs = []
-
-    makemake_flags += space_veins_includes + space_veins_link + space_veins_defs
-    run_libs = [os.path.relpath(os.path.join(options.space_veins, 'src', 'space_veins'))] + run_libs
-    run_neds = [os.path.relpath(os.path.join(options.space_veins, 'src', 'space_veins'))] + run_neds
-    run_imgs = [os.path.relpath(os.path.join(options.space_veins, 'images'))] + run_imgs
 
 # Add flags for INET
 if options.inet:

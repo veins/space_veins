@@ -21,7 +21,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-//package space_veins.subprojects.space_veins_testsims.space_veins_test;
 package space_veins.subprojects.space_veins_testsims.juliandate_test;
 
 simple JulianDateTestApp like space_veins.subprojects.space_veins_testsims.TestModule {
