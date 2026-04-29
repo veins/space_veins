@@ -21,6 +21,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
+# ---------------------------------------------------------------------------------
+#
+# This file is modified compared to the original version of Veins such that it works
+# with space_Veins <https://github.com/veins/space_veins>. Please use a tool like
+# 'meld' in order to see the differences.
+# Author of the modifications is Mario Franke <research@m-franke.net>.
+#
 
 """
 Runs all Veins simulations in current directory
@@ -73,6 +80,23 @@ async def my_run(cmdline, runnumber, args):
         errors += [(runnumber, l)]
         print("[E] run {:>3}: {}".format(runnumber, l))
 
+    # compare csv files to ground truth
+    cmpCmdline = "cmp groundTruth/elevationAngleTest_" + runnumber + ".csv elevationAngleTest_" + runnumber + ".csv"
+    cmpProc = await asyncio.create_subprocess_shell(cmpCmdline)
+    returnCode = await cmpProc.wait()
+
+    if returnCode == 0:
+        infoMessage = "elevationAngle csv file passed cmp comparison with ground truth file."
+        print("[i] run {:>3}: {}".format(runnumber, infoMessage))
+    elif returnCode == 1:
+        # file does not match
+        errorMessage = "elevationAngle csv file does not match with ground truth."
+        errors += [(runnumber, errorMessage)]
+        print("[E] run {:>3}: {}".format(runnumber, errorMessage))
+    elif returnCode == 2:
+        errorMessage = "cmp has trouble, see cmp --help for more details."
+        errors += [(runnumber, errorMessage)]
+        print("[E] run {:>3}: {}".format(runnumber, errorMessage))
 
 
 

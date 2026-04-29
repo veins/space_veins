@@ -1,25 +1,10 @@
-space_Veins smoke tests. Please ignore.
+To run this test, execute the script ```runall```.
 
-To run this simulation, execute the script `sim/space_veins_testsims/space_veins_test/runall`.
+This simulation requires sumo-launchd to be running.
 
-This simulation requires sumo-launchd to be started and listening for
-connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
-
-This test checks that calculations of the elevation angle are correct and that only packets from satellites above the minimum elevation angle are received.
-
-Setup:
-- 1 satellite at an elevation angle of 25.00905°
-- 1 satellite at an elevation angle of 24.98552°
-- 1 satellite at an elevation angle of 15.00272°
-- 1 satellite at an elevation angle of 14.97598°
-- 1 satellite at an elevation angle of  -0.0286°
-
-- 1 run with minElevationAngle = 15°
-- 1 run with minElevationAngle = 25°
-
-Functionality:
-- vehicles and satellites send UdpBasicApp packets to each other
-- received packets are counted and compared to the expected value
-
-
-
+There is a static SatCar at 0,0,0 and a static LEO Satellite at a position defined by ```configureTest.py```, also see ```omnetpp.ini```.
+After 3s of simulation time the LEO satellite transmits a packet and after 4s of simulation time the SatCar transmits a packet.
+Depending on the elevationAngle between both (antenna height of the SatCar is considered) the SatCar and the LEO satellite, the packets are either received or not.
+Packets are received when the elevationAngle between SatCar antenna and LEO satellite exceeds or is equal to (>=) a threshold called minElevationAngle.
+In this test, the minElevationAngle is 25deg.
+The test also compares if the computed elevation angle between SatCar antenna and LEO satellites matches the expected value.

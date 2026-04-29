@@ -43,22 +43,14 @@ import inet.environment.common.PhysicalEnvironment;
 network SatelliteExampleScenario
 {
     parameters:
-        string testApp;
-
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
         string satelliteType = default("Satellite");
 
         @display("bgb=$playgroundSizeX,$playgroundSizeY");
-        //@figure[title](type=label; pos=0,-1; anchor=sw; color=darkblue);
 
     submodules:
-        testModule: <testApp> like space_veins.subprojects.space_veins_testsims.TestModule {
-            parameters:
-                @display("p=60,50");
-        }
-
         // Veins
         annotations: AnnotationManager {
             @display("p=750,744.98");
@@ -76,9 +68,6 @@ network SatelliteExampleScenario
         physicalEnvironment: PhysicalEnvironment {
             @display("p=192,224");
         }
-        wlanRadioMedium: <default("Ieee80211ScalarRadioMedium")> like IRadioMedium {
-            @display("p=64,224");
-        }
         satelliteRadioMedium: <default("UnitDiskRadioMedium")> like IRadioMedium {
             @display("p=580,275");
         }
@@ -90,13 +79,10 @@ network SatelliteExampleScenario
         globalStatistics: GlobalStatistics {
             @display("p=580, 425");
         }
-        satelliteInserter : SatelliteInserter {
-            @display("p=128, 612");
-        }
         sop: SatelliteObservationPoint {
             @display("p=0,0");
         }
-        leoSatellite[0]: <default(satelliteType)> like INetworkNode {
+        leoSatellite[1]: <default(satelliteType)> like INetworkNode {
             @display("p=250, 0");
         }
         leoSTARLINK[0]: <default(satelliteType)> like INetworkNode {

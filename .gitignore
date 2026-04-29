@@ -100,4 +100,5 @@ subprojects/space_veins_testsims/sim/**/.tkenvrc
 subprojects/space_veins_testsims/sim/**/.qtenvrc
 subprojects/space_veins_testsims/sim/**/.cmdenv-log
 subprojects/space_veins_testsims/sim/**/valgrind.out
+subprojects/space_veins_testsims/sim/space_veins_testsims/elevation_angle_test/*.csv
 subprojects/space_veins_testsims/opp_tests/**/work
