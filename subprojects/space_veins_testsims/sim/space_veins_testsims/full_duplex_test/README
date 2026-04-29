@@ -1,7 +1,15 @@
-space_Veins smoke tests. Please ignore.
+To run this simulation, execute the script ```runall```.
 
-To run this simulation, execute the script `sim/space_veins_testsims/space_veins_test/runall`.
+This simulation requires sumo-launchd to be running.
 
-This simulation requires sumo-launchd to be started and listening for
-connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
+This test checks if fullDuplex communication between a SatCar and a LEO satellite works if it is enabled and does not work if it is disabled.
+There are four test cases:
+ 0: fullDuplex enabled, SatCar receives transmission from LEO while the SatCar sends --> both packets received
+ 1: fullDuplex enabled, LEO receives transmission from SatCar while the LEO sends --> both packets received
+ 2: fullDuplex disabled, SatCar receives transmission from LEO while the SatCar sends --> only LEO receives a packet, as the SatCar's reception is interfered by LEO transmission
+ 3: fullDuplex disabled, LEO receives transmission from SatCar while the LEO sends --> only SatCar receives a packet, as the LEO's reception is interfered by the SatCar transmission
 
+To compensate for the long propagation delay between SatCar and LEO satellite different start times of the application are configured for the SatCar and the LEO satellite, respectively.
+
+If full duplex communication is enabled, all packets ever transmitted should be received.
+If full duplex communication is disabled, only the second of the two configured packet transmission should be successful as only the first one is interfered by the second transmission.
