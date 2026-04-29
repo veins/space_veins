@@ -26,6 +26,8 @@
 #define __INET_RADIOMEDIUM_H
 
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 
 #include "inet/common/IntervalTree.h"
 #include "inet/environment/contract/IMaterialRegistry.h"
@@ -114,6 +116,13 @@ class INET_API RadioMedium : public cSimpleModule, public cListener, public IRad
      * ${resultdir}/${configname}-${runnumber}.tlog
      */
     bool recordCommunicationLog;
+    /**
+     * Run code to record test results for the space_Veins testing framework
+     */
+    bool runSpaceVeinsTestCode;
+    int spaceVeinsTestNumber;
+    std::string spaceVeinsTestResultFileName;
+    mutable std::ofstream spaceVeinsTestResultFile;
     //@}
 
     /** @name Timer */

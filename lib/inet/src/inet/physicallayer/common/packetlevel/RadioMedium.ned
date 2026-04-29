@@ -13,6 +13,13 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
+// ---------------------------------------------------------------------------------
+//
+// This file is modified compared to the original version of INET such that it works
+// with space_Veins <https://github.com/veins/space_veins>. Please use a tool like
+// 'meld' in order to see the differences.
+// Author of the modifications is Mario Franke <research@m-franke.net>.
+//
 //
 
 package inet.physicallayer.common.packetlevel;
@@ -48,6 +55,11 @@ module RadioMedium like IRadioMedium
 
         // logging parameters
         bool recordCommunicationLog = default(false); // when enabled the medium writes a communication log file that contains one line per transmission and per reception
+
+        // run space_Veins test code
+        bool runSpaceVeinsTestCode = default(false);
+        int spaceVeinsTestNumber = default(-1);
+        string spaceVeinsTestResultFilePrefix = default("spaceVeinsTestResultFile_");
 
         @class(RadioMedium);
         @display("i=misc/sun");

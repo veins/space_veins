@@ -123,6 +123,15 @@ void RadioMedium::initialize(int stage)
         recordCommunicationLog = par("recordCommunicationLog");
         if (recordCommunicationLog)
             communicationLog.open();
+        runSpaceVeinsTestCode = par("runSpaceVeinsTestCode");
+        if (runSpaceVeinsTestCode) {
+            // open output file descriptor
+            WATCH(spaceVeinsTestNumber);
+            spaceVeinsTestNumber = par("spaceVeinsTestNumber");
+            spaceVeinsTestResultFileName = par("spaceVeinsTestResultFilePrefix").stringValue() + std::to_string(spaceVeinsTestNumber) + ".csv";
+            spaceVeinsTestResultFile.open(spaceVeinsTestResultFileName);
+            spaceVeinsTestResultFile << "testNumber,eventNumber,simTime,elevationAngle" << std::endl;
+        }
     }
     else if (stage == INITSTAGE_LAST)
         EV_INFO << "Initialized " << getCompleteStringRepresentation() << endl;
@@ -130,6 +139,10 @@ void RadioMedium::initialize(int stage)
 
 void RadioMedium::finish()
 {
+    if (runSpaceVeinsTestCode) {
+        // open output file descriptor
+        spaceVeinsTestResultFile.close();
+    }
     double receptionCacheHitPercentage = 100 * (double)cacheReceptionHitCount / (double)cacheReceptionGetCount;
     double interferenceCacheHitPercentage = 100 * (double)cacheInterferenceHitCount / (double)cacheInterferenceGetCount;
     double noiseCacheHitPercentage = 100 * (double)cacheNoiseHitCount / (double)cacheNoiseGetCount;
@@ -261,6 +274,12 @@ bool RadioMedium::isElevationAngleLargeEnough(const Radio *receiverRadio, const 
     }
     direction.normalize();
     deg elevationAngle = inet::deg(inet::rad(asin(direction.z)));
+
+    if (runSpaceVeinsTestCode) {
+        // write elevationAngle to file
+        spaceVeinsTestResultFile << "" + std::to_string(spaceVeinsTestNumber) + ", " + std::to_string(getSimulation()->getEventNumber()) + ", " + simTime().str() + ", " + std::to_string(elevationAngle.get()) << std::endl;
+    }
+
     if (elevationAngle.get() >= minElevationAngle.get()) return true;
     return false;
 }
