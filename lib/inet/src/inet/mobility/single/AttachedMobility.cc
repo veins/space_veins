@@ -15,6 +15,16 @@
 // along with this program; if not, see <http://www.gnu.org/licenses/>.
 //
 
+// The following list shows changes made by Mario Franke
+// Copyright (C) 2026 Mario Franke <research@m-franke.net>
+// Documentation for space_Veins is at http://sat.car2x.org/
+// SPDX-License-Identifier: GPL-2.0-or-later
+// 
+// 2026-04-21 update lastPosition such that the position
+//            of this AttachMobility is correctly displayed
+//            in OMNeT++'s GUI using the WATCH(lastPosition)
+//            command in inet::MobilityBase
+
 #include "inet/common/geometry/common/Quaternion.h"
 #include "inet/mobility/single/AttachedMobility.h"
 
@@ -40,12 +50,21 @@ void AttachedMobility::initialize(int stage)
         isZeroOffset = positionOffset == Coord::ZERO;
         check_and_cast<cModule *>(mobility)->subscribe(IMobility::mobilityStateChangedSignal, this);
     }
+    else if (stage == INITSTAGE_SINGLE_MOBILITY) {
+        // update lastPosition of this AttachedMobility such that the WATCH(lastPosition) commands displays the correct position
+        RotationMatrix rotation(mobility->getCurrentAngularPosition().toEulerAngles());
+        lastPosition = mobility->getCurrentPosition() + rotation.rotateVector(positionOffset);
+    }
 }
 
 void AttachedMobility::receiveSignal(cComponent *source, simsignal_t signal, cObject *object, cObject *details)
 {
-    if (IMobility::mobilityStateChangedSignal == signal)
+    if (IMobility::mobilityStateChangedSignal == signal) {
+        // update lastPosition of this AttachedMobility such that the WATCH(lastPosition) commands displays the correct position
+        RotationMatrix rotation(mobility->getCurrentAngularPosition().toEulerAngles());
+        lastPosition = mobility->getCurrentPosition() + rotation.rotateVector(positionOffset);
         emitMobilityStateChangedSignal();
+    }
 }
 
 Coord AttachedMobility::getCurrentPosition()
