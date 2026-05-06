@@ -1,25 +1,134 @@
-space_Veins smoke tests. Please ignore.
+# General
 
-To run this simulation, execute the script `sim/space_veins_testsims/space_veins_test/runall`.
+To run this simulation, execute the script `runall`.
 
-This simulation requires sumo-launchd to be started and listening for
-connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
+This simulation requires sumo-launchd to be running.
 
+# Test 0
+## Stations
+- satellite 0 above the minElevationAngle
+- satellite 1 above the minElevationAngle
+- SatCar C
 
-This test checks the occurence of an issue, that a satellite below the horizon can cause interference to a vehicle, which should not be possible. The original issue has now been fixed.
+## Parameters
+- ignoreInterference == True
 
-Setup:
-    - 1 satellite (A) below the horizon (with negative elevation angle to SOP)
-    - 1 satellite (B) above the minimum elevation angle
-    - 1 vehicle
+## What happens
+satellite 0 and satellite 1 transmit a packets such that the packet from satellite 0 arrives at the SatCar first.
+While SatCar C receives satellite 0's transmission, a packet transmission from satellite 1 reaches SatCar C.
+As ignoreInterference == True, SatCar C should receive satellite 0's transmission.
+ignoreInterference == True, does not mean that every packet is received.
+The first transmission is considered as reception while the second transmission is considered as interference.
+This is why the SatCar only receives the first packet and not both.
 
-Functionality:
-    - both satellites send packets to the vehicle, which arrive around the same time, and could interfere with each other
-    - There are two runs:
-        - In the first run, "ignoreInterference" is set to true. All packets from satellite B should therefore be received. (Satellite A does not pass the minimum elevation angle.)
-        - In the second run, "ignoreInterference" is set to false. All packets from satellite B should be received. (Satellite A does not pass the minimum elevation angle and should not cause any interference.)
+## Expected outcome
+- SatCar C receives the packet from satellite 0 but not from satellite 1
+### expected values
+- SatCar C: expectedReceivedPackets: 1, expectedSentPackets: 0
+- satellite 0: expectedReceivedPackets: 0, expectedSentPackets: 1
+- satellite 1: expectedReceivedPackets: 0, expectedSentPackets: 1
 
+# Test 1
+## Stations
+- satellite 0 above the minElevationAngle
+- satellite 1 above the minElevationAngle
+- SatCar C
 
+## Parameters
+- ignoreInterference == False
 
+## What happens
+satellite 0 and satellite 1 transmit a packets such that the packet from satellite 0 arrives at the SatCar first.
+While SatCar C receives satellite 0's transmission, a packet transmission from satellite 1 reaches SatCar C.
+As ignoreInterference == False, SatCar C does not receive any transmission.
 
+## Expected outcome
+- SatCar C does not receive any transmission
+### expected values
+- SatCar C: expectedReceivedPackets: 0, expectedSentPackets: 0
+- satellite 0: expectedReceivedPackets: 0, expectedSentPackets: 1
+- satellite 1: expectedReceivedPackets: 0, expectedSentPackets: 1
 
+# Test 2
+## Stations
+- satellite 0 above the minElevationAngle
+- satellite 1 below the minElevationAngle but above the horizon
+- SatCar C
+
+## Parameters
+- ignoreInterference == True
+
+## What happens
+satellite 0 and satellite 1 transmit a packets such that the packet from satellite 0 arrives at the SatCar first.
+While SatCar C receives satellite 0's transmission, a packet transmission from satellite 1 reaches SatCar C.
+
+## Expected outcome
+- SatCar C receives the packet from satellite 0 but not from satellite 1
+- There should be no interference at all as satellite 1 is below the minElevationAngle
+### expected values
+- SatCar C: expectedReceivedPackets: 1, expectedSentPackets: 0
+- satellite 0: expectedReceivedPackets: 0, expectedSentPackets: 1
+- satellite 1: expectedReceivedPackets: 0, expectedSentPackets: 1
+
+# Test 3
+## Stations
+- satellite 0 above the minElevationAngle
+- satellite 1 below the minElevationAngle but above the horizon
+- SatCar C
+
+## Parameters
+- ignoreInterference == False
+
+## What happens
+satellite 0 and satellite 1 transmit a packets such that the packet from satellite 0 arrives at the SatCar first.
+While SatCar C receives satellite 0's transmission, a packet transmission from satellite 1 reaches SatCar C.
+
+## Expected outcome
+- SatCar C receives the packet from satellite 0 but not from satellite 1
+- There should be no interference at all as satellite 1 is below the minElevationAngle
+### expected values
+- SatCar C: expectedReceivedPackets: 1, expectedSentPackets: 0
+- satellite 0: expectedReceivedPackets: 0, expectedSentPackets: 1
+- satellite 1: expectedReceivedPackets: 0, expectedSentPackets: 1
+
+# Test 4
+## Stations
+- satellite 0 above the minElevationAngle
+- satellite 1 below the minElevationAngle and below the horizon
+- SatCar C
+
+## Parameters
+- ignoreInterference == True
+
+## What happens
+satellite 0 and satellite 1 transmit a packets such that the packet from satellite 0 arrives at the SatCar first.
+While SatCar C receives satellite 0's transmission, a packet transmission from satellite 1 reaches SatCar C.
+
+## Expected outcome
+- SatCar C receives the packet from satellite 0 but not from satellite 1
+- There should be no interference at all as satellite 1 is below the minElevationAngle
+### expected values
+- SatCar C: expectedReceivedPackets: 1, expectedSentPackets: 0
+- satellite 0: expectedReceivedPackets: 0, expectedSentPackets: 1
+- satellite 1: expectedReceivedPackets: 0, expectedSentPackets: 1
+
+# Test 5
+## Stations
+- satellite 0 above the minElevationAngle
+- satellite 1 below the minElevationAngle and below the horizon
+- SatCar C
+
+## Parameters
+- ignoreInterference == False
+
+## What happens
+satellite 0 and satellite 1 transmit a packets such that the packet from satellite 0 arrives at the SatCar first.
+While SatCar C receives satellite 0's transmission, a packet transmission from satellite 1 reaches SatCar C.
+
+## Expected outcome
+- SatCar C receives the packet from satellite 0 but not from satellite 1
+- There should be no interference at all as satellite 1 is below the minElevationAngle
+### expected values
+- SatCar C: expectedReceivedPackets: 1, expectedSentPackets: 0
+- satellite 0: expectedReceivedPackets: 0, expectedSentPackets: 1
+- satellite 1: expectedReceivedPackets: 0, expectedSentPackets: 1
