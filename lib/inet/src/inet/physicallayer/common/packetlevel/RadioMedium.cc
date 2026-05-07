@@ -130,7 +130,7 @@ void RadioMedium::initialize(int stage)
             spaceVeinsTestNumber = par("spaceVeinsTestNumber");
             spaceVeinsTestResultFileName = par("spaceVeinsTestResultFilePrefix").stringValue() + std::to_string(spaceVeinsTestNumber) + ".csv";
             spaceVeinsTestResultFile.open(spaceVeinsTestResultFileName);
-            spaceVeinsTestResultFile << "testNumber,eventNumber,simTime,elevationAngle" << std::endl;
+            spaceVeinsTestResultFile << "testNumber,eventNumber,simTime,elevationAngleStart,elevationAngleEnd" << std::endl;
         }
     }
     else if (stage == INITSTAGE_LAST)
@@ -281,8 +281,7 @@ bool RadioMedium::isElevationAngleLargeEnough(const Radio *receiverRadio, const 
     deg elevationAngleEnd = inet::deg(inet::rad(asin(directionEnd.z)));
     if (runSpaceVeinsTestCode) {
         // write elevationAngle to file
-        // ToDo fix this for elevationAngle unit test
-        // spaceVeinsTestResultFile << "" + std::to_string(spaceVeinsTestNumber) + ", " + std::to_string(getSimulation()->getEventNumber()) + ", " + simTime().str() + ", " + std::to_string(elevationAngle.get()) << std::endl;
+        spaceVeinsTestResultFile << "" + std::to_string(spaceVeinsTestNumber) + ", " + std::to_string(getSimulation()->getEventNumber()) + ", " + simTime().str() + ", " + std::to_string(elevationAngleStart.get()) + ", " + std::to_string(elevationAngleEnd.get()) << std::endl;
     }
     if (elevationAngleStart.get() >= minElevationAngle.get() && elevationAngleEnd.get() >= minElevationAngle.get()) return true;
     return false;

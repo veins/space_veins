@@ -27,7 +27,7 @@ import inet.applications.udpapp.UdpBasicApp;
 simple UdpBasicAppTesting extends UdpBasicApp {
     parameters:
         @class(UdpBasicAppTesting);
-        int testNumber;
+        int testNumber = default(-1);
         int expectedReceivedPackets;
         int expectedSentPackets;
 }
