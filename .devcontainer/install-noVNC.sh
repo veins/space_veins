@@ -33,6 +33,7 @@ apt-get update && apt-get -y install --no-install-recommends \
     xterm \
     xvfb \
     novnc \
+    fbautostart \
     fluxbox
 
 #=============================================================================
