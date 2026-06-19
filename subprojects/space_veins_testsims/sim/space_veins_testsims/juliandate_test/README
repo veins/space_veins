@@ -1,17 +1,8 @@
-space_Veins smoke tests. Please ignore.
+# General
 
-To run this simulation, execute the script `sim/space_veins_testsims/space_veins_test/runall`.
+To run this simulation, execute the script `runall`.
 
-This simulation requires sumo-launchd to be started and listening for
-connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
+This simulation requires sumo-launchd to be running.
 
-
-This test checks some edge cases of `SGP4::jday_SGP4`, which calculates Julian dates and the minutes between them (these are calculated in `SGP4Mobility::initialize`).
-The tested cases were calculated online and compared with the calculated simulation values.
-
-The test cases are:
-- a random date
-- 31 December - January 01 (new year, new month and new day)
-- 29 February (leap year)
-
-
+This test runs a simulation for over two days and compares the computed julian dates in space_Veins with reference values from:
+https://ssd.jpl.nasa.gov/tools/jdc/#/cd

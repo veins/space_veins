@@ -60,6 +60,9 @@ struct date_time_t {
 };
 
 public:
+    static const simsignal_t julianDateDaySignal;
+    static const simsignal_t julianDateFracSignal;
+
     SGP4Mobility()
         : MovingMobilityBase()
         , isPreInitialized(false)
@@ -131,6 +134,8 @@ protected:
     double current_wall_clock_time_frac;        // fraction of the day of the current wall clock time for julian date
     // Difference Tle epoch current wall clock time in minutes
     double diffTleEpochWctMin;                  // difference between the TLE's epoch and the wall clock start time in minutes
+
+    bool runSpaceVeinsTestCode;
 
     /* Statistics */
     VehicleStatistics* vehicleStatistics;

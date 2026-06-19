@@ -1,6 +1,5 @@
-//
 // Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
-// Copyright (C) 2025 Mario Franke <research@m-franke.net>
+// Copyright (C) 2026 Mario Franke <research@m-franke.net>
 //
 // Documentation for these modules is at http://sat.car2x.org/
 //
@@ -21,13 +20,15 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-package space_veins.subprojects.space_veins_testsims.juliandate_test;
+package space_veins.subprojects.space_veins_testsims.applications;
 
-simple JulianDateTestApp like space_veins.subprojects.space_veins_testsims.TestModule {
+import inet.applications.contract.IApp;
+
+simple JulianDateTestApp like IApp {
     parameters:
-        int testNumber;
-
-        @display("i=block/app2");
-        @class("space_veins::JulianDateTestApp");
+        @class(JulianDateTestApp);
+        int testNumber = default(-1);
+    gates:
+        input socketIn;
+        output socketOut;
 }
-

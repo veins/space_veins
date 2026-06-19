@@ -28,6 +28,9 @@ using namespace space_veins;
 
 Define_Module(space_veins::SGP4Mobility);
 
+const simsignal_t SGP4Mobility::julianDateDaySignal = registerSignal("space_veins_testsims_sgp4Mobility_julianDateDay");
+const simsignal_t SGP4Mobility::julianDateFracSignal = registerSignal("space_veins_testsims_sgp4Mobility_julianDateFrac");
+
 void SGP4Mobility::setInitialPosition()
 {
     EV_DEBUG << "SGP4Mobility setInitialPosition()" << std::endl;
@@ -62,6 +65,8 @@ void SGP4Mobility::initialize(int stage)
         WATCH(tle.tle_line1);
         WATCH(tle.tle_line2);
         WATCH(wall_clock_sim_start_time_utc);
+
+        runSpaceVeinsTestCode = par("runSpaceVeinsTestCode");
 
         // create projection context
         pj_ctx = proj_context_create();
@@ -159,6 +164,12 @@ void SGP4Mobility::initialize(int stage)
         diffTleEpochWctMin = (wall_clock_sim_start_time_jd - tle_epoch_jd) * 1440 + (wall_clock_sim_start_time_frac - tle_epoch_frac) * 1440;
         EV_DEBUG << "diffTleEpochWctMin: " << diffTleEpochWctMin << " min" << std::endl;
     }
+    if (stage == 2) {
+        if (runSpaceVeinsTestCode) {
+            emit(julianDateDaySignal, wall_clock_sim_start_time_jd);
+            emit(julianDateFracSignal, wall_clock_sim_start_time_frac);
+        }
+    }
     if (stage == 4) {
         // has to be done after the SOP stage in which the sop_omnet_coord is retrieved from its mobility
         // Get access to SOP
@@ -199,12 +210,18 @@ void SGP4Mobility::updateSatellitePosition()
     EV_TRACE << "TEME x: " << r_TEME[0] << ", y: " << r_TEME[1] << ", z: " << r_TEME[2] << std::endl;
 
     // Calculate the current wall clock time as julian date for TEME to ITRF conversion
-    // ignore leap seconds for now
-    double daysToAdd = std::trunc((wall_clock_sim_start_time_frac + simTime().dbl()) / 86400.0);
-    EV_TRACE << "daysToAdd: " << daysToAdd << std::endl;
     current_wall_clock_time_frac = wall_clock_sim_start_time_frac + simTime().dbl() / 86400.0;
-    current_wall_clock_time_jd = wall_clock_sim_start_time_jd + daysToAdd;
+    double carryOverDays = floor(current_wall_clock_time_frac);
+    current_wall_clock_time_jd = wall_clock_sim_start_time_jd + carryOverDays;
+    // current_wall_clock_time_frac must not be > 1, see line 3088 in src/space_veins/modules/mobility/SGP4Mobility/SGP4.cc
+    // if carryOverDays == 0, nothing changes; if carryOverDays is >= 1 than current_wall_clock_time_frac is >= 1 (which is not allowed) --> subtract carryOverDays from current_wall_clock_time_frac
+    current_wall_clock_time_frac -= carryOverDays;
     EV_TRACE << std::fixed << "current_wall_clock_time_jd: " << current_wall_clock_time_jd << ", current_wall_clock_time_frac: " << current_wall_clock_time_frac << std::endl;
+
+    if (runSpaceVeinsTestCode) {
+        emit(julianDateDaySignal, current_wall_clock_time_jd);
+        emit(julianDateFracSignal, current_wall_clock_time_frac);
+    }
 
     // Coordinate transformation TEME -> ITRF
     std::pair<std::vector<double>, std::vector<double>> itrf = TEME_to_ITRF(current_wall_clock_time_jd, r_TEME, v_TEME, 0.0, 0.0, current_wall_clock_time_frac);

@@ -28,7 +28,11 @@ import inet.mobility.base.MovingMobilityBase;
 simple SGP4Mobility extends MovingMobilityBase
 {
     parameters:
+        bool runSpaceVeinsTestCode = default(false);
+
         @class(space_veins::SGP4Mobility);
         @display("i=block/cogwheel");
         @signal[mobilityStateChanged](type=inet::MobilityBase);
+        @signal[space_veins_testsims_sgp4Mobility_julianDateDay](type=double);
+        @signal[space_veins_testsims_sgp4Mobility_julianDateFrac](type=double);
 }
