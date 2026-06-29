@@ -30,13 +30,19 @@ myps <- function(file, paper="special", width=6, height=4, family="Times") {
 }
 
 paper.width <- 308.43/72*1.22274*0.5*2
-paper.height <- paper.width * .4*1.2
+# paper.height <- paper.width * .4*1.2
+paper.height <- 2.011358
+print("height")
+print(paper.height * 4/5)
+paper.width <- paper.width * 0.75
 
 minX <- 0.01
 # maxX <- max(max(unfiltered$updateInterval), max(filtered$updateInterval))
 maxX <- max(plottedData$mobilityInterval)
 minY <- 0
-maxY <- 1100
+# no filtering - starlink: 2600, iridium 1100
+# filtering - starlink: 1300, iridium 700
+maxY <- 1300
 
 # ----------- unfiltered
 done <- myps(file = "archive/latest/plots/runtimeWallClockTimeVsUpdateInterval", width=paper.width, height=paper.height)
@@ -65,14 +71,15 @@ for(behavior in unique_behaviors) {
 leg.txt <-gsub("SGP4MobilityNoGetCurrentPositionUpdates", "baseline", leg.txt)
 leg.txt <-gsub("SGP4MobilityWithGetCurrentPositionUpdates", "precise", leg.txt)
 leg.txt <-gsub("SGP4MobilityWithLinearInterpolationUpdates", "lin. interp.", leg.txt)
-leg.txt <-gsub("SGP4MobilityWithNearestPeriodicPositionUpdates", "nearest neighbor", leg.txt)
+leg.txt <-gsub("SGP4MobilityWithNearestPeriodicPositionUpdates", "nearest neigh.", leg.txt)
 
 # Add legend using index-based colors
-legend("bottomright",
+legend("bottomleft",
       #  legend=c("baseline", "precise", "lin. interp.", "nearest neighbor"),
        legend=leg.txt,
        lty=1:length(unique_behaviors),
        pch=1:length(unique_behaviors),
+       x.intersp = 0.1,
        ncol=2,
        bty="n"
        )
@@ -84,7 +91,7 @@ axis(1, at = xticks, labels = xlabels)
 # axis(2, las=1, tck=-0.04)
 axis(2, las=1, tck=-0.04)
 title(xlab="periodic update interval in s", line=1.8)
-title(ylab="wall clock run time in s", line=2.2)
+title(ylab="simulation run time in s", line=2.2)
 
 done()
 

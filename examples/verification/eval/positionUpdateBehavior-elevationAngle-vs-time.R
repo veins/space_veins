@@ -14,7 +14,7 @@ minTime <- 1400
 maxTime <- 1405
 
 eleWindowMin <- 28
-eleWindowMax <- 29
+eleWindowMax <- 29.2
 
 # read in elevation angle data
 # filter based on simulation time
@@ -75,6 +75,7 @@ myps <- function(file, paper="special", width=6, height=4, family="Times") {
 }
 
 paper.width <- 308.43/72*1.22274*0.5*2
+paper.width <- paper.width * 4 / 5
 paper.height <- paper.width * .4*1.2
 # reduce the size of the plot to 60% of the paper size such that 3 plots fit on one page
 # paper.width <- paper.width * 0.6
@@ -84,8 +85,8 @@ lwds = list(default=1)
 pchs = list(circle=1,
             cross=4,
             diamond=5)
-legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("periodic update")),
-               gcpUpdate=list(lty=2, label= expression("random update")))
+legends = list(sgp4Update=list(lwd=lwds[["default"]], pch=pchs[["circle"]], label= expression("periodic")),
+               gcpUpdate=list(lty=2, label= expression("transm.")))
 
 done <- myps(file = args[5], width=paper.width, height=paper.height)
 plot.new()
@@ -112,8 +113,8 @@ title(xlab="simulation time in s", line=2.2)
 title(ylab="elevation angle in deg", line=2.6)
 
 # legend position in the top middle
-legendPosition <- "bottomright"
-insetValue <- c(0, 0)
+legendPosition <- "topleft"
+insetValue <- c(0.00, -0.05)
 
 # if (unlist(strsplit(args[5], '/'))[4] == "VerifyDisableUpdatePositionOnlyAboveHorizonLastPosition") {
 #     legendPosition <- "bottom"
@@ -122,11 +123,11 @@ insetValue <- c(0, 0)
 
 legend(legendPosition,
         # add a frame ``
-       inset=insetValue,
+    #    inset=insetValue,
        legend=c(legends[["sgp4Update"]][["label"]], legends[["gcpUpdate"]][["label"]], expression("sim. state")),
        pch=c(legends[["sgp4Update"]][["pch"]], NA, NA),
        lty=c(NA, 2, 1),
-       bty="o",
+    #    bty="o",
     #    cex=0.9,
        x.intersp = 0.15,
        seg.len = 0.9,

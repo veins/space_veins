@@ -43,7 +43,9 @@ myps <- function(file, paper="special", width=6, height=4, family="Times") {
 }
 
 paper.width <- 308.43/72*1.22274*0.5*2
-paper.height <- paper.width * .4*1.2
+# paper.height <- paper.width * .4*1.2
+paper.height <- 2.011358
+paper.width <- paper.width * 0.75
 
 minX <- 0.01
 # maxX <- max(max(unfiltered$updateInterval), max(filtered$updateInterval))
@@ -78,13 +80,14 @@ for(behavior in unique_behaviors) {
 
 leg.txt <-gsub("SGP4MobilityNoGetCurrentPositionUpdates", "baseline", leg.txt)
 leg.txt <-gsub("SGP4MobilityWithLinearInterpolationUpdates", "lin. interp.", leg.txt)
-leg.txt <-gsub("SGP4MobilityWithNearestPeriodicPositionUpdates", "nearest neighbor", leg.txt)
+leg.txt <-gsub("SGP4MobilityWithNearestPeriodicPositionUpdates", "nearest neigh.", leg.txt)
 
 # Add legend using index-based colors
 legend("topleft",
        legend=leg.txt,
        lty=1:length(unique_behaviors),
        pch=1:length(unique_behaviors),
+       x.intersp = 0.1,
        ncol=2,
        bty="n"
        )
@@ -98,7 +101,7 @@ axis(1, at = xticks, labels = xlabels)
 # axis(2, las=1, tck=-0.04, at = yticks, labels = ylabels)
 axis(2, las=1, tck=-0.04)
 title(xlab="periodic update interval in s", line=1.8)
-title(ylab="false negative rate (miss rate)", line=3)
+title(ylab="false negative rate", line=3)
 
 done()
 

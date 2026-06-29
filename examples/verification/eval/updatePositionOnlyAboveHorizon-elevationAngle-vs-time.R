@@ -57,7 +57,7 @@ myps <- function(file, paper="special", width=6, height=4, family="Times") {
 }
 
 paper.width <- 308.43/72*1.22274*0.5*2
-paper.height <- paper.width * .4*1.2
+paper.height <- paper.width * .4*1.2 * 0.8
 # reduce the size of the plot to 60% of the paper size such that 3 plots fit on one page
 # paper.width <- paper.width * 0.6
 # paper.height <- paper.height * 0.6

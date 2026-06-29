@@ -158,7 +158,7 @@ archive/latest/plots/runtimeFnrVsUpdateInterval.pdf: eval/runtimeFnrVsUpdateInte
 plots: archive/latest/plots/runtimeWallClockTimeVsUpdateInterval.pdf archive/latest/plots/runtimeUserTimeVsUpdateInterval.pdf archive/latest/plots/runtimeFnrVsUpdateInterval.pdf
 	touch $@
 
-archive/latest/plots/archive/latest/plots/updatePositionOnlyAboveHorizon_elevationAngle-vs-time.pdf: eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/lastElevationAngleToSop.csv
+archive/latest/plots/updatePositionOnlyAboveHorizon_elevationAngle-vs-time.pdf: eval/updatePositionOnlyAboveHorizon-elevationAngle-vs-time.R archive/latest/csv/vectors/lastElevationAngleToSop.csv
 	mkdir -p archive/latest/plots
 	singularity run ../../lib/singularity-r-env/singularity-R-env.sif -- Rscript $< archive/latest/csv/vectors/lastElevationAngleToSop.csv archive/latest/plots/updatePositionOnlyAboveHorizon_elevationAngle-vs-time
 
