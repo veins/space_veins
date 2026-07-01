@@ -122,6 +122,7 @@ class INET_API RadioMedium : public cSimpleModule, public cListener, public IRad
     bool runSpaceVeinsTestCode;
     int spaceVeinsTestNumber;
     std::string spaceVeinsTestResultFileName;
+    mutable long blockedTransmissionsWithoutSatellite;
     mutable std::ofstream spaceVeinsTestResultFile;
     //@}
 

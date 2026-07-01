@@ -132,6 +132,7 @@ void RadioMedium::initialize(int stage)
             spaceVeinsTestResultFile.open(spaceVeinsTestResultFileName);
             spaceVeinsTestResultFile << "testNumber,eventNumber,simTime,elevationAngleStart,elevationAngleEnd" << std::endl;
         }
+        blockedTransmissionsWithoutSatellite = 0;
     }
     else if (stage == INITSTAGE_LAST)
         EV_INFO << "Initialized " << getCompleteStringRepresentation() << endl;
@@ -150,6 +151,7 @@ void RadioMedium::finish()
     double decisionCacheHitPercentage = 100 * (double)cacheDecisionHitCount / (double)cacheDecisionGetCount;
     double resultCacheHitPercentage = 100 * (double)cacheResultHitCount / (double)cacheResultGetCount;
     EV_INFO << "Transmission count = " << transmissionCount << endl;
+    EV_INFO << "Blocked transmissions without satellite involved count = " << blockedTransmissionsWithoutSatellite << endl;
     EV_INFO << "Signal send count = " << signalSendCount << endl;
     EV_INFO << "Reception computation count = " << receptionComputationCount << endl;
     EV_INFO << "Interference computation count = " << interferenceComputationCount << endl;
@@ -162,6 +164,7 @@ void RadioMedium::finish()
     EV_INFO << "Reception decision cache hit = " << decisionCacheHitPercentage << " %" << endl;
     EV_INFO << "Reception result cache hit = " << resultCacheHitPercentage << " %" << endl;
     recordScalar("transmission count", transmissionCount);
+    recordScalar("blockedTransmissionsWithoutSatellite count", blockedTransmissionsWithoutSatellite);
     recordScalar("signal send count", signalSendCount);
     recordScalar("reception computation count", receptionComputationCount);
     recordScalar("interference computation count", interferenceComputationCount);
@@ -274,6 +277,10 @@ bool RadioMedium::isElevationAngleLargeEnough(const Radio *receiverRadio, const 
         // satellite is receiver
         directionStart = arrival->getStartPosition() - transmission->getStartPosition();
         directionEnd = arrival->getEndPosition() - transmission->getEndPosition();
+    } else {
+        // communication does not involve a satellite -> do not allow this
+        blockedTransmissionsWithoutSatellite++;
+        return false;
     }
     directionStart.normalize();
     deg elevationAngleStart = inet::deg(inet::rad(asin(directionStart.z)));
