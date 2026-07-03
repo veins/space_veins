@@ -26,6 +26,8 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
+#include <iostream>
+#include <fstream>
 
 #include <proj.h>
 
@@ -102,6 +104,8 @@ public:
 
     void updateSatellitePosition();
 
+    std::pair<double, double> getUt1Values(double pCurrentWallClockTimeDay, double pCurrentWallClockTimeFrac);
+
 protected:
     bool isPreInitialized;
     // proj context
@@ -120,6 +124,9 @@ protected:
     SatelliteObservationPoint* sop;
 
     // Time management
+    bool useUT1;
+    std::string pathToUt1Values;
+    std::ifstream ut1File;
     // wall clock start time utc
     std::string wall_clock_sim_start_time_utc;  // wall clock start time of the simulation's begin
     date_time_t wall_clock_start_time;          // wall clock start time of the simulation's begin as date_time_t object

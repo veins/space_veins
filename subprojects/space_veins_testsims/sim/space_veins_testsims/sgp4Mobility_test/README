@@ -1,0 +1,16 @@
+# General
+
+To run this simulation, execute the script `./runall`.
+
+This simulation requires sumo-launchd to be started and listening for
+connections on a TCP socket, e.g. using "~/lib/veins/src/veins/bin/veins_launchd -vv".
+
+This test compares satellite positions with ground truths computed with the python library
+Skyfield. Also it checks that the satellite's OMNeT++ coordinate does not change.
+
+## Create a new Skyfield-based ground truth files:
+1. Run `./createSkyfieldFiles.sh`
+
+## Create new OMNeT++ coordinates as ground truth:
+1. Rerun the test such that vector files are created in the `results` folder.
+2. Run `./createOmnetCoordsGroundTruth.sh`

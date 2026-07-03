@@ -27,6 +27,14 @@ const simsignal_t VehicleStatistics::omnetCoordX = registerSignal("space_veins_v
 const simsignal_t VehicleStatistics::omnetCoordY = registerSignal("space_veins_vehicleStatistics_omnetCoordY");
 const simsignal_t VehicleStatistics::omnetCoordZ = registerSignal("space_veins_vehicleStatistics_omnetCoordZ");
 
+const simsignal_t VehicleStatistics::temeCoordX = registerSignal("space_veins_vehicleStatistics_temeCoordX");
+const simsignal_t VehicleStatistics::temeCoordY = registerSignal("space_veins_vehicleStatistics_temeCoordY");
+const simsignal_t VehicleStatistics::temeCoordZ = registerSignal("space_veins_vehicleStatistics_temeCoordZ");
+
+const simsignal_t VehicleStatistics::itrfCoordX = registerSignal("space_veins_vehicleStatistics_itrfCoordX");
+const simsignal_t VehicleStatistics::itrfCoordY = registerSignal("space_veins_vehicleStatistics_itrfCoordY");
+const simsignal_t VehicleStatistics::itrfCoordZ = registerSignal("space_veins_vehicleStatistics_itrfCoordZ");
+
 const simsignal_t VehicleStatistics::wgs84CoordLat = registerSignal("space_veins_vehicleStatistics_wgs84CoordLat");
 const simsignal_t VehicleStatistics::wgs84CoordLon = registerSignal("space_veins_vehicleStatistics_wgs84CoordLon");
 const simsignal_t VehicleStatistics::wgs84CoordAlt = registerSignal("space_veins_vehicleStatistics_wgs84CoordAlt");
@@ -83,6 +91,20 @@ void VehicleStatistics::recordOmnetCoord(const veins::Coord c)
     emit(omnetCoordX, c.x);
     emit(omnetCoordY, c.y);
     emit(omnetCoordZ, c.z);
+}
+
+void VehicleStatistics::recordTemeCoord(const double x, const double y, const double z)
+{
+    emit(temeCoordX, x);
+    emit(temeCoordY, y);
+    emit(temeCoordZ, z);
+}
+
+void VehicleStatistics::recordItrfCoord(const double x, const double y, const double z)
+{
+    emit(itrfCoordX, x);
+    emit(itrfCoordY, y);
+    emit(itrfCoordZ, z);
 }
 
 void VehicleStatistics::recordWGS84Coord(const WGS84Coord c)

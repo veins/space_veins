@@ -257,7 +257,7 @@ foreach my $fileName (@fileNames) {
 					print STDERR "cannot parse as ETV: \"".$+{vecdata}."\"\n";
 					next;
 				}
-				$time = sprintf("%03d", $+{time});
+				$time = $+{time};
 				$value = $+{value};
 			} elsif($vec_type eq 'TV') {
 				unless ($+{vecdata} =~ m{

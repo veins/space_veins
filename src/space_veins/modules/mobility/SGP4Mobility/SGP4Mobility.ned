@@ -29,6 +29,8 @@ simple SGP4Mobility extends MovingMobilityBase
 {
     parameters:
         bool runSpaceVeinsTestCode = default(false);
+        bool useUT1 = default(false);           // use UT1 time values to consider Earth's exact rotation speed. However, as UTC and UT1 only differ by +- 0.9s maximum, astronomers observing celestial bodies can use UTC for most purposes. (https://www.nist.gov/pml/time-and-frequency-division/leap-seconds-faqs)
+        string pathToUt1Values = default("");
 
         @class(space_veins::SGP4Mobility);
         @display("i=block/cogwheel");

@@ -21,13 +21,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-//package space_veins.subprojects.space_veins_testsims.space_veins_test;
-package space_veins.subprojects.space_veins_testsims.satnic_test;
+package space_veins.subprojects.space_veins_testsims.applications;
 
-simple SatNicTestApp like space_veins.subprojects.space_veins_testsims.TestModule {
+import inet.applications.udpapp.UdpSink;
+
+simple Sgp4MobilityTestApp extends UdpSink {
     parameters:
-        int testNumber;
-
-        @display("i=block/app2");
-        @class("space_veins::SatNicTestApp");
+        @class(Sgp4MobilityTestApp);
+        int testNumber = default(-1);
+        string pathToSkyfieldGroundTruth;
+        string pathToOmnetppCoordsGroundTruth;
 }

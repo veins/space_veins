@@ -40,10 +40,19 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
         virtual void handleMessage(cMessage *msg) override;
         ~VehicleStatistics();
 
+    public:
         // Mobility
         static const simsignal_t omnetCoordX;
         static const simsignal_t omnetCoordY;
         static const simsignal_t omnetCoordZ;
+
+        static const simsignal_t temeCoordX;
+        static const simsignal_t temeCoordY;
+        static const simsignal_t temeCoordZ;
+
+        static const simsignal_t itrfCoordX;
+        static const simsignal_t itrfCoordY;
+        static const simsignal_t itrfCoordZ;
 
         static const simsignal_t wgs84CoordLat;
         static const simsignal_t wgs84CoordLon;
@@ -83,6 +92,8 @@ class SPACE_VEINS_API VehicleStatistics : public cSimpleModule
 
     public:
         void recordOmnetCoord(const veins::Coord c);
+        void recordTemeCoord(const double x, const double y, const double z);
+        void recordItrfCoord(const double x, const double y, const double z);
         void recordWGS84Coord(const space_veins::WGS84Coord c);
         void recordWGS84CartCoord(const PJ_COORD c);
         void recordSopRelativeCoord(const veins::Coord c);

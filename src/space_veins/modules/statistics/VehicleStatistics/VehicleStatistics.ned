@@ -35,6 +35,20 @@ simple VehicleStatistics
         @statistic[omnetCoordY](source=space_veins_vehicleStatistics_omnetCoordY; record=vector);
         @statistic[omnetCoordZ](source=space_veins_vehicleStatistics_omnetCoordZ; record=vector);
 
+        @signal[space_veins_vehicleStatistics_temeCoordX](type=double);
+        @signal[space_veins_vehicleStatistics_temeCoordY](type=double);
+        @signal[space_veins_vehicleStatistics_temeCoordZ](type=double);
+        @statistic[temeCoordX](source=space_veins_vehicleStatistics_temeCoordX; record=vector);
+        @statistic[temeCoordY](source=space_veins_vehicleStatistics_temeCoordY; record=vector);
+        @statistic[temeCoordZ](source=space_veins_vehicleStatistics_temeCoordZ; record=vector);
+
+        @signal[space_veins_vehicleStatistics_itrfCoordX](type=double);
+        @signal[space_veins_vehicleStatistics_itrfCoordY](type=double);
+        @signal[space_veins_vehicleStatistics_itrfCoordZ](type=double);
+        @statistic[itrfCoordX](source=space_veins_vehicleStatistics_itrfCoordX; record=vector);
+        @statistic[itrfCoordY](source=space_veins_vehicleStatistics_itrfCoordY; record=vector);
+        @statistic[itrfCoordZ](source=space_veins_vehicleStatistics_itrfCoordZ; record=vector);
+
         @signal[space_veins_vehicleStatistics_wgs84CoordLat](type=double);
         @signal[space_veins_vehicleStatistics_wgs84CoordLon](type=double);
         @signal[space_veins_vehicleStatistics_wgs84CoordAlt](type=double);

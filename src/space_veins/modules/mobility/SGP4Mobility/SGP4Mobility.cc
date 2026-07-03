@@ -23,6 +23,10 @@
 
 #include "space_veins/modules/mobility/SGP4Mobility/SGP4Mobility.h"
 #include "space_veins/modules/mobility/SGP4Mobility/TEME2ITRF.h"
+#include <cmath>
+#include <sstream>
+#include <string>
+#include <utility>
 
 using namespace space_veins;
 
@@ -67,6 +71,14 @@ void SGP4Mobility::initialize(int stage)
         WATCH(wall_clock_sim_start_time_utc);
 
         runSpaceVeinsTestCode = par("runSpaceVeinsTestCode");
+        useUT1 = par("useUT1");
+
+        if (useUT1) {
+            pathToUt1Values = par("pathToUt1Values").stdstringValue();
+            ut1File.open(pathToUt1Values, std::ios::in);
+            std::string header;
+            std::getline(ut1File, header);
+        }
 
         // create projection context
         pj_ctx = proj_context_create();
@@ -208,6 +220,7 @@ void SGP4Mobility::updateSatellitePosition()
     std::vector<double> r_TEME(r_array, r_array + n);
     std::vector<double> v_TEME(v_array, v_array + n);
     EV_TRACE << "TEME x: " << r_TEME[0] << ", y: " << r_TEME[1] << ", z: " << r_TEME[2] << std::endl;
+    vehicleStatistics->recordTemeCoord(r_TEME[0], r_TEME[1], r_TEME[2]);
 
     // Calculate the current wall clock time as julian date for TEME to ITRF conversion
     current_wall_clock_time_frac = wall_clock_sim_start_time_frac + simTime().dbl() / 86400.0;
@@ -222,10 +235,18 @@ void SGP4Mobility::updateSatellitePosition()
         emit(julianDateDaySignal, current_wall_clock_time_jd);
         emit(julianDateFracSignal, current_wall_clock_time_frac);
     }
+    if (useUT1) {
+        // set current wall clock time according to UT1
+        auto ut1Values = getUt1Values(current_wall_clock_time_jd, current_wall_clock_time_frac);
+        current_wall_clock_time_jd = ut1Values.first;
+        current_wall_clock_time_frac = ut1Values.second;
+        EV_TRACE << std::fixed << "SGP4Mobility useUT1 values - current_wall_clock_time_jd: " << current_wall_clock_time_jd << ", current_wall_clock_time_frac: " << current_wall_clock_time_frac << std::endl;
+    }
 
     // Coordinate transformation TEME -> ITRF
     std::pair<std::vector<double>, std::vector<double>> itrf = TEME_to_ITRF(current_wall_clock_time_jd, r_TEME, v_TEME, 0.0, 0.0, current_wall_clock_time_frac);
     EV_TRACE << "SGP4Mobility itrf: x: " << itrf.first[0] << ", y: " << itrf.first[1] << ", z: " << itrf.first[2] << std::endl;
+    vehicleStatistics->recordItrfCoord(itrf.first[0], itrf.first[1], itrf.first[2]);
     // Coordinate transformation ITRF -> WGS84
     PJ_COORD toTransfer = proj_coord(itrf.first[0] * 1000, itrf.first[1] * 1000, itrf.first[2] * 1000, 0); // conversion km -> m!
     PJ_COORD geo = proj_trans(itrf2008_to_wgs84_projection, PJ_FWD, toTransfer);
@@ -259,6 +280,54 @@ void SGP4Mobility::updateSatellitePosition()
     vehicleStatistics->recordOmnetCoord(veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z));
 }
 
+std::pair<double, double> SGP4Mobility::getUt1Values(double pCurrentWallClockTimeDay, double pCurrentWallClockTimeFrac)
+{
+    // read line
+    std::string token;
+    std::getline(ut1File, token);
+    std::stringstream line(token);
+
+    // get time_utc
+    std::string time_utc;
+    getline(line, time_utc, ',');
+    EV_TRACE << "SGP4Mobility useUT1 values time_utc: " << time_utc << std::endl;
+
+    // get time_offset_s
+    double time_offset_s;
+    std::string string_time_offset_s;
+    getline(line, string_time_offset_s, ',');
+    EV_TRACE << "SGP4Mobility useUT1 values string_time_offset_s: " << string_time_offset_s << std::endl;
+    time_offset_s = std::stod(string_time_offset_s);
+    // check time_offset is equal to simTime()
+    if (std::abs(simTime().dbl() - time_offset_s) > 0.0000001) {
+        throw cRuntimeError("SGP4Mobility useUT1: time_offset_s != simTime().dbl()");
+    }
+
+    // get julian_date_day
+    double julian_date_day_ut1;
+    std::string string_julian_date_day_ut1;
+    getline(line, string_julian_date_day_ut1, ',');
+    EV_TRACE << "SGP4Mobility useUT1 values string_julian_date_day_ut1: " << string_julian_date_day_ut1 << std::endl;
+    julian_date_day_ut1 = std::stod(string_julian_date_day_ut1);
+
+    // get julian_date_frac
+    double julian_date_frac_ut1;
+    std::string string_julian_date_frac_ut1;
+    getline(line, string_julian_date_frac_ut1, ',');
+    EV_TRACE << "SGP4Mobility useUT1 values string_julian_date_frac_ut1: " << string_julian_date_frac_ut1 << std::endl;
+    julian_date_frac_ut1 = std::stod(string_julian_date_frac_ut1);
+
+    // check that UTC and UT1 are within 0.9s difference
+    double total_utc = pCurrentWallClockTimeDay + pCurrentWallClockTimeFrac;
+    double total_ut1 = julian_date_day_ut1 + julian_date_frac_ut1;
+    double diff = std::abs(total_ut1 - total_utc);
+    double pointNineAsJdFrac = 0.9 / 86400.0;
+    if (diff > pointNineAsJdFrac && std::abs(diff - pointNineAsJdFrac) > 0.0000001) {
+        throw cRuntimeError("SGP4Mobility useUT1: UT1 and UTC differ too much.");
+    }
+    return std::make_pair(julian_date_day_ut1, julian_date_frac_ut1);
+}
+
 void SGP4Mobility::handleSelfMessage(cMessage* message)
 {
     MovingMobilityBase::handleSelfMessage(message);
@@ -279,4 +348,7 @@ void SGP4Mobility::move()
 void SGP4Mobility::finish()
 {
     MovingMobilityBase::finish();
+    if (useUT1) {
+        ut1File.close();
+    }
 }

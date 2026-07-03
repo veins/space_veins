@@ -1,0 +1,2 @@
+#!/bin/bash
+perl opp_vec2csv.pl results/Test-simTimeLimit=165,utcDate=2022-02-22-13-42-00,testNumber=0-\#0.vec -F omnetCoordX:vector=omnetCoordX -F omnetCoordY:vector=omnetCoordY -F omnetCoordZ:vector=omnetCoordZ --merge-by t > omnetppCoords.csv
