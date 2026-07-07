@@ -23,7 +23,7 @@
 #include "space_veins_testsims/applications/JulianDateTestApp.h"
 #include "space_veins_testsims/utils/asserts.h"
 
-#include "space_veins/modules/mobility/SGP4Mobility/SGP4Mobility.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityBase.h"
 #include <math.h>
 
 Define_Module(JulianDateTestApp);
@@ -38,8 +38,8 @@ void JulianDateTestApp::initialize(int stage)
     if (stage == 0) {
         testNumber = par("testNumber");
 
-        getSystemModule()->subscribe(SGP4Mobility::julianDateDaySignal, this);
-        getSystemModule()->subscribe(SGP4Mobility::julianDateFracSignal, this);
+        getSystemModule()->subscribe(SGP4MobilityBase::julianDateDaySignal, this);
+        getSystemModule()->subscribe(SGP4MobilityBase::julianDateFracSignal, this);
 
         WATCH(testNumber);
     }
@@ -68,7 +68,7 @@ void JulianDateTestApp::receiveSignal(cComponent* source, simsignal_t signalID, 
 {
     Enter_Method_Silent();
     // double simTimeDayFrac = simTime().dbl() / 86400.0;
-    if (SGP4Mobility::julianDateDaySignal == signalID) {
+    if (SGP4MobilityBase::julianDateDaySignal == signalID) {
         currentJulianDateDay = value;
 
         // check if translating the wall_clock_sim_start_time works
@@ -124,7 +124,7 @@ void JulianDateTestApp::receiveSignal(cComponent* source, simsignal_t signalID, 
                 assertClose("Julian date day", 2459634.5, value);
             }
         }
-    } else if (SGP4Mobility::julianDateFracSignal == signalID) {
+    } else if (SGP4MobilityBase::julianDateFracSignal == signalID) {
         // check if translating the wall_clock_sim_start_time works
         if (simTime() == 0) {
             if (testNumber == 0) {

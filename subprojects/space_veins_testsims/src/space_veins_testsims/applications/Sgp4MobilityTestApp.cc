@@ -20,12 +20,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "space_veins_testsims/applications/Sgp4MobilityTestApp.h"
-#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
-#include "space_veins_testsims/utils/asserts.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
+#include <cmath>
+#include <cstdio>
+#include <sstream>
 #include <string>
 #include <string_view>
+
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityBase.h"
+#include "space_veins_testsims/applications/Sgp4MobilityTestApp.h"
+#include "space_veins_testsims/utils/asserts.h"
+
+#include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/mobility/contract/IMobility.h"
 
 Define_Module(Sgp4MobilityTestApp);
 
@@ -41,21 +47,7 @@ void Sgp4MobilityTestApp::initialize(int stage)
         pathToSkyfieldGroundTruth = par("pathToSkyfieldGroundTruth").stdstringValue();
         pathToOmnetppCoordsGroundTruth = par("pathToOmnetppCoordsGroundTruth").stdstringValue();
 
-        getParentModule()->subscribe(VehicleStatistics::temeCoordX, this);
-        getParentModule()->subscribe(VehicleStatistics::temeCoordY, this);
-        getParentModule()->subscribe(VehicleStatistics::temeCoordZ, this);
-
-        getParentModule()->subscribe(VehicleStatistics::itrfCoordX, this);
-        getParentModule()->subscribe(VehicleStatistics::itrfCoordY, this);
-        getParentModule()->subscribe(VehicleStatistics::itrfCoordZ, this);
-
-        getParentModule()->subscribe(VehicleStatistics::wgs84CoordLat, this);
-        getParentModule()->subscribe(VehicleStatistics::wgs84CoordLon, this);
-        getParentModule()->subscribe(VehicleStatistics::wgs84CoordAlt, this);
-
-        getParentModule()->subscribe(VehicleStatistics::omnetCoordX, this);
-        getParentModule()->subscribe(VehicleStatistics::omnetCoordY, this);
-        getParentModule()->subscribe(VehicleStatistics::omnetCoordZ, this);
+        getParentModule()->subscribe(inet::IMobility::mobilityStateChangedSignal, this);
 
         skyfieldFile.open(pathToSkyfieldGroundTruth, std::ios::in);
         std::string header;
@@ -66,56 +58,38 @@ void Sgp4MobilityTestApp::initialize(int stage)
     }
 }
 
-void Sgp4MobilityTestApp::receiveSignal(cComponent* source, simsignal_t signalID, double value, cObject *details)
+void Sgp4MobilityTestApp::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj, cObject *details)
 {
     Enter_Method_Silent();
-    if (VehicleStatistics::wgs84CoordLat == signalID) {
-        lastWgs84Lat = value;
-    } else if (VehicleStatistics::wgs84CoordLon == signalID) {
-        lastWgs84Lon = value;
-    } else if (VehicleStatistics::wgs84CoordAlt == signalID) {
-        lastWgs84Alt = value;
-        // get ground truth and compare it
-        setSkyfieldVariables();
-        runAsserts();
-    } else if (VehicleStatistics::temeCoordX == signalID) {
-        lastTemeX = value;
-    } else if (VehicleStatistics::temeCoordY == signalID) {
-        lastTemeY = value;
-    } else if (VehicleStatistics::temeCoordZ == signalID) {
-        lastTemeZ = value;
-    } else if (VehicleStatistics::itrfCoordX == signalID) {
-        lastItrfX = value;
-    } else if (VehicleStatistics::itrfCoordY == signalID) {
-        lastItrfY = value;
-    } else if (VehicleStatistics::itrfCoordZ == signalID) {
-        lastItrfZ = value;
-    } else if (VehicleStatistics::omnetCoordX == signalID) {
-        lastOmnetppCoordX = value;
-    } else if (VehicleStatistics::omnetCoordY == signalID) {
-        lastOmnetppCoordY = value;
-    } else if (VehicleStatistics::omnetCoordZ == signalID) {
-        lastOmnetppCoordZ = value;
+    if (inet::IMobility::mobilityStateChangedSignal == signalID) {
+        SGP4MobilityBase* smb = check_and_cast<SGP4MobilityBase*>(obj);
         // get ground truth and compare it
         setGroundTruthOmnetppCoords();
-        assertClose("omnetppCoordX", groundTruthOmnetppCoordX, lastOmnetppCoordX);
-        assertClose("omnetppCoordY", groundTruthOmnetppCoordY, lastOmnetppCoordY);
-        assertClose("omnetppCoordZ", groundTruthOmnetppCoordZ, lastOmnetppCoordZ);
+        setSkyfieldVariables();
+        runAsserts(smb->getLastCalculatedSgp4SatellitePosition());
     }
 }
 
-void Sgp4MobilityTestApp::runAsserts() {
-    assertClose("temeX", skyfieldTemeX, lastTemeX);
-    assertClose("temeY", skyfieldTemeY, lastTemeY);
-    assertClose("temeZ", skyfieldTemeZ, lastTemeZ);
+void Sgp4MobilityTestApp::runAsserts(SGP4MobilityBase::calculatedSgp4SatellitePositions_t pos) {
+    // assertTrue("UTC time", skyfieldUtcTime == pos.wallClockTimeUtc);
+    assertClose("Skyfield simTime offset", skyfieldSimTimeOffset_s, simTime().dbl());
 
-    assertClose("itrfX", skyfieldItrfX, lastItrfX);
-    assertClose("itrfY", skyfieldItrfY, lastItrfY);
-    assertClose("itrfZ", skyfieldItrfZ, lastItrfZ);
+    assertClose("temeX", skyfieldTemeX, pos.teme.x);
+    assertClose("temeY", skyfieldTemeY, pos.teme.y);
+    assertClose("temeZ", skyfieldTemeZ, pos.teme.z);
 
-    assertClose("latitude", skyfieldWgs84Lat, lastWgs84Lat);
-    assertClose("longitude", skyfieldWgs84Lon, lastWgs84Lon);
-    assertClose("altitude", skyfieldWgs84Alt, lastWgs84Alt, 0.001); // fail if difference is greater than a millimeter
+    assertClose("itrfX", skyfieldItrfX, pos.itrf2008.x / 1000); // conversion to kilometer
+    assertClose("itrfY", skyfieldItrfY, pos.itrf2008.y / 1000);
+    assertClose("itrfZ", skyfieldItrfZ, pos.itrf2008.z / 1000);
+
+    assertClose("latitude", skyfieldWgs84Lat, pos.wgs84.lat);
+    assertClose("longitude", skyfieldWgs84Lon, pos.wgs84.lon);
+    assertClose("altitude", skyfieldWgs84Alt, pos.wgs84.alt, 0.001); // fail if difference is greater than a millimeter
+
+    assertClose("omnetpp simTime offset", groundTruthOmnetppSimTimeOffset_s, simTime().dbl());
+    assertClose("omnetppCoordX", groundTruthOmnetppCoordX, pos.omnetppCoord.x);
+    assertClose("omnetppCoordY", groundTruthOmnetppCoordY, pos.omnetppCoord.y);
+    assertClose("omnetppCoordZ", groundTruthOmnetppCoordZ, pos.omnetppCoord.z);
 }
 
 void Sgp4MobilityTestApp::setSkyfieldVariables()
@@ -129,16 +103,41 @@ void Sgp4MobilityTestApp::setSkyfieldVariables()
     std::string time_utc;
     getline(line, time_utc, ',');
     EV_TRACE << "Sgp4MobilityTestApp time_utc: " << time_utc << std::endl;
+    std::stringstream sUtc(time_utc);
+    std::string utcDay, utcTime;
+    //  parse day
+    getline(sUtc, utcDay, ' ');
+    int year, mon, day;
+    std::stringstream sDate(utcDay);
+    getline(sDate, token, '-');
+    year = std::stoi(token);
+    getline(sDate, token, '-');
+    mon = std::stoi(token);
+    getline(sDate, token, '-');
+    day = std::stoi(token);
+    //  parse time
+    getline(sUtc, utcTime, ' ');
+    int hour, min;
+    double sec;
+    std::stringstream sTime(utcTime);
+    getline(sTime, token, ':');
+    hour = std::stoi(token);
+    getline(sTime, token, ':');
+    min = std::stoi(token);
+    getline(sTime, token, ':');
+    sec = std::stod(token);
+    sec = std::ceil(sec * 100) / 100;   // ceil to two decimal places
+    skyfieldUtcTime.year = year;
+    skyfieldUtcTime.mon = mon;
+    skyfieldUtcTime.day = day;
+    skyfieldUtcTime.hour = hour;
+    skyfieldUtcTime.min = min;
+    skyfieldUtcTime.sec = sec;
 
     // get time_offset_s
-    double time_offset_s;
     getline(line, token, ',');
     EV_TRACE << "Sgp4MobilityTestApp string_time_offset_s: " << token << std::endl;
-    time_offset_s = std::stod(token);
-    // check time_offset is equal to simTime()
-    if (std::abs(simTime().dbl() - time_offset_s) > 0.0000001) {
-        throw cRuntimeError("Sgp4MobilityTestApp: time_offset_s != simTime().dbl()");
-    }
+    skyfieldSimTimeOffset_s = std::stod(token);
 
     // get teme_x_km
     getline(line, token, ',');
@@ -187,18 +186,10 @@ void Sgp4MobilityTestApp::setGroundTruthOmnetppCoords()
     std::getline(omnetppCoordsFile, token);
     std::stringstream line(token);
 
-    // event number
-    std::getline(line, token, '\t');
-    EV_TRACE << "Sgp4MobilityTestApp string event number: " << token << std::endl;
-
     // time
     std::getline(line, token, '\t');
     EV_TRACE << "Sgp4MobilityTestApp string simulation time: " << token << std::endl;
-    double groundTruthSimTime = std::stod(token);
-    // check time_offset is equal to simTime()
-    if (std::abs(simTime().dbl() - groundTruthSimTime) > 0.0000001) {
-        throw cRuntimeError("Sgp4MobilityTestApp: groundTruthSimTime != simTime().dbl()");
-    }
+    groundTruthOmnetppSimTimeOffset_s = std::stod(token);
 
     // node
     std::getline(line, token, '\t');

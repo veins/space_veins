@@ -29,7 +29,7 @@
 #include <functional>
 
 #include "space_veins/space_veins.h"
-#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
+#include "space_veins/modules/mobility/SGP4Mobility/SGP4MobilityBase.h"
 
 #include "inet/applications/udpapp/UdpSink.h"
 
@@ -44,21 +44,8 @@ protected:
     std::string pathToOmnetppCoordsGroundTruth;
     std::ifstream omnetppCoordsFile;
 
-    double lastTemeX;
-    double lastTemeY;
-    double lastTemeZ;
-
-    double lastItrfX;
-    double lastItrfY;
-    double lastItrfZ;
-
-    double lastWgs84Lat;
-    double lastWgs84Lon;
-    double lastWgs84Alt;
-
-    double lastOmnetppCoordX;
-    double lastOmnetppCoordY;
-    double lastOmnetppCoordZ;
+    SGP4MobilityBase::date_time_t skyfieldUtcTime;
+    double skyfieldSimTimeOffset_s;
 
     double skyfieldTemeX;
     double skyfieldTemeY;
@@ -72,6 +59,7 @@ protected:
     double skyfieldWgs84Lon;
     double skyfieldWgs84Alt;
 
+    double groundTruthOmnetppSimTimeOffset_s;
     double groundTruthOmnetppCoordX;
     double groundTruthOmnetppCoordY;
     double groundTruthOmnetppCoordZ;
@@ -79,10 +67,10 @@ protected:
 protected:
     virtual void initialize(int stage) override;
     virtual void finish() override;
-    virtual void receiveSignal(cComponent* source, simsignal_t signalID, double value, cObject *details) override;
+    virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj, cObject *details) override;
     void setSkyfieldVariables();
     void setGroundTruthOmnetppCoords();
-    void runAsserts();
+    void runAsserts(SGP4MobilityBase::calculatedSgp4SatellitePositions_t pos);
 
 public:
     Sgp4MobilityTestApp();

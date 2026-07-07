@@ -11,7 +11,7 @@ parser.add_argument('leoMobilityUpdateInterval', metavar='INTERVAL', type=float,
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    seconds_offset = np.arange(args.leoMobilityUpdateInterval, args.duration + args.leoMobilityUpdateInterval, args.leoMobilityUpdateInterval)
+    seconds_offset = np.arange(0, args.duration + args.leoMobilityUpdateInterval, args.leoMobilityUpdateInterval)
     # start
     # date
     start = args.sdate.split(':')
