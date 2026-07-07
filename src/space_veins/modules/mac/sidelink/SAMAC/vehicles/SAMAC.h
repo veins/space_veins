@@ -27,7 +27,6 @@
 
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/SpaceVeinsWlanScheduleMessage_m.h"
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/WlanSchedule.h"
-#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
 
 #include "inet/common/packet/PacketFilter.h"
 #include "inet/common/ProtocolTag_m.h"
@@ -68,8 +67,6 @@ protected:
     bool qosStation = false;
     inet::units::values::Hz wlanBandwidth;
     inet::units::values::bps wlanBitrate;
-
-    VehicleStatistics* vehicleStatistics;
 
     const int leoSatelliteSamacDestPort = -1;
 

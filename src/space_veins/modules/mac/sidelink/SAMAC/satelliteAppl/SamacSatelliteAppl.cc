@@ -58,8 +58,6 @@ void SamacSatelliteAppl::initialize(int stage)
         EV_TRACE << "initialize -- INITSTAGE_LOCAL done: " << stage << std::endl;
     }
     else if (stage == 1) {
-        // Statistics
-        vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
         EV_TRACE << "initialize -- (stage == 1) done: " << stage << std::endl;
     }
 }
@@ -135,7 +133,6 @@ void SamacSatelliteAppl::sendVehicleRegistrationAck(MacAddress vehicleId)
     interfaceReq->setInterfaceId(ie->getInterfaceId());
 
     EV_TRACE << "sendVehicleRegistrationAck -- transmitting SpaceVeinsSatelliteAck for vehicleId: " << vehicleId << std::endl;
-    vehicleStatistics->recordSendSatellitePackets();
     sendPacket(std::move(packet));
 }
 
@@ -162,7 +159,6 @@ void SamacSatelliteAppl::publishWlanSchedule()
     payload->setWlanScheduleInterval(wlanScheduleInterval_s);
     payload->setTransmitTimestamp(simTime());
     payload->setWlanScheduleBeginTimestamp(simTime() + maxV2SLatency_s);
-    vehicleStatistics->recordRegisteredVehiclesPerSchedule(wlanSchedule.size());
     wlanSchedule.clear();       // Clear wlanSchedule
     timestampPayload(payload);
 
@@ -175,8 +171,6 @@ void SamacSatelliteAppl::publishWlanSchedule()
 
     EV_TRACE << "publishWlanSchedule -- broadcasting WlanSchedule" << std::endl;
     sendPacket(std::move(packet));
-    vehicleStatistics->recordSendWlanSchedules();
-    vehicleStatistics->recordSendSatellitePackets();
 }
 
 void SamacSatelliteAppl::sendPacket(std::unique_ptr<inet::Packet> pk)
@@ -204,11 +198,7 @@ void SamacSatelliteAppl::processPacket(std::shared_ptr<inet::Packet> pk)
         EV_TRACE << "processPacket -- received SpaceVeinsRegistrationMessage from: " << reg->getSrcNode() << " with vehicleId: " << reg->getSrcMacAddress() << std::endl;
         addToWlanSchedule(reg->getSrcMacAddress());
         sendVehicleRegistrationAck(reg->getSrcMacAddress());
-
-        // statistics
-        vehicleStatistics->recordReceivedSatelliteRegistrationMessages();
     }else{
         EV_WARN << "processPacket -- received packet of unknown type: " << pk << std::endl;
     }
-    vehicleStatistics->recordReceivedSatellitePackets();
 }

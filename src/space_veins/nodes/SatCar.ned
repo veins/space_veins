@@ -27,7 +27,6 @@ import org.car2x.veins.subprojects.veins_inet.VeinsInetCar;
 
 import inet.linklayer.contract.IWirelessInterface;
 
-import space_veins.modules.statistics.VehicleStatistics.VehicleStatistics;
 import space_veins.modules.nic.SamacInterface;
 
 module SatCar extends VeinsInetCar
@@ -48,8 +47,6 @@ module SatCar extends VeinsInetCar
             parameters:
                 @display("p=825,616,row,150;q=queue");
         }
-
-        vehicleStatistics: VehicleStatistics;
 
     connections allowunconnected:
         for i=0..sizeof(satelliteRadioIn)-1 {

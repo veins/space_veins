@@ -80,7 +80,6 @@ void SAMAC::initialize(int stage)
             omds = check_and_cast<inet::ieee80211::IOriginatorMacDataService*>(ieee80211Mac->getSubmodule("dcf", 0)->getSubmodule("originatorMacDataService", 0));
         }
 
-        vehicleStatistics = VehicleStatisticsAccess().get(getParentModule()->getParentModule());
         EV_TRACE << "initialize -- INITSTAGE 1 done." << std::endl;
     }
 }
@@ -303,9 +302,6 @@ void SAMAC::registerAtSatellite()
 
     EV_TRACE << "registerAtSatellite -- transmitting SatelliteRegistrationMessage." << std::endl;
     sendSatellitePacket(std::move(packet)); 
-    // statistics
-    vehicleStatistics->recordSendSatelliteRegistrationMessages();
-    vehicleStatistics->recordSendSatellitePackets();
 
     // Wait expectedAck_Timestamp
     EV_TRACE << "registerAtSatellite -- expectedAck_Timestamp: " << expectedAck_Timestamp << "s" << std::endl;
@@ -485,16 +481,10 @@ void SAMAC::processLeoAck(std::shared_ptr<inet::Packet> pk)
     if (ack->getAcknowledgedVehicleId() == address) {
         registeredAtSatellite = true;
         EV_TRACE << "processLeoAck -- registered with satellite." << std::endl;
-
-        // statistics
-        vehicleStatistics->recordReceivedSatelliteRegistrationAcks();
-
     }
     else{
         EV_TRACE << "processLeoAck -- received SpaceVeinsSatelliteAck with different vehicleId, discarding" << std::endl;
     }
-    // statistics
-    vehicleStatistics->recordReceivedSatellitePackets();
 }
 
 void SAMAC::processWlanSchedule(std::shared_ptr<inet::Packet> pk)
@@ -512,10 +502,6 @@ void SAMAC::processWlanSchedule(std::shared_ptr<inet::Packet> pk)
     if (!receivedInitialWlanSchedule) {
         receivedInitialWlanSchedule = true;
     }
-
-    // statistics
-    vehicleStatistics->recordReceivedWlanSchedules();
-    vehicleStatistics->recordReceivedSatellitePackets();
 }
 
 void SAMAC::handleWlanSchedule(const SpaceVeinsWlanScheduleMessage* ws) {
@@ -536,13 +522,10 @@ void SAMAC::handleWlanSchedule(const SpaceVeinsWlanScheduleMessage* ws) {
     // Last useful point in time to transmit a registration request such that it get acked before the new wlan schedule is published by the satellite
     lastUsefulRegistrationTime = endOfCurrentWlanSchedule - ((2 * currentSatelliteLatency) + maxSatelliteProcDelay_s);
     EV_TRACE << "handleWlanSchedule -- lastUsefulRegistrationTime: " << lastUsefulRegistrationTime << "s" << std::endl;
-    vehicleStatistics->recordApplLayerRoundTripTime((2 * currentSatelliteLatency) + maxSatelliteProcDelay_s);
-    vehicleStatistics->recordApplLayerSatelliteLatency(currentSatelliteLatency);
 
     // register at satellite for next wlan schedule
     if (!registeredAtSatellite && receivedInitialWlanSchedule) {
         EV_TRACE << "handleWlanSchedule -- no successful registration for current schedule!" << std::endl;
-        vehicleStatistics->recordMissedSatelliteRegistrationAcks();
     }
     cancelEvent(satelliteRegistrationAckTimer); // cancel old registration process, try again
     registeredAtSatellite = false;

@@ -46,7 +46,6 @@ void VeinsInetMobilityWGS84::initialize(int stage)
     if (stage == 1) {
         // Get access to SOP
         sop = SatelliteObservationPointAccess().get();
-        vehicleStatistics = VehicleStatisticsAccess().get(getParentModule());
     }
 }
 
@@ -58,18 +57,14 @@ void VeinsInetMobilityWGS84::nextPosition(const inet::Coord& position, std::stri
     EV_TRACE << getFullPath() << ", simTime(): " << simTime() << ", next position:" << std::endl;
 
     veins::Coord vehiclePositionOmnet = veins::Coord(lastPosition.x, lastPosition.y, lastPosition.z);
-    vehicleStatistics->recordOmnetCoord(vehiclePositionOmnet);
     EV_TRACE << "lastPosition: " << lastPosition << std::endl;
 
     WGS84Coord vehicle_WGS84_coord = sop->omnet2WGS84(vehiclePositionOmnet);
-    vehicleStatistics->recordWGS84Coord(vehicle_WGS84_coord);
 
     PJ_COORD vehicle_WGS84_cart_coord = sop->omnet2WGS84Cartesian(vehiclePositionOmnet);
-    vehicleStatistics->recordWGS84CartCoord(vehicle_WGS84_cart_coord);
     EV_TRACE << "vehicle_WGS84_cart_coord: x: " << vehicle_WGS84_cart_coord.xyz.x << ", y: " << vehicle_WGS84_cart_coord.xyz.y << ", z: " << vehicle_WGS84_cart_coord.xyz.z << std::endl;
 
     veins::Coord relativeSOPCoord = sop->omnetRelativeSOPCoord(vehiclePositionOmnet);
-    vehicleStatistics->recordSopRelativeCoord(relativeSOPCoord);
 
     EV_TRACE << "relativeSOPCoord: " << relativeSOPCoord << std::endl;
 

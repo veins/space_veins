@@ -26,8 +26,6 @@ package space_veins.nodes;
 import inet.node.base.ApplicationLayerNodeBase;
 import inet.linklayer.contract.IWirelessInterface;
 
-import space_veins.modules.statistics.VehicleStatistics.VehicleStatistics;
-
 module SatDrone extends ApplicationLayerNodeBase
 {
     parameters:
@@ -41,8 +39,6 @@ module SatDrone extends ApplicationLayerNodeBase
             parameters:
                 @display("p=825,616,row,150;q=queue");
         }
-
-        vehicleStatistics: VehicleStatistics;
 
     connections allowunconnected:
         for i=0..sizeof(satelliteRadioIn)-1 {

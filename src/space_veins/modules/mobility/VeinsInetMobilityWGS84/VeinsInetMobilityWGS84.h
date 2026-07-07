@@ -41,7 +41,6 @@ using namespace omnetpp;
 
 #include "space_veins/modules/SatelliteObservationPoint/SatelliteObservationPoint.h"
 #include "space_veins/modules/utility/WGS84Coord.h"
-#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
 
 namespace space_veins {
 
@@ -60,8 +59,6 @@ protected:
     virtual void handleSelfMessage(cMessage* message) override;
 
     SatelliteObservationPoint* sop;
-
-    VehicleStatistics* vehicleStatistics;
 
 };
 

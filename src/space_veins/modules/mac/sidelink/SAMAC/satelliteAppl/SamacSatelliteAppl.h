@@ -24,7 +24,6 @@
 #pragma once
 
 #include "space_veins/space_veins.h"
-#include "space_veins/modules/statistics/VehicleStatistics/VehicleStatistics.h"
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/WlanSchedule.h"
 #include "space_veins/modules/mac/sidelink/SAMAC/messages/SpaceVeinsWlanScheduleMessage_m.h"
 
@@ -50,9 +49,6 @@ protected:
 #endif
 
     cMessage* wlanScheduleTimer = nullptr;
-
-    /* Statistics */
-    VehicleStatistics* vehicleStatistics;
 
     /* SAMAC */
     WlanSchedule wlanSchedule;
