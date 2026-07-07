@@ -1,5 +1,6 @@
+
 //
-// Copyright (C) 2021 Mario Franke <research@m-franke.net>
+// Copyright (C) 2025 Mario Franke <research@m-franke.net>
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
@@ -20,21 +21,13 @@
 
 package space_veins.modules.mobility.SGP4Mobility;
 
-import inet.mobility.base.MovingMobilityBase;
-
+import space_veins.modules.mobility.SGP4Mobility.SGP4MobilityBase;
 //
 // Mobility module for spacecrafts based on SGP4 model.
 //
-simple SGP4Mobility extends MovingMobilityBase
+simple SGP4MobilityWithLinearInterpolationUpdates extends SGP4MobilityBase
 {
     parameters:
-        bool runSpaceVeinsTestCode = default(false);
-        bool useUT1 = default(false);           // use UT1 time values to consider Earth's exact rotation speed. However, as UTC and UT1 only differ by +- 0.9s maximum, astronomers observing celestial bodies can use UTC for most purposes. (https://www.nist.gov/pml/time-and-frequency-division/leap-seconds-faqs)
-        string pathToUt1Values = default("");
-
-        @class(space_veins::SGP4Mobility);
+        @class(space_veins::SGP4MobilityWithLinearInterpolationUpdates);
         @display("i=block/cogwheel");
-        @signal[mobilityStateChanged](type=inet::MobilityBase);
-        @signal[space_veins_testsims_sgp4Mobility_julianDateDay](type=double);
-        @signal[space_veins_testsims_sgp4Mobility_julianDateFrac](type=double);
 }
