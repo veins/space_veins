@@ -133,6 +133,9 @@ void SatelliteObservationPoint::handleSelfMessage(cMessage* message)
 void SatelliteObservationPoint::initialize(int stage)
 {
     if (stage == 0) {
+        WATCH(sop_wgs84.lat);
+        WATCH(sop_wgs84.lon);
+        WATCH(sop_wgs84.alt);
         // get Mobility
         mobility = static_cast<inet::StationaryMobility*>(getSubmodule("mobility"));
         ASSERT(mobility);
