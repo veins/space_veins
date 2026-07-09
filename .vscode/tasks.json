@@ -33,6 +33,8 @@
 //
 // 2024-11-12 Add detail labels
 //            time build all command
+//
+// 2026-07-09 add tasks to compile space_Veins testsims
 
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
@@ -45,6 +47,21 @@
             "type": "shell",
             "command": "make makefiles",
             "args": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            }
+        },
+        {
+            "label": "run make makefiles (subprojects/space_veins_testsims)",
+            "detail": "make makefiles in subprojects/space_veins_testsims)",
+            "type": "shell",
+            "command": "make makefiles",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}/subprojects/space_veins_testsims"
+            },
             "group": "build",
             "presentation": {
                 "reveal": "always",
@@ -74,10 +91,11 @@
         },
         {
             "label": "build all",
-            "detail": "time bear --append -- make all -j <nproc>",
+            "detail": "Build space_Veins and its test simulations",
             "type": "shell",
             "dependsOn": [
-                "run make makefiles"
+                "build space_Veins",
+                "build space_Veins test simulations"
             ],
             "command": "time",
             "args": [
@@ -88,6 +106,55 @@
                 "all",
                 "-j$(nproc)"
             ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build space_Veins",
+            "detail": "time bear --append -- make all -j <nproc>",
+            "type": "shell",
+            "command": "time",
+            "args": [
+                "bear",
+                "--append",
+                "--",
+                "make",
+                "all",
+                "-j$(nproc)"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "silent",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build space_Veins test simulations",
+            "detail": "cd subprojects/space_veins_testsims && time bear --append -- make all -j <nproc>",
+            "type": "shell",
+            "command": "time",
+            "args": [
+                "bear",
+                "--append",
+                "--",
+                "make",
+                "all",
+                "-j$(nproc)"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/subprojects/space_veins_testsims"
+            },
             "group": {
                 "kind": "build",
                 "isDefault": true
