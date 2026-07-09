@@ -123,12 +123,15 @@ void SatelliteObservationPoint::handleSelfMessage(cMessage* message)
     switch (message->getKind()) {
     case 0: {
         // draw SOP in SUMO
-        annotations->drawPoint(sop_omnet_coord, "red", "SOP");
+        annotations->drawPoint(sop_omnet_coord, "yellow", "SOP");
         EV_TRACE << "SOP: drawn SOP in SUMO at veins::Coord: " << sop_omnet_coord << std::endl;
+        cancelAndDelete(message);
         break;
     }
     }
 }
+
+
 
 void SatelliteObservationPoint::initialize(int stage)
 {
@@ -163,14 +166,14 @@ void SatelliteObservationPoint::initialize(int stage)
         if (sumo_to_wgs84_projection == 0) {
             std::stringstream err_msg;
             err_msg << "sumo_to_wgs84_projection initialization error: proj_errno: " << proj_errno(sumo_to_wgs84_projection);
-            throw cRuntimeError(err_msg.str().c_str());
+            throw cRuntimeError("%s", err_msg.str().c_str());
         }
         // fix longitude, latitude order, see https://proj.org/development/quickstart.html
         sumo_to_wgs84_projection = proj_normalize_for_visualization(pj_ctx, sumo_to_wgs84_projection);
         if (sumo_to_wgs84_projection == 0) {
             std::stringstream err_msg;
             err_msg << "sumo_to_wgs84_projection normalization error: proj_errno: " << proj_errno(sumo_to_wgs84_projection);
-            throw cRuntimeError(err_msg.str().c_str());
+            throw cRuntimeError("%s", err_msg.str().c_str());
         }
 
         // create wgs84_to_wgs84cartesian_projection
@@ -229,46 +232,6 @@ void SatelliteObservationPoint::initialize(int stage)
         // geocentric to topocentric projection
         relativeToSOP_projection = proj_create(pj_ctx, ss_proj.str().c_str());
     }
-}
-
-PJ_COORD SatelliteObservationPoint::get_sop_wgs84_proj_cart() const
-{
-    return sop_wgs84_proj_cart;
-}
-
-WGS84Coord SatelliteObservationPoint::get_sop_wgs84() const
-{
-    return sop_wgs84;
-}
-
-veins::TraCICoord SatelliteObservationPoint::get_sop_utm_coord() const
-{
-    return sop_utm_coord;
-}
-
-veins::TraCICoord SatelliteObservationPoint::get_sop_traci_coord() const
-{
-    return sop_traci_coord;
-}
-
-veins::Coord SatelliteObservationPoint::get_sop_omnet_coord() const
-{
-    return sop_omnet_coord;
-}
-
-PJ* SatelliteObservationPoint::provideSumoToWGS84Projection() const
-{
-    return sumo_to_wgs84_projection;
-}
-
-PJ* SatelliteObservationPoint::provideWGS84ToWGS84CartesianProjection() const
-{
-    return wgs84_to_wgs84cartesian_projection;
-}
-
-PJ* SatelliteObservationPoint::provideRelativeToSOPProjection() const
-{
-    return relativeToSOP_projection;
 }
 
 veins::TraCICoord SatelliteObservationPoint::omnet2UTM(const veins::Coord toTransfer) const

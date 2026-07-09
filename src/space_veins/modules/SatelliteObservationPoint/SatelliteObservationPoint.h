@@ -43,31 +43,18 @@ namespace space_veins {
 class SPACE_VEINS_API SatelliteObservationPoint : public cSimpleModule, public cListener {
 
 public:
-
-    PJ_COORD get_sop_wgs84_proj_cart() const;
-
-    WGS84Coord get_sop_wgs84() const;
-
-    veins::TraCICoord get_sop_utm_coord() const;
-
-    veins::TraCICoord get_sop_traci_coord() const;
-
-    veins::Coord get_sop_omnet_coord() const;
-
-    PJ* provideSumoToWGS84Projection() const;
-
-    PJ* provideWGS84ToWGS84CartesianProjection() const;
-
-    PJ* provideRelativeToSOPProjection() const;
-
+    PJ_COORD get_sop_wgs84_proj_cart() const {return sop_wgs84_proj_cart;};
+    WGS84Coord get_sop_wgs84() const {return sop_wgs84;};
+    veins::TraCICoord get_sop_utm_coord() const {return sop_utm_coord;};
+    veins::TraCICoord get_sop_traci_coord() const {return sop_traci_coord;};
+    veins::Coord get_sop_omnet_coord() const {return sop_omnet_coord;};
+    PJ* provideSumoToWGS84Projection() const {return sumo_to_wgs84_projection;};
+    PJ* provideWGS84ToWGS84CartesianProjection() const {return wgs84_to_wgs84cartesian_projection;};
+    PJ* provideRelativeToSOPProjection() const {return relativeToSOP_projection;};
     veins::TraCICoord omnet2UTM(const veins::Coord toTransfer) const;
-
     WGS84Coord omnet2WGS84(const veins::Coord toTransfer) const;
-
     PJ_COORD omnet2WGS84Cartesian(const veins::Coord toTransfer) const;
-
     veins::Coord omnetRelativeSOPCoord(const veins::Coord toTransfer) const;
-
 
 protected:
     inet::StationaryMobility* mobility;
@@ -77,7 +64,6 @@ protected:
     veins::TraCICoord sop_utm_coord;      // UTM coordinate: sumo coordinates + sumo netOffset
     WGS84Coord sop_wgs84;
     PJ_COORD sop_wgs84_proj_cart;
-
     veins::Coord netOffset;
 
     // proj context
@@ -87,24 +73,16 @@ protected:
     PJ* relativeToSOP_projection;
 
     void initialize(int stage) override;
-
     int numInitStages() const override
     {
         return std::max(cSimpleModule::numInitStages(), 4);
     }
-
     std::string getProjectionString(const cXMLElement* sumoNetXmlFile) const;
-
     std::string getConvBoundaryString(const cXMLElement* sumoNetXmlFile) const;
-
     std::pair<veins::TraCICoord, veins::TraCICoord> convBoundary2TraCICoords(const std::string cb) const;
-
     std::string getNetOffsetString(const cXMLElement* sumoNetXmlFile) const;
-
     veins::Coord netOffsetString2Coord(const std::string no) const;
-
     virtual void handleMessage(cMessage* message) override;
-
     virtual void handleSelfMessage(cMessage* message);
 
 private:
