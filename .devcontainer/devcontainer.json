@@ -77,7 +77,7 @@
 				"llvm-vs-code-extensions.vscode-clangd"
 				,
 				// omnetpp ned syntax highlighting
-				"schrej.omnetpp-ned"
+				"opensim.omnetpp-vscode"
 				,
 				// lldb debugger
 				"vadimcn.vscode-lldb"
