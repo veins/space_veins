@@ -27,7 +27,6 @@ import org.car2x.veins.modules.world.annotations.AnnotationManager;
 
 // Veins_INET
 import org.car2x.veins.subprojects.veins_inet.IVeinsInetManager;
-import org.car2x.veins.subprojects.veins_inet.VeinsInetTraCIVehicleInserter;
 
 // space_Veins
 import space_veins.nodes.SatCar;
@@ -48,22 +47,22 @@ network SatelliteExampleScenario
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
         string satelliteType = default("Satellite");
+        bool enableSumo = default(true);
+        int numSatCars = default(0);
 
         @display("bgb=$playgroundSizeX,$playgroundSizeY");
-        //@figure[title](type=label; pos=0,-1; anchor=sw; color=darkblue);
 
     submodules:
         // Veins
-        annotations: AnnotationManager {
+        annotations: AnnotationManager if enableSumo {
             @display("p=750,744.98");
         }
-        roadsCanvasVisualizer: RoadsCanvasVisualizer {
+        roadsCanvasVisualizer: RoadsCanvasVisualizer if enableSumo {
             @display("p=750,750");
         }
 
         // Veins INET
-        manager: <default("VeinsInetManager")> like IVeinsInetManager {
-            @display("p=192,320");
+        manager: <default("VeinsInetManager")> like IVeinsInetManager if enableSumo {
         }
 
         // INET
@@ -111,7 +110,7 @@ network SatelliteExampleScenario
         leoSPACEBEENZ[0]: <default(satelliteType)> like INetworkNode {
             @display("p=600, 612");
         }
-        node[0]: SatCar {
+        node[numSatCars]: SatCar {
         }
 
     connections allowunconnected:

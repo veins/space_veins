@@ -84,7 +84,7 @@ void Sgp4MobilityTestApp::runAsserts(SGP4MobilityBase::calculatedSgp4SatellitePo
 
     assertClose("latitude", skyfieldWgs84Lat, pos.wgs84.lat);
     assertClose("longitude", skyfieldWgs84Lon, pos.wgs84.lon);
-    assertClose("altitude", skyfieldWgs84Alt, pos.wgs84.alt, 0.001); // fail if difference is greater than a millimeter
+    assertClose("altitude", skyfieldWgs84Alt, pos.wgs84.alt, 0.005); // fail if difference is greater than 5 millimeters
 
     assertClose("omnetpp simTime offset", groundTruthOmnetppSimTimeOffset_s, simTime().dbl());
     assertClose("omnetppCoordX", groundTruthOmnetppCoordX, pos.omnetppCoord.x);

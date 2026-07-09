@@ -11,7 +11,6 @@ parser.add_argument('leoMobilityUpdateInterval', metavar='INTERVAL', type=float,
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    seconds_offset = np.arange(0, args.duration + args.leoMobilityUpdateInterval, args.leoMobilityUpdateInterval)
     # start
     # date
     start = args.sdate.split(':')
@@ -22,6 +21,8 @@ if __name__ == "__main__":
     start_time = start_time.split("-")
     # datetime
     datetimeStartDate = datetime.datetime(int(start_date[0]), int(start_date[1]), int(start_date[2]), int(start_time[0]), int(start_time[1]), int(start_time[2]))
+    seconds_offset = np.arange(float(start_time[2]), float(start_time[2]) + args.duration + args.leoMobilityUpdateInterval, args.leoMobilityUpdateInterval)
+    print(seconds_offset)
     # Load the standard Skyfield timescale
     ts = load.timescale()
     t = ts.utc(int(start_date[0]), int(start_date[1]), int(start_date[2]), int(start_time[0]), int(start_time[1]), seconds_offset)
@@ -39,7 +40,7 @@ if __name__ == "__main__":
         for i in range(len(seconds_offset)):
             writer.writerow([
                 utc_times[i],
-                f"{seconds_offset[i]:.2f}",
+                f"{i * args.leoMobilityUpdateInterval:.2f}",
                 f"{t[i].whole:.1f}",
                 f"{t[i].ut1_fraction:.17f}",
             ])

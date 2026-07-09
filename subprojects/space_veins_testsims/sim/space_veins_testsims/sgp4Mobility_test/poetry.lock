@@ -176,26 +176,27 @@ files = [
     {file = "sgp4-2.25-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ce68ee521e3acce25c2dfc977132039794fbaa4e21bc6d2eeabb4b8b34062362"},
     {file = "sgp4-2.25-cp39-cp39-win32.whl", hash = "sha256:46e9e3809f43cc6512cf2667fddc9bb5535dcb4d0dac1f56290d3811134a80ff"},
     {file = "sgp4-2.25-cp39-cp39-win_amd64.whl", hash = "sha256:5418ccf4a8ea8cccf6b90142c7c984374d03abae7537526295ec40cb676d7dc3"},
+    {file = "sgp4-2.25-py3-none-any.whl", hash = "sha256:4f39ecf6c2663109fed04adfe9982815ac83893271b521d92d5b186820f8c78e"},
     {file = "sgp4-2.25.tar.gz", hash = "sha256:e19edc6dcc25d69fb8fde0a267b8f0c44d7e915c7bcbeacf5d3a8b595baf0674"},
 ]
 
 [[package]]
 name = "skyfield"
-version = "1.49"
+version = "1.54"
 description = "Elegant astronomy for Python"
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "skyfield-1.49-py3-none-any.whl", hash = "sha256:4986b7d5368f159050106282dec0f97e193c32689605ee4077d7d49465aaf13e"},
-    {file = "skyfield-1.49.tar.gz", hash = "sha256:20883027b2bbf4017dd916b64faaeb3713a8f88d7c8e353c15cd030ac63be92c"},
+    {file = "skyfield-1.54-py3-none-any.whl", hash = "sha256:c9b313185448963ea7fa4cf8e4298ba028b179b80ebd4c5675497519f21c04a2"},
+    {file = "skyfield-1.54.tar.gz", hash = "sha256:bf8b79d6dbbe1add0327aca485d6388bb6a13cab70528d015913a9b07a1d6903"},
 ]
 
 [package.dependencies]
 certifi = ">=2017.4.17"
 jplephem = ">=2.13"
 numpy = "*"
-sgp4 = ">=2.2"
+sgp4 = ">=2.13"
 
 [[package]]
 name = "zope-interface"
@@ -246,4 +247,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "47af729bf2ceceebc2fc03c2a9cc28c03aff2a44143e8b0e6600d79d2564ffee"
+content-hash = "8d4e8e65009c359c7b9a409030c10b565ebc2fa9175a7c14eb1ab6de1481909c"
