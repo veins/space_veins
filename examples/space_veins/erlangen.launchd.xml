@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 
 <!--
 // Copyright (C) 2011 Christoph Sommer <sommer@ccs-labs.org>
-// Copyright (C) 2022 Mario Franke <research@m-franke.net>
 //
-// Documentation for these modules is at http://sat.car2x.org/
+// Documentation for these modules is at http://veins.car2x.org/
 //
 // SPDX-License-Identifier: (GPL-2.0-or-later OR CC-BY-SA-4.0)
 //
@@ -32,27 +31,11 @@
 // work.  If not, see <http://creativecommons.org/licenses/by-sa/4.0/>.
 -->
 
-<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+<!-- debug config -->
+<launch>
+    <copy file="erlangen.net.xml" />
+    <copy file="erlangen.rou.xml" />
+    <copy file="erlangen.poly.xml" />
+    <copy file="erlangen.sumo.cfg" type="config" />
+</launch>
 
-    <input>
-        <net-file value="Null-Island-3by3-grid.net.xml"/>
-        <route-files value="Null-Island-3by3-grid.rou.xml"/>
-    </input>
-
-    <time>
-        <begin value="0"/>
-        <end value="1000"/>
-        <step-length value="0.1"/>
-    </time>
-
-    <report>
-        <xml-validation value="never"/>
-        <xml-validation.net value="never"/>
-        <no-step-log value="true"/>
-    </report>
-
-    <gui_only>
-        <start value="true"/>
-    </gui_only>
-
-</configuration>
