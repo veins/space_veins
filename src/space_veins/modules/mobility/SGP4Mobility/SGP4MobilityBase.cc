@@ -493,7 +493,7 @@ void SGP4MobilityBase::moveAndUpdate()
 // for random time updates
 inet::Coord SGP4MobilityBase::getCurrentPosition()
 {
-    Enter_Method("SGP4Mobility::getCurrentPosition");
+    Enter_Method_Silent("SGP4Mobility::getCurrentPosition");
     updateType = getCurrentPositionUpdate;
     getCurrentPositionUpdateCalls += 1;
     vecGetCurrentPositionUpdateCalls.record(1);
