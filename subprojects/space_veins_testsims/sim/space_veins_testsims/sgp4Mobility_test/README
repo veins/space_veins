@@ -14,3 +14,7 @@ Skyfield. Also it checks that the satellite's OMNeT++ coordinate does not change
 ## Create new OMNeT++ coordinates as ground truth:
 1. Rerun the test such that vector files are created in the `results` folder.
 2. Run `./createOmnetCoordsGroundTruth.sh`
+
+## Scenario
+According to Skyfield the satellite comes from south west and goes to north east covering Erlangen.
+For visual debugging this can also be checked in OMNeT++'s GUI.
