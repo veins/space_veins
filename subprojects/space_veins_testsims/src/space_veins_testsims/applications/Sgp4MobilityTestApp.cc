@@ -87,7 +87,7 @@ void Sgp4MobilityTestApp::runAsserts(SGP4MobilityBase::calculatedSgp4SatellitePo
     assertClose("altitude", skyfieldWgs84Alt, pos.wgs84.alt, 0.005); // fail if difference is greater than 5 millimeters
 
     assertClose("omnetpp simTime offset", groundTruthOmnetppSimTimeOffset_s, simTime().dbl());
-    assertClose("omnetppCoordX", groundTruthOmnetppCoordX, pos.omnetppCoord.x);
+    assertClose("omnetppCoordX", groundTruthOmnetppCoordX, pos.omnetppCoord.x, 0.000001); // reduce epsilon by a decade such that this assert passes on both test machines (one ARM-based and one x86-based)
     assertClose("omnetppCoordY", groundTruthOmnetppCoordY, pos.omnetppCoord.y);
     assertClose("omnetppCoordZ", groundTruthOmnetppCoordZ, pos.omnetppCoord.z);
 }
